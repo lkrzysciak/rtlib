@@ -22,8 +22,8 @@ TEST(PoolTest, InitWithTooSmallBuffer)
 
 TEST(PoolTest, Capacity)
 {
-    constexpr size_t buf1Size{99};
-    constexpr size_t buf2Size{100};
+    constexpr size_t buf1Size{(sizeof(uint32_t) + sizeof(ObjectBlock)) * 4 - 1};
+    constexpr size_t buf2Size{(sizeof(uint32_t) + sizeof(ObjectBlock)) * 4};
     uint8_t buf1[buf1Size + sizeof(Pool)];
     uint8_t buf2[buf2Size + sizeof(Pool)];
     const size_t buf1Capacity{buf1Size / (sizeof(uint32_t) + sizeof(ObjectBlock))};
@@ -133,26 +133,22 @@ TEST(PoolTest, AllocFreeBlockAndFillBuffer)
     ASSERT_EQ(Pool_Alloc(pool1), nullptr);
 }
 
-// TEST(PoolTest, FreeAllocatedMemoryFullBuffer)
-// {
-//     constexpr size_t buf1Size{(sizeof(uint32_t) + sizeof(ObjectBlock)) * 3};
-//     uint8_t buf1[buf1Size + sizeof(Pool)];
+TEST(PoolTest, FillBufferAndFreeAloccBlock)
+{
+    constexpr size_t buf1Size{(sizeof(uint32_t) + sizeof(ObjectBlock)) * 3};
+    uint8_t buf1[buf1Size + sizeof(Pool)];
 
-//     Pool* pool1 = Pool_Init(buf1, sizeof(buf1), sizeof(uint32_t));
-//     ASSERT_EQ(Pool_Capacity(pool1), 3);
+    Pool* pool1 = Pool_Init(buf1, sizeof(buf1), sizeof(uint32_t));
+    ASSERT_EQ(Pool_Capacity(pool1), 3);
 
-//     uint8_t* ptr1_1 = buf1 + sizeof(Pool) + sizeof(ObjectBlock);
-//     ASSERT_EQ(Pool_Alloc(pool1), ptr1_1);
+    uint8_t* ptr1_1 = buf1 + sizeof(Pool) + sizeof(ObjectBlock);
+    uint8_t* ptr2_1 = ptr1_1 + sizeof(uint32_t) + sizeof(ObjectBlock);
+    uint8_t* ptr3_1 = ptr2_1 + sizeof(uint32_t) + sizeof(ObjectBlock);
     
-//     uint8_t* ptr2_1 = ptr1_1 + sizeof(uint32_t) + sizeof(ObjectBlock);
-//     ASSERT_EQ(Pool_Alloc(pool1), ptr2_1);
-    
-//     uint8_t* ptr3_1 = ptr2_1 + sizeof(uint32_t) + sizeof(ObjectBlock);
-//     ASSERT_EQ(Pool_Alloc(pool1), ptr3_1);
-
-//     ASSERT_EQ(Pool_Alloc(pool1), nullptr);
-
-//     Pool_Free(pool1, ptr2_1);
-
-//     ASSERT_EQ(Pool_Alloc(pool1), ptr2_1);
-// }
+    ASSERT_EQ(Pool_Alloc(pool1), ptr1_1);
+    ASSERT_EQ(Pool_Alloc(pool1), ptr2_1);    
+    ASSERT_EQ(Pool_Alloc(pool1), ptr3_1);
+    ASSERT_EQ(Pool_Alloc(pool1), nullptr);
+    Pool_Free(pool1, ptr2_1);
+    ASSERT_EQ(Pool_Alloc(pool1), ptr2_1);
+}
