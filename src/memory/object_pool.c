@@ -20,6 +20,7 @@ typedef struct Pool
     size_t memory_size;
     size_t object_size;
     size_t capacity;
+    size_t size;
 } Pool;
 
 Pool* const Pool_Init(void* memory_block, size_t memory_size, size_t object_size)
@@ -32,6 +33,7 @@ Pool* const Pool_Init(void* memory_block, size_t memory_size, size_t object_size
     pool->first_free_object_block = (ObjectBlock*)((uint8_t*)pool + sizeof(Pool));
     pool->memory_size = memory_size;
     pool->object_size = object_size;
+    pool->size = 0;
 
     const size_t object_block_size = pool->object_size + sizeof(ObjectBlock);
     const size_t memory_for_objects_size = pool->memory_size - sizeof(Pool);
@@ -61,20 +63,22 @@ void* Pool_Alloc(Pool* const self)
 {
     assert(self);
 
-    ObjectBlock* block = self->first_free_object_block;
+    ObjectBlock* current_first_block = self->first_free_object_block;
 
-    if(!block)
+    if(!current_first_block)
     {
         return NULL;
     }
     
-    self->first_free_object_block = block->next_free_object_block;
+    self->first_free_object_block = current_first_block->next_free_object_block;
     if(!self->first_free_object_block)
     {
         self->last_free_object_block = NULL;
     }
+
+    self->size++;
     
-    void* ptr = (uint8_t*)block + sizeof(ObjectBlock);
+    void* ptr = (uint8_t*)current_first_block + sizeof(ObjectBlock);
     return ptr;
 }
 
@@ -97,6 +101,7 @@ void Pool_Free(Pool* const self, void* object)
     }
     new_last_block->next_free_object_block = NULL;
     self->last_free_object_block = new_last_block;
+    self->size--;
 }
 
 size_t Pool_Capacity(Pool* const self)
@@ -104,6 +109,13 @@ size_t Pool_Capacity(Pool* const self)
     assert(self);
 
     return self->capacity;
+}
+
+size_t Pool_Size(Pool* const self)
+{
+    assert(self);
+
+    return self->size;
 }
 
 #ifdef __cplusplus

@@ -41,7 +41,6 @@ TEST(PoolTest, AllocOnce)
 {
     constexpr size_t buf1Size{99};
     uint8_t buf1[buf1Size + sizeof(Pool)];
-    const size_t buf1Capacity{buf1Size / (sizeof(uint32_t) + sizeof(ObjectBlock))};
 
     Pool* pool1 = Pool_Init(buf1, sizeof(buf1), sizeof(uint32_t));
 
@@ -52,7 +51,6 @@ TEST(PoolTest, MultipleAlloc)
 {
     constexpr size_t buf1Size{99};
     uint8_t buf1[buf1Size + sizeof(Pool)];
-    const size_t buf1Capacity{buf1Size / (sizeof(uint32_t) + sizeof(ObjectBlock))};
 
     Pool* pool1 = Pool_Init(buf1, sizeof(buf1), sizeof(uint32_t));
 
@@ -151,4 +149,66 @@ TEST(PoolTest, FillBufferAndFreeAloccBlock)
     ASSERT_EQ(Pool_Alloc(pool1), nullptr);
     Pool_Free(pool1, ptr2_1);
     ASSERT_EQ(Pool_Alloc(pool1), ptr2_1);
+}
+
+TEST(PoolTest, AllocationQueue)
+{
+    constexpr size_t buf1Size{(sizeof(uint32_t) + sizeof(ObjectBlock)) * 3};
+    uint8_t buf1[buf1Size + sizeof(Pool)];
+
+    Pool* pool1 = Pool_Init(buf1, sizeof(buf1), sizeof(uint32_t));
+    ASSERT_EQ(Pool_Capacity(pool1), 3);
+
+    uint8_t* ptr1_1 = buf1 + sizeof(Pool) + sizeof(ObjectBlock);
+    uint8_t* ptr2_1 = ptr1_1 + sizeof(uint32_t) + sizeof(ObjectBlock);
+    uint8_t* ptr3_1 = ptr2_1 + sizeof(uint32_t) + sizeof(ObjectBlock);
+    
+    ASSERT_EQ(Pool_Alloc(pool1), ptr1_1);
+    ASSERT_EQ(Pool_Alloc(pool1), ptr2_1);    
+    ASSERT_EQ(Pool_Alloc(pool1), ptr3_1);
+    ASSERT_EQ(Pool_Alloc(pool1), nullptr);
+    Pool_Free(pool1, ptr3_1);
+    Pool_Free(pool1, ptr2_1);
+    Pool_Free(pool1, ptr1_1);
+    ASSERT_EQ(Pool_Alloc(pool1), ptr3_1);
+    ASSERT_EQ(Pool_Alloc(pool1), ptr2_1);
+    ASSERT_EQ(Pool_Alloc(pool1), ptr1_1);
+    ASSERT_EQ(Pool_Alloc(pool1), nullptr);
+}
+
+TEST(PoolTest, Size)
+{
+    constexpr size_t buf1Size{(sizeof(uint32_t) + sizeof(ObjectBlock)) * 3};
+    uint8_t buf1[buf1Size + sizeof(Pool)];
+
+    Pool* pool1 = Pool_Init(buf1, sizeof(buf1), sizeof(uint32_t));
+    ASSERT_EQ(Pool_Capacity(pool1), 3);
+
+    uint8_t* ptr1_1 = buf1 + sizeof(Pool) + sizeof(ObjectBlock);
+    uint8_t* ptr2_1 = ptr1_1 + sizeof(uint32_t) + sizeof(ObjectBlock);
+    uint8_t* ptr3_1 = ptr2_1 + sizeof(uint32_t) + sizeof(ObjectBlock);
+    
+    ASSERT_EQ(Pool_Size(pool1), 0);
+    ASSERT_EQ(Pool_Alloc(pool1), ptr1_1);
+    ASSERT_EQ(Pool_Size(pool1), 1);
+    ASSERT_EQ(Pool_Alloc(pool1), ptr2_1);
+    ASSERT_EQ(Pool_Size(pool1), 2);
+    ASSERT_EQ(Pool_Alloc(pool1), ptr3_1);
+    ASSERT_EQ(Pool_Size(pool1), 3);
+    ASSERT_EQ(Pool_Alloc(pool1), nullptr);
+    ASSERT_EQ(Pool_Size(pool1), 3);
+    Pool_Free(pool1, ptr3_1);
+    ASSERT_EQ(Pool_Size(pool1), 2);
+    Pool_Free(pool1, ptr2_1);
+    ASSERT_EQ(Pool_Size(pool1), 1);
+    Pool_Free(pool1, ptr1_1);
+    ASSERT_EQ(Pool_Size(pool1), 0);
+    ASSERT_EQ(Pool_Alloc(pool1), ptr3_1);
+    ASSERT_EQ(Pool_Size(pool1), 1);
+    ASSERT_EQ(Pool_Alloc(pool1), ptr2_1);
+    ASSERT_EQ(Pool_Size(pool1), 2);
+    ASSERT_EQ(Pool_Alloc(pool1), ptr1_1);
+    ASSERT_EQ(Pool_Size(pool1), 3);
+    ASSERT_EQ(Pool_Alloc(pool1), nullptr);
+    ASSERT_EQ(Pool_Size(pool1), 3);
 }
