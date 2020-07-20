@@ -1,29 +1,119 @@
 #include "gtest/gtest.h"
-#include "containers/_list.h"
+#include "containers/list.h"
+#include "containers/list.c"
 #include <cstdint>
 
 
 TEST(ListTest, Init)
 {
     uint32_t buf[100];
-    _List* list_1 = _List_Init(sizeof(uint32_t), buf, sizeof(buf));
-
-    ASSERT_EQ(_List_Capacity(list_1), (sizeof(buf) - _List_HeaderSize()) / sizeof(buf[0]));
+    List* list = List_Init(buf, sizeof(buf), sizeof(uint32_t));
+    ASSERT_EQ(List_Size(list), 0);
 }
 
-TEST(ListTest, NotEnoughSpaceToInit)
+TEST(ListTest, PushBack)
 {
-    uint8_t buf1[_List_HeaderSize()];
-    uint8_t buf2[_List_HeaderSize() - 1];
-    _List* list_1 = _List_Init(sizeof(uint8_t), buf1, sizeof(buf1));
-    _List* list_2 = _List_Init(sizeof(uint8_t), buf2, sizeof(buf2));
-    ASSERT_EQ((void*)list_1, (void*)buf1);
-    ASSERT_EQ(list_2, nullptr);
+    uint32_t buf[100];
+    List* list = List_Init(buf, sizeof(buf), sizeof(uint32_t));
+    ASSERT_EQ(List_Size(list), 0);
+
+    uint32_t temp1{3215};
+    uint32_t temp2{23587};
+
+    ASSERT_EQ(List_PushBack(list, &temp1), 1);
+    ASSERT_EQ(*(uint32_t*)List_Front(list), temp1);
+    ASSERT_EQ(*(uint32_t*)List_Back(list), temp1);
+
+    ASSERT_EQ(List_PushBack(list, &temp2), 2);
+    ASSERT_EQ(*(uint32_t*)List_Front(list), temp1);
+    ASSERT_EQ(*(uint32_t*)List_Back(list), temp2);
 }
 
-TEST(ListTest, SizeAfterInit)
+TEST(ListTest, PushFront)
 {
-    uint8_t buf1[_List_HeaderSize()];
-    _List* list = _List_Init(sizeof(uint8_t), buf1, sizeof(buf1));
-    ASSERT_EQ(_List_Size(list), 0);
+    uint32_t buf[100];
+    List* list = List_Init(buf, sizeof(buf), sizeof(uint32_t));
+    ASSERT_EQ(List_Size(list), 0);
+
+    uint32_t temp1{3215};
+    uint32_t temp2{23587};
+
+    ASSERT_EQ(List_PushFront(list, &temp1), 1);
+    ASSERT_EQ(*(uint32_t*)List_Front(list), temp1);
+    ASSERT_EQ(*(uint32_t*)List_Back(list), temp1);
+
+    ASSERT_EQ(List_PushFront(list, &temp2), 2);
+    ASSERT_EQ(*(uint32_t*)List_Front(list), temp2);
+    ASSERT_EQ(*(uint32_t*)List_Back(list), temp1);
+}
+
+TEST(ListTest, MixedPushFrontBack)
+{
+    uint32_t buf[100];
+    List* list = List_Init(buf, sizeof(buf), sizeof(uint32_t));
+    ASSERT_EQ(List_Size(list), 0);
+
+    uint32_t temp1{3215};
+    uint32_t temp2{23587};
+    uint32_t temp3{555};
+
+    ASSERT_EQ(List_PushFront(list, &temp1), 1);
+    ASSERT_EQ(*(uint32_t*)List_Front(list), temp1);
+    ASSERT_EQ(*(uint32_t*)List_Back(list), temp1);
+
+    ASSERT_EQ(List_PushFront(list, &temp2), 2);
+    ASSERT_EQ(*(uint32_t*)List_Front(list), temp2);
+    ASSERT_EQ(*(uint32_t*)List_Back(list), temp1);
+
+    ASSERT_EQ(List_PushBack(list, &temp3), 3);
+    ASSERT_EQ(*(uint32_t*)List_Front(list), temp2);
+    ASSERT_EQ(*(uint32_t*)List_Back(list), temp3);
+}
+
+TEST(ListTest, PushFrontIterator)
+{
+    uint32_t buf[100];
+    List* list = List_Init(buf, sizeof(buf), sizeof(uint32_t));
+    ASSERT_EQ(List_Size(list), 0);
+
+    uint32_t temp1{3215};
+    uint32_t temp2{23587};
+
+    ASSERT_EQ(List_PushFront(list, &temp1), 1);
+    ASSERT_EQ(List_PushFront(list, &temp2), 2);
+
+    ListIterator it = List_Begin(list);
+    ListIterator endIt = List_End(list);
+
+    ASSERT_EQ(*(uint32_t*)ListIterator_Value(&it), temp2);
+    ListIterator_Increment(&it);
+    ASSERT_EQ(*(uint32_t*)ListIterator_Value(&it), temp1);
+    ListIterator_Increment(&it);
+    ListIterator_Equal(&it, &endIt);
+}
+
+TEST(ListTest, PushBackIterator)
+{
+    uint32_t buf[100];
+    List* list = List_Init(buf, sizeof(buf), sizeof(uint32_t));
+    ASSERT_EQ(List_Size(list), 0);
+
+    uint32_t temp1{3215};
+    uint32_t temp2{23587};
+    // uint32_t temp3{555};
+
+    ASSERT_EQ(List_PushBack(list, &temp1), 1);
+    ASSERT_EQ(List_PushBack(list, &temp2), 2);
+    // ASSERT_EQ(List_PushBack(list, &temp3), 3);
+
+    ListIterator it = List_Begin(list);
+    ListIterator endIt = List_End(list);
+
+    ASSERT_EQ(*(uint32_t*)ListIterator_Value(&it), temp1);
+    ListIterator_Increment(&it);
+    ASSERT_EQ(*(uint32_t*)ListIterator_Value(&it), temp2);
+    ListIterator_Increment(&it);
+    // ASSERT_EQ(*(uint32_t*)ListIterator_Value(&it), temp3);
+    // ListIterator_Increment(&it);
+    ListIterator_Equal(&it, &endIt);
 }

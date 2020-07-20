@@ -1,5 +1,5 @@
 set(LIB_SOURCES
-    containers/_list.c
+    containers/list.c
     memory/heap.c
     memory/object_pool.c)
 
