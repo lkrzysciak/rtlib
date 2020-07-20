@@ -160,6 +160,51 @@ int List_PushFront(List* const self, const void* const data)
     return Pool_Size(self->pool);
 }
 
+int List_Erase(List* const self, int index)
+{
+    assert(self);
+}
+
+int List_PopBack(List* const self)
+{
+    assert(self);
+    Node* lastNode = self->end.prev;
+    assert(lastNode);
+    Node* newLastNode = lastNode->prev;
+    
+    if(newLastNode)
+    {
+        newLastNode->next = &self->end;
+    }
+    else
+    {
+        /* Last element will be deleted */
+        self->first = &self->end;
+    }
+    
+    self->end.prev = newLastNode;
+
+    Pool_Free(self->pool, lastNode);
+    return Pool_Size(self->pool);
+}
+
+int List_PopFront(List* const self)
+{
+    assert(self);
+
+    Node* firstNode = self->first;
+    assert(firstNode);
+
+    Node* newFirstNode = firstNode->next;
+    assert(newFirstNode);
+
+    newFirstNode->prev = NULL;
+    self->first = newFirstNode;
+
+    Pool_Free(self->pool, firstNode);
+    return Pool_Size(self->pool);
+}
+
 const void* List_Front(List* const self)
 {
     assert(self);

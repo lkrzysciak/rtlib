@@ -78,13 +78,17 @@ TEST(ListTest, PushFrontIterator)
 
     uint32_t temp1{3215};
     uint32_t temp2{23587};
+    uint32_t temp3{555};
 
     ASSERT_EQ(List_PushFront(list, &temp1), 1);
     ASSERT_EQ(List_PushFront(list, &temp2), 2);
+    ASSERT_EQ(List_PushFront(list, &temp3), 3);
 
     ListIterator it = List_Begin(list);
     ListIterator endIt = List_End(list);
 
+    ASSERT_EQ(*(uint32_t*)ListIterator_Value(&it), temp3);
+    ListIterator_Increment(&it);
     ASSERT_EQ(*(uint32_t*)ListIterator_Value(&it), temp2);
     ListIterator_Increment(&it);
     ASSERT_EQ(*(uint32_t*)ListIterator_Value(&it), temp1);
@@ -100,11 +104,11 @@ TEST(ListTest, PushBackIterator)
 
     uint32_t temp1{3215};
     uint32_t temp2{23587};
-    // uint32_t temp3{555};
+    uint32_t temp3{555};
 
     ASSERT_EQ(List_PushBack(list, &temp1), 1);
     ASSERT_EQ(List_PushBack(list, &temp2), 2);
-    // ASSERT_EQ(List_PushBack(list, &temp3), 3);
+    ASSERT_EQ(List_PushBack(list, &temp3), 3);
 
     ListIterator it = List_Begin(list);
     ListIterator endIt = List_End(list);
@@ -113,7 +117,68 @@ TEST(ListTest, PushBackIterator)
     ListIterator_Increment(&it);
     ASSERT_EQ(*(uint32_t*)ListIterator_Value(&it), temp2);
     ListIterator_Increment(&it);
-    // ASSERT_EQ(*(uint32_t*)ListIterator_Value(&it), temp3);
-    // ListIterator_Increment(&it);
+    ASSERT_EQ(*(uint32_t*)ListIterator_Value(&it), temp3);
+    ListIterator_Increment(&it);
     ListIterator_Equal(&it, &endIt);
+}
+
+TEST(ListTest, PopBack)
+{
+    uint32_t buf[100];
+    List* list = List_Init(buf, sizeof(buf), sizeof(uint32_t));
+    ASSERT_EQ(List_Size(list), 0);
+
+    uint32_t temp1{3215};
+    uint32_t temp2{23587};
+    uint32_t temp3{555};
+
+    ASSERT_EQ(List_PushBack(list, &temp1), 1);
+    ASSERT_EQ(List_PushBack(list, &temp2), 2);
+    ASSERT_EQ(List_PushBack(list, &temp3), 3);
+
+    ASSERT_EQ(*(uint32_t*)List_Front(list), temp1);
+    ASSERT_EQ(*(uint32_t*)List_Back(list), temp3);
+
+    ASSERT_EQ(List_PopBack(list), 2);
+    ASSERT_EQ(*(uint32_t*)List_Front(list), temp1);
+    ASSERT_EQ(*(uint32_t*)List_Back(list), temp2);
+
+    ASSERT_EQ(List_PopBack(list), 1);
+    ASSERT_EQ(*(uint32_t*)List_Front(list), temp1);
+    ASSERT_EQ(*(uint32_t*)List_Back(list), temp1);
+
+    ASSERT_EQ(List_PopBack(list), 0);
+
+    ASSERT_EQ(List_PushBack(list, &temp2), 1);
+    ASSERT_EQ(*(uint32_t*)List_Front(list), temp2);
+    ASSERT_EQ(*(uint32_t*)List_Back(list), temp2);
+}
+
+TEST(ListTest, PopFront)
+{
+    uint32_t buf[100];
+    List* list = List_Init(buf, sizeof(buf), sizeof(uint32_t));
+    ASSERT_EQ(List_Size(list), 0);
+
+    uint32_t temp1{3215};
+    uint32_t temp2{23587};
+    uint32_t temp3{555};
+
+    List_PushBack(list, &temp1);
+    List_PushBack(list, &temp2);
+    List_PushBack(list, &temp3);
+
+    ASSERT_EQ(List_PopFront(list), 2);
+    ASSERT_EQ(*(uint32_t*)List_Front(list), temp2);
+    ASSERT_EQ(*(uint32_t*)List_Back(list), temp3);
+
+    ASSERT_EQ(List_PopFront(list), 1);
+    ASSERT_EQ(*(uint32_t*)List_Front(list), temp3);
+    ASSERT_EQ(*(uint32_t*)List_Back(list), temp3);
+
+    ASSERT_EQ(List_PopFront(list), 0);
+
+    ASSERT_EQ(List_PushBack(list, &temp2), 1);
+    ASSERT_EQ(*(uint32_t*)List_Front(list), temp2);
+    ASSERT_EQ(*(uint32_t*)List_Back(list), temp2);
 }
