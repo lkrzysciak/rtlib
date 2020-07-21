@@ -22,9 +22,10 @@ typedef struct List
     Pool *pool;
 } List;
 
-static int List_PushMiddle(List* const self, const void* const data, int index)
+static int List_PushMiddle(List* const self, const void* const data, const ListIterator* const iterator)
 {
     assert(self);
+    assert(iterator);
     assert(Pool_Size(self->pool) >= 2);
 
     uint8_t* ptr = (uint8_t*)Pool_Alloc(self->pool);
@@ -34,23 +35,30 @@ static int List_PushMiddle(List* const self, const void* const data, int index)
     }
 
     Node* new_node = (Node*)ptr;
+    Node* old_node = iterator->node;
+    assert(old_node);
+    Node* node_before = old_node->prev;
+    assert(node_before);
+    new_node->prev = node_before;
+    new_node->next = old_node;
+    node_before->next = new_node;
+    old_node->prev = new_node;
 
-    Node* prev_node = self->first;
-    Node* current_node = NULL;
+    memcpy(ptr + sizeof(Node), data, self->element_size);
 
-    while(index--)
-    {
-        assert(current_node);
-        assert(prev_node);
+    return Pool_Size(self->pool);
+}
 
-        prev_node = current_node;
-        current_node = current_node->next;
-    }
-    prev_node->next = new_node;
-    current_node->prev = new_node;
-    new_node->next = current_node;
-    new_node->prev = prev_node;
+static int List_PopMiddle(List* const self, const ListIterator* const iterator)
+{
+    Node* to_delete_node = iterator->node;
+    Node* next_node = to_delete_node->next;
+    Node* prev_node = to_delete_node->prev;
 
+    next_node->prev = prev_node;
+    prev_node->next = next_node;
+
+    Pool_Free(self->pool, to_delete_node);
     return Pool_Size(self->pool);
 }
 
@@ -79,28 +87,24 @@ size_t List_Size(List* const self)
     return Pool_Size(self->pool);
 }
 
-int List_Insert(List* const self, const void* const data, int index)
+int List_Insert(List* const self, const void* const data, const ListIterator* iterator)
 {
     assert(self);
 
-    const size_t list_size = Pool_Size(self->pool);
+    ListIterator begin = List_Begin(self);
+    ListIterator end = List_End(self);
 
-    if(index > list_size)
-    {
-        return -1;
-    }
-
-    if(index == 0)
+    if(ListIterator_Equal(&begin, iterator))
     {
         return List_PushFront(self, data);
     }
-    else if(index == list_size)
+    else if(ListIterator_Equal(&end, iterator))
     {
         return List_PushBack(self, data);
     }
     else
     {
-        return List_PushMiddle(self, data, index);
+        return List_PushMiddle(self, data, iterator);
     }
 }
 
@@ -160,9 +164,25 @@ int List_PushFront(List* const self, const void* const data)
     return Pool_Size(self->pool);
 }
 
-int List_Erase(List* const self, int index)
+int List_Erase(List* const self, const ListIterator* iterator)
 {
     assert(self);
+
+    ListIterator begin = List_Begin(self);
+    ListIterator end = List_End(self);
+
+    if(ListIterator_Equal(&begin, iterator))
+    {
+        return List_PopFront(self);
+    }
+    else if(ListIterator_Equal(&end, iterator))
+    {
+        return List_PopBack(self);
+    }
+    else
+    {
+        return List_PopMiddle(self, iterator);
+    }
 }
 
 int List_PopBack(List* const self)
@@ -255,7 +275,7 @@ void ListIterator_Decrement(ListIterator* const self)
     self->node = self->node->prev;
 }
 
-void* ListIterator_Value(ListIterator* const self)
+void* ListIterator_Value(const ListIterator* const self)
 {
     assert(self);
 
@@ -263,7 +283,7 @@ void* ListIterator_Value(ListIterator* const self)
     return ptr;
 }
 
-bool ListIterator_Equal(ListIterator* const self, ListIterator* const list_iterator)
+bool ListIterator_Equal(const ListIterator* const self, const ListIterator* const list_iterator)
 {
     const bool are_equal = self->node == list_iterator->node;
     return are_equal;
