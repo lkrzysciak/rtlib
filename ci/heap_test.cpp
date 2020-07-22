@@ -2,14 +2,13 @@
 #include <cstdint>
 
 #include "memory/heap.h"
-#include "memory/heap.c" // To have access to private members
-
+#include "memory/heap.c"  // To have access to private members
 
 TEST(HeapTest, Init)
 {
     uint8_t buf[100];
 
-    Heap* heap = Heap_Init(buf, sizeof(buf));
+    Heap * heap = Heap_Init(buf, sizeof(buf));
     ASSERT_NE(heap, nullptr);
 }
 
@@ -24,9 +23,9 @@ TEST(HeapTest, AllocateOnce)
 {
     int8_t buf[100];
 
-    Heap* heap = Heap_Init(buf, sizeof(buf));
+    Heap * heap = Heap_Init(buf, sizeof(buf));
 
-    void* ptr1 = Heap_Alloc(heap, 10);
+    void * ptr1 = Heap_Alloc(heap, 10);
     ASSERT_EQ(ptr1, buf + sizeof(Heap) + sizeof(MemoryBlock));
 }
 

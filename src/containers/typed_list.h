@@ -86,7 +86,7 @@ int insert_##Name(Name* const self, Type value, int index) \
     assert(self); \
     const size_t size = size_##Name(self); \
     if(index > size) { return -1; } \
-    else { \ 
+    else { \
         Name##_Node* node_ptr = get_free_node_chunk_##Name(self); \
         if(mem_chunk_no == NULL) \
         { \
@@ -116,13 +116,13 @@ int insert_##Name(Name* const self, Type value, int index) \
 \
 void push_back_##Name(Name* object, Type value) \
 { \
-  \  
+  \
 } \
 \
 \
 void push_front_##Name(Name* object, Type value) \
 { \
-  \  
+  \
 } \
 \
 Type get_##Name(Name* object, int index, int err) \
