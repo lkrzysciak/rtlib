@@ -36,7 +36,7 @@ extern "C"
         }
 
         Node * new_node = (Node *)ptr;
-        Node * old_node = iterator->node;
+        Node * old_node = (Node*)iterator;
         assert(old_node);
         Node * node_before = old_node->prev;
         assert(node_before);
@@ -52,7 +52,7 @@ extern "C"
 
     static int List_PopMiddle(List * const self, const ListIterator * const iterator)
     {
-        Node * to_delete_node = iterator->node;
+        Node * to_delete_node = (Node*)iterator;
         Node * next_node      = to_delete_node->next;
         Node * prev_node      = to_delete_node->prev;
 
@@ -93,14 +93,14 @@ extern "C"
     {
         assert(self);
 
-        ListIterator begin = List_Begin(self);
-        ListIterator end   = List_End(self);
+        ListIterator* begin = List_Begin(self);
+        ListIterator* end   = List_End(self);
 
-        if(ListIterator_Equal(&begin, iterator))
+        if(ListIterator_Equal(begin, iterator))
         {
             return List_PushFront(self, data);
         }
-        else if(ListIterator_Equal(&end, iterator))
+        else if(ListIterator_Equal(end, iterator))
         {
             return List_PushBack(self, data);
         }
@@ -170,14 +170,14 @@ extern "C"
     {
         assert(self);
 
-        ListIterator begin = List_Begin(self);
-        ListIterator end   = List_End(self);
+        ListIterator* begin = List_Begin(self);
+        ListIterator* end   = List_End(self);
 
-        if(ListIterator_Equal(&begin, iterator))
+        if(ListIterator_Equal(begin, iterator))
         {
             return List_PopFront(self);
         }
-        else if(ListIterator_Equal(&end, iterator))
+        else if(ListIterator_Equal(end, iterator))
         {
             return List_PopBack(self);
         }
@@ -243,51 +243,45 @@ extern "C"
         return ptr;
     }
 
-    ListIterator List_Begin(List * const self)
+    ListIterator* List_Begin(List * const self)
     {
         assert(self);
 
-        ListIterator iterator;
-        iterator.node = self->first;
-
-        return iterator;
+        return self->first;
     }
 
-    ListIterator List_End(List * const self)
+    ListIterator* List_End(List * const self)
     {
         assert(self);
 
-        ListIterator iterator;
-        iterator.node = &self->end;
-
-        return iterator;
+        return &self->end;
     }
 
-    void ListIterator_Increment(ListIterator * const self)
+    ListIterator * ListIterator_Increment(const ListIterator * const self)
     {
         assert(self);
 
-        self->node = self->node->next;
+        return self->next;
     }
 
-    void ListIterator_Decrement(ListIterator * const self)
+    ListIterator * ListIterator_Decrement(const ListIterator * const self)
     {
         assert(self);
 
-        self->node = self->node->prev;
+        return self->prev;
     }
 
     void * ListIterator_Value(const ListIterator * const self)
     {
         assert(self);
 
-        void * ptr = (uint8_t *)self->node + sizeof(Node);
+        void * ptr = (uint8_t *)self + sizeof(Node);
         return ptr;
     }
 
     bool ListIterator_Equal(const ListIterator * const self, const ListIterator * const list_iterator)
     {
-        const bool are_equal = self->node == list_iterator->node;
+        const bool are_equal = self == list_iterator;
         return are_equal;
     }
 

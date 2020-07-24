@@ -83,16 +83,16 @@ TEST(ListTest, PushFrontIterator)
     ASSERT_EQ(List_PushFront(list, &temp2), 2);
     ASSERT_EQ(List_PushFront(list, &temp3), 3);
 
-    ListIterator it    = List_Begin(list);
-    ListIterator endIt = List_End(list);
+    ListIterator* it    = List_Begin(list);
+    ListIterator* endIt = List_End(list);
 
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&it), temp3);
-    ListIterator_Increment(&it);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&it), temp2);
-    ListIterator_Increment(&it);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&it), temp1);
-    ListIterator_Increment(&it);
-    ListIterator_Equal(&it, &endIt);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(it), temp3);
+    it = ListIterator_Increment(it);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(it), temp2);
+    it = ListIterator_Increment(it);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(it), temp1);
+    it = ListIterator_Increment(it);
+    ListIterator_Equal(it, endIt);
 }
 
 TEST(ListTest, PushBackIterator)
@@ -109,16 +109,16 @@ TEST(ListTest, PushBackIterator)
     ASSERT_EQ(List_PushBack(list, &temp2), 2);
     ASSERT_EQ(List_PushBack(list, &temp3), 3);
 
-    ListIterator it    = List_Begin(list);
-    ListIterator endIt = List_End(list);
+    ListIterator* it    = List_Begin(list);
+    ListIterator* endIt = List_End(list);
 
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&it), temp1);
-    ListIterator_Increment(&it);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&it), temp2);
-    ListIterator_Increment(&it);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&it), temp3);
-    ListIterator_Increment(&it);
-    ListIterator_Equal(&it, &endIt);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(it), temp1);
+    it = ListIterator_Increment(it);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(it), temp2);
+    it = ListIterator_Increment(it);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(it), temp3);
+    it = ListIterator_Increment(it);
+    ListIterator_Equal(it, endIt);
 }
 
 TEST(ListTest, PopBack)
@@ -194,38 +194,38 @@ TEST(ListTest, Insert)
     uint32_t temp4{ 8999 };
     uint32_t temp5{ 12345 };
 
-    ListIterator it = List_Begin(list);
-    ASSERT_EQ(List_Insert(list, &temp1, &it), 1);
+    ListIterator* it = List_Begin(list);
+    ASSERT_EQ(List_Insert(list, &temp1, it), 1);
 
     it = List_Begin(list);  // update begin iterator
-    ASSERT_EQ(List_Insert(list, &temp2, &it), 2);
+    ASSERT_EQ(List_Insert(list, &temp2, it), 2);
 
     it = List_Begin(list);  // update begin iterator
-    ListIterator_Increment(&it);
+    it = ListIterator_Increment(it);
 
-    ASSERT_EQ(List_Insert(list, &temp3, &it), 3);
-
-    it = List_Begin(list);  // update begin iterator
-    ListIterator_Increment(&it);
-    ASSERT_EQ(List_Insert(list, &temp4, &it), 4);
+    ASSERT_EQ(List_Insert(list, &temp3, it), 3);
 
     it = List_Begin(list);  // update begin iterator
-    ListIterator_Increment(&it);
-    ASSERT_EQ(List_Insert(list, &temp5, &it), 5);
+    it = ListIterator_Increment(it);
+    ASSERT_EQ(List_Insert(list, &temp4, it), 4);
 
-    ListIterator toCompareIt = List_Begin(list);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&toCompareIt), temp2);
-    ListIterator_Increment(&toCompareIt);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&toCompareIt), temp5);
-    ListIterator_Increment(&toCompareIt);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&toCompareIt), temp4);
-    ListIterator_Increment(&toCompareIt);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&toCompareIt), temp3);
-    ListIterator_Increment(&toCompareIt);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&toCompareIt), temp1);
-    ListIterator_Increment(&toCompareIt);
-    ListIterator end = List_End(list);
-    ASSERT_TRUE(ListIterator_Equal(&toCompareIt, &end));
+    it = List_Begin(list);  // update begin iterator
+    it = ListIterator_Increment(it);
+    ASSERT_EQ(List_Insert(list, &temp5, it), 5);
+
+    ListIterator* toCompareIt = List_Begin(list);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(toCompareIt), temp2);
+    toCompareIt = ListIterator_Increment(toCompareIt);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(toCompareIt), temp5);
+    toCompareIt = ListIterator_Increment(toCompareIt);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(toCompareIt), temp4);
+    toCompareIt = ListIterator_Increment(toCompareIt);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(toCompareIt), temp3);
+    toCompareIt = ListIterator_Increment(toCompareIt);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(toCompareIt), temp1);
+    toCompareIt = ListIterator_Increment(toCompareIt);
+    ListIterator* end = List_End(list);
+    ASSERT_TRUE(ListIterator_Equal(toCompareIt, end));
 }
 
 TEST(ListTest, Erase)
@@ -246,109 +246,42 @@ TEST(ListTest, Erase)
     List_PushBack(list, &temp4);
     List_PushBack(list, &temp5);
 
-    ListIterator it = List_Begin(list);
+    ListIterator* it = List_Begin(list);
 
-    ASSERT_EQ(List_Erase(list, &it), 4);
+    ASSERT_EQ(List_Erase(list, it), 4);
     it = List_Begin(list);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&it), temp2);
-    ListIterator_Increment(&it);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&it), temp3);
-    ListIterator_Increment(&it);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&it), temp4);
-    ListIterator_Increment(&it);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&it), temp5);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(it), temp2);
+    it = ListIterator_Increment(it);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(it), temp3);
+    it = ListIterator_Increment(it);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(it), temp4);
+    it = ListIterator_Increment(it);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(it), temp5);
 
-    ASSERT_EQ(List_Erase(list, &it), 3);
+    ASSERT_EQ(List_Erase(list, it), 3);
     it = List_Begin(list);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&it), temp2);
-    ListIterator_Increment(&it);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&it), temp3);
-    ListIterator_Increment(&it);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&it), temp4);
-    ListIterator_Decrement(&it);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(it), temp2);
+    it = ListIterator_Increment(it);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(it), temp3);
+    it = ListIterator_Increment(it);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(it), temp4);
+    it = ListIterator_Decrement(it);
 
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&it), temp3);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(it), temp3);
 
-    ASSERT_EQ(List_Erase(list, &it), 2);
+    ASSERT_EQ(List_Erase(list, it), 2);
     it = List_Begin(list);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&it), temp2);
-    ListIterator_Increment(&it);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&it), temp4);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(it), temp2);
+    it = ListIterator_Increment(it);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(it), temp4);
 
-    ASSERT_EQ(List_Erase(list, &it), 1);
+    ASSERT_EQ(List_Erase(list, it), 1);
     it = List_Begin(list);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&it), temp2);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(it), temp2);
 
-    ASSERT_EQ(List_Erase(list, &it), 0);
+    ASSERT_EQ(List_Erase(list, it), 0);
 
     ASSERT_EQ(List_PushBack(list, &temp1), 1);
     it = List_Begin(list);
-    ASSERT_EQ(*(uint32_t *)ListIterator_Value(&it), temp1);
+    ASSERT_EQ(*(uint32_t *)ListIterator_Value(it), temp1);
 }
-
-/*
-#include <chrono>
-
-TEST(ListTest, PerformanceRT)
-{
-    int samples[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-
-    uint32_t buf[10000];
-    List * list = List_Init(buf, sizeof(buf), sizeof(int));
-
-     // Get starting timepoint 
-    auto start = std::chrono::high_resolution_clock::now(); 
-   
-    for(int i=0; i<10000000; ++i)
-    {
-        for(int j=0; j<16; ++j)
-        {
-            int temp_var = samples[j];
-            List_PushBack(list, &temp_var);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            List_PopBack(list);
-        }
-    }
-  
-    // Get ending timepoint 
-    auto stop = std::chrono::high_resolution_clock::now(); 
-
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    std::cout << "duration c list: " << duration.count() << std::endl;
-}
-
-#include <list>
-
-TEST(ListTest, PerformanceSTL)
-{
-    int samples[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-
-    // uint32_t buf[10000];
-    // List * list = List_Init(buf, sizeof(buf), sizeof(int));
-
-    std::list<int> temp_list{};
-
-     // Get starting timepoint 
-    auto start = std::chrono::high_resolution_clock::now(); 
-   
-    for(int i=0; i<10000000; ++i)
-    {
-        for(int j=0; j<16; ++j)
-        {
-            temp_list.emplace_back(samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            temp_list.pop_back();
-        }
-    }
-  
-    // Get ending timepoint 
-    auto stop = std::chrono::high_resolution_clock::now(); 
-
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    std::cout << "duration stl list: " << duration.count() << std::endl;
-}
-*/

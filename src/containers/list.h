@@ -10,11 +10,7 @@ extern "C"
 
     typedef struct List List;
     typedef struct Node Node;
-
-    typedef struct ListIterator
-    {
-        Node * node;
-    } ListIterator;
+    typedef Node ListIterator;
 
     List * List_Init(void * buffer, size_t size, size_t element_size);
     size_t List_Capacity(List * const self);
@@ -31,11 +27,11 @@ extern "C"
     const void * List_Front(List * const self);
     const void * List_Back(List * const self);
 
-    ListIterator List_Begin(List * const self);
-    ListIterator List_End(List * const self);
+    ListIterator* List_Begin(List * const self);
+    ListIterator* List_End(List * const self);
 
-    void ListIterator_Increment(ListIterator * const self);
-    void ListIterator_Decrement(ListIterator * const self);
+    ListIterator * ListIterator_Increment(const ListIterator * const self);
+    ListIterator * ListIterator_Decrement(const ListIterator * const self);
     void * ListIterator_Value(const ListIterator * const self);
     bool ListIterator_Equal(const ListIterator * const self, const ListIterator * const list_iterator);
 
