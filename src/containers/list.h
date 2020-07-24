@@ -9,8 +9,7 @@ extern "C"
 #include <stdbool.h>
 
     typedef struct List List;
-    typedef struct Node Node;
-    typedef Node ListIterator;
+    typedef struct ListIterator ListIterator;
 
     List * List_Init(void * buffer, size_t size, size_t element_size);
     size_t List_Capacity(List * const self);

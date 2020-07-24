@@ -9,11 +9,13 @@ extern "C"
 #include <assert.h>
 #include <stdint.h>
 
-    typedef struct Node
+    typedef struct ListIterator
     {
-        Node * prev;
-        Node * next;
-    } Node;
+        ListIterator * prev;
+        ListIterator * next;
+    } ListIterator;
+
+    typedef ListIterator Node;
 
     typedef struct List
     {
