@@ -1,6 +1,5 @@
 #include "gtest/gtest.h"
 #include "containers/list.h"
-#include "containers/list.c"
 #include <cstdint>
 
 TEST(ListTest, Init)

@@ -67,6 +67,9 @@ extern "C"
 
     List * List_Init(void * buffer, size_t size, size_t element_size)
     {
+        assert(buffer);
+        assert(size >= sizeof(List));
+        
         List * list        = (List *)buffer;
         list->first        = &list->end;
         list->end.next     = NULL;
