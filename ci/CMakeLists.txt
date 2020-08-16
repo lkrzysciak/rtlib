@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.0)
 
 project(rtlib-ut)
 
@@ -9,8 +9,10 @@ include_directories(${CMAKE_HOME_DIRECTORY}/src)
 
 add_subdirectory(googletest-release-1.10.0)
 
-set(CMAKE_CXX_FLAGS "-Wall -Werror -O3")
-set(CMAKE_C_FLAGS "-Wall -Werror -O3")
+set(TESTED_FILES
+    ../src/containers/list.c
+    ../src/containers/vector.c
+    ../src/memory/object_pool.c)
 
 set(TESTS
     list_test.cpp
@@ -21,8 +23,12 @@ set(TESTS
 set(PERF_TESTS
     performance_tests/perf_test.cpp)
 
-add_executable(ut ut.cpp ${TESTS})
-target_link_libraries(ut gtest gtest_main gmock gmock_main rtlib)
+add_executable(ut ut.cpp ${TESTS} ${TESTED_FILES})
+target_link_libraries(ut gtest gtest_main gmock gmock_main)
 
-add_executable(perf ${PERF_TESTS})
-target_link_libraries(perf rtlib)
+add_executable(perf_O0 ${PERF_TESTS} ${TESTED_FILES})
+add_executable(perf_O3 ${PERF_TESTS} ${TESTED_FILES})
+
+target_compile_options(perf_O0 PRIVATE "-O0")
+target_compile_options(perf_O3 PRIVATE "-O3")
+add_compile_options("-Wall -Werror -g")

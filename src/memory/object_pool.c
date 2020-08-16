@@ -1,8 +1,3 @@
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 #include "object_pool.h"
 #include <stdint.h>
 #include <assert.h>
@@ -23,6 +18,9 @@ extern "C"
         size_t capacity;
         size_t size;
     } Pool;
+
+    size_t Sizeof_ObjectBlock = sizeof(ObjectBlock);
+    size_t Sizeof_Pool = sizeof(Pool);
 
     Pool * const Pool_Init(void * memory_block, size_t memory_size, size_t object_size)
     {
@@ -120,7 +118,3 @@ extern "C"
 
         return self->size;
     }
-
-#ifdef __cplusplus
-}
-#endif

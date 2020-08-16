@@ -5,258 +5,100 @@
 #include "containers/list.h"
 #include "containers/vector.h"
 #include <memory_resource>
+#include "containers/typed_vector.h"
 
-/*
-template <typename T, size_t size, size_t alignment = sizeof(T)>
-class MyAlloc {
-    public:
-    // type definitions
-    typedef T        value_type;
-    typedef T*       pointer;
-    typedef const T* const_pointer;
-    typedef T&       reference;
-    typedef const T& const_reference;
-    typedef std::size_t    size_type;
-    typedef std::ptrdiff_t difference_type;
+int samples[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
-    // rebind allocator to type U
-    template <class U>
-    struct rebind {
-        typedef MyAlloc<U> other;
-    };
+typed_vector_t(TestType, int);
 
-    // return address of values
-    pointer address (reference value) const {
-        return &value;
-    }
-    const_pointer address (const_reference value) const {
-        return &value;
-    }
-
-    MyAlloc() throw() {
-    }
-    MyAlloc(const MyAlloc&) throw() {
-    }
-    template <class U>
-        MyAlloc (const MyAlloc<U>&) throw() {
-    }
-    ~MyAlloc() throw() {
-    }
-
-    // return maximum number of elements that can be allocated
-    size_type max_size () const throw() {
-        return std::numeric_limits<std::size_t>::max() / sizeof(T);
-    }
-
-    // allocate but don't initialize num elements of type T
-    pointer allocate (size_type num, const void* = 0) {
-        // print message and allocate memory with global new
-        std::cerr << "allocate " << num << " element(s)"
-                    << " of size " << sizeof(T) << std::endl;
-        pointer ret = (pointer)(::operator new(num*sizeof(T)));
-        std::cerr << " allocated at: " << (void*)ret << std::endl;
-        return ret;
-    }
-
-    // initialize elements of allocated storage p with value value
-    void construct (pointer p, const T& value) {
-        // initialize memory with placement new
-        new((void*)p)T(value);
-    }
-
-    // destroy elements of initialized storage p
-    void destroy (pointer p) {
-        // destroy objects by calling their destructor
-        p->~T();
-    }
-
-    // deallocate storage p of deleted elements
-    void deallocate (pointer p, size_type num) {
-        // print message and deallocate memory with global delete
-        std::cerr << "deallocate " << num << " element(s)"
-                    << " of size " << sizeof(T)
-                    << " at: " << (void*)p << std::endl;
-        ::operator delete((void*)p);
-    }
-};
-
-// return that all specializations of this allocator are interchangeable
-template <class T1, class T2>
-bool operator== (const MyAlloc<T1>&,
-                const MyAlloc<T2>&) throw() {
-    return true;
+#define calculate_time_c_ptr_arg(container_ob, push_back_ptr, pop_back_ptr, description) \
+{ \
+auto start = std::chrono::high_resolution_clock::now(); \
+\
+for(int i=0; i<10000000; ++i) \
+{ \
+    for(int j=0; j<16; ++j) \
+    { \
+        push_back_ptr(container_ob, &samples[j]); \
+    } \
+    for(int j=0; j<16; ++j) \
+    { \
+        pop_back_ptr(container_ob); \
+    } \
+} \
+auto stop = std::chrono::high_resolution_clock::now(); \
+\
+auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start); \
+std::cout << description << duration.count() << std::endl; \
 }
-template <class T1, class T2>
-bool operator!= (const MyAlloc<T1>&,
-                const MyAlloc<T2>&) throw() {
-    return false;
+
+#define calculate_time_c_value_arg(container_ob, push_back_ptr, pop_back_ptr, description) \
+{ \
+auto start = std::chrono::high_resolution_clock::now(); \
+\
+for(int i=0; i<10000000; ++i) \
+{ \
+    for(int j=0; j<16; ++j) \
+    { \
+        push_back_ptr(container_ob, samples[j]); \
+    } \
+    for(int j=0; j<16; ++j) \
+    { \
+        pop_back_ptr(container_ob); \
+    } \
+} \
+auto stop = std::chrono::high_resolution_clock::now(); \
+\
+auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start); \
+std::cout << description << duration.count() << std::endl; \
 }
-*/
+
+#define calculate_time_cpp_value_arg(container_ob, push_back_ptr, pop_back_ptr, description) \
+{ \
+auto start = std::chrono::high_resolution_clock::now(); \
+\
+for(int i=0; i<10000000; ++i) \
+{ \
+    for(int j=0; j<16; ++j) \
+    { \
+        container_ob.push_back_ptr(samples[j]); \
+    } \
+    for(int j=0; j<16; ++j) \
+    { \
+        container_ob.pop_back_ptr(); \
+    } \
+} \
+auto stop = std::chrono::high_resolution_clock::now(); \
+\
+auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start); \
+std::cout << description << duration.count() << std::endl; \
+}
+
+
 int main()
 {
-
-    std::cout << sizeof(std::list<int>) << std::endl;
-    int samples[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-
     uint32_t buf[10000];
     List * list = List_Init(buf, sizeof(buf), sizeof(int));
 
-     // Get starting timepoint 
-    auto start = std::chrono::high_resolution_clock::now(); 
-   
-    for(int i=0; i<10000000; ++i)
-    {
-        for(int j=0; j<16; ++j)
-        {
-            int temp_var = samples[j];
-            List_PushBack(list, &temp_var);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            List_PopBack(list);
-        }
-    }
-  
-    // Get ending timepoint 
-    auto stop = std::chrono::high_resolution_clock::now(); 
+    calculate_time_c_ptr_arg(list, List_PushBack, List_PopBack, "[list][rtlib][generic]: ");
 
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    std::cout << "duration c list: " << duration.count() << std::endl;
-
-    // uint32_t buf[10000];
-    // List * list = List_Init(buf, sizeof(buf), sizeof(int));
 
     std::list<int> temp_list{};
-
-     // Get starting timepoint 
-    start = std::chrono::high_resolution_clock::now(); 
-   
-    for(int i=0; i<10000000; ++i)
-    {
-        for(int j=0; j<16; ++j)
-        {
-            temp_list.emplace_back(samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            temp_list.pop_back();
-        }
-    }
-  
-    // Get ending timepoint 
-    stop = std::chrono::high_resolution_clock::now(); 
-
-    duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    std::cout << "duration stl list: " << duration.count() << std::endl;
-
-    std::fill_n(std::begin(buf), std::size(buf)-1, '_');
-
-    std::pmr::monotonic_buffer_resource pool{
-        std::data(buf), std::size(buf)
-    };
-
-
-    std::pmr::list<int> temp_list_mb{&pool};
-
-     // Get starting timepoint 
-    start = std::chrono::high_resolution_clock::now(); 
-   
-    for(int i=0; i<10000000; ++i)
-    {
-        for(int j=0; j<16; ++j)
-        {
-            temp_list_mb.emplace_back(samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            temp_list_mb.pop_back();
-        }
-    }
-  
-    // Get ending timepoint 
-    stop = std::chrono::high_resolution_clock::now(); 
-
-    duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    std::cout << "duration stl list monotonic buffer: " << duration.count() << std::endl;
+    calculate_time_cpp_value_arg(temp_list, push_back, pop_back, "[list][stl]: ");
 
 
     uint32_t buf1[10000];
     Vector * vector = Vector_Init(buf1, sizeof(buf1), sizeof(int));
+    calculate_time_c_ptr_arg(vector, Vector_PushBack, Vector_PopBack, "[vector][rtlib][generic]: ");
 
-     // Get starting timepoint 
-    start = std::chrono::high_resolution_clock::now(); 
-   
-    for(int i=0; i<10000000; ++i)
-    {
-        for(int j=0; j<16; ++j)
-        {
-            // int temp_var = samples[j];
-            Vector_PushBack(vector, &samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            Vector_PopBack(vector);
-        }
-    }
-  
-    // Get ending timepoint 
-    stop = std::chrono::high_resolution_clock::now(); 
-
-    duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    std::cout << "duration c vector: " << duration.count() << std::endl;
-
-
+    /****************************************************/
+    
+    uint32_t buf2[10000];
+    TestType_Vector * vector_tt = TestType_Vector_Init(buf2, sizeof(buf2));
+    calculate_time_c_value_arg(vector_tt, TestType_Vector_PushBack, TestType_Vector_PopBack, "[vector][rtlib][typed]: ");
 
     std::vector<int> temp_vector{};
-
-     // Get starting timepoint 
-    start = std::chrono::high_resolution_clock::now(); 
-   
-    for(int i=0; i<10000000; ++i)
-    {
-        for(int j=0; j<16; ++j)
-        {
-            temp_vector.emplace_back(samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            temp_vector.pop_back();
-        }
-    }
-  
-    // Get ending timepoint 
-    stop = std::chrono::high_resolution_clock::now(); 
-
-    duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    std::cout << "duration stl vector: " << duration.count() << std::endl;
-
-    std::fill_n(std::begin(buf), std::size(buf)-1, '_');
-
-    std::pmr::monotonic_buffer_resource pool1{
-        std::data(buf), std::size(buf)
-    };
-    std::pmr::vector<int> temp_vector_mb{&pool1};
-
-     // Get starting timepoint 
-    start = std::chrono::high_resolution_clock::now(); 
-   
-    for(int i=0; i<10000000; ++i)
-    {
-        for(int j=0; j<16; ++j)
-        {
-            temp_vector_mb.emplace_back(samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            temp_vector_mb.pop_back();
-        }
-    }
-  
-    // Get ending timepoint 
-    stop = std::chrono::high_resolution_clock::now(); 
-
-    duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    std::cout << "duration stl vector monotonic buffer: " << duration.count() << std::endl;
-
+    calculate_time_cpp_value_arg(temp_vector, push_back, pop_back, "[vector][stl]: ");
+    
     return 0;
 }

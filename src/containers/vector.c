@@ -13,8 +13,8 @@ typedef struct Vector
     size_t element_size;
     size_t capacity;
     size_t size;
+    uint8_t* end;
 } Vector;
-
 
 Vector* Vector_Init(void * buffer, size_t size, size_t element_size)
 {
