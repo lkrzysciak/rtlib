@@ -18,7 +18,9 @@ set(TESTS
     list_test.cpp
     vector_test.cpp
     heap_test.cpp
-    object_pool_test.cpp)
+    object_pool_test.cpp
+    typed_pool_test.cpp
+    )
 
 set(PERF_TESTS
     performance_tests/perf_test.cpp)

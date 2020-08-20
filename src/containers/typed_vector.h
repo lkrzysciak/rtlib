@@ -1,34 +1,23 @@
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
 
-#define typed_vector_t(vector_type, member_type) \
+#define typed_vector_t(vector_type, member_type, container_capacity) \
 typedef struct vector_type##_Vector \
 { \
-    size_t element_size; \
-    size_t capacity; \
     size_t size; \
+    member_type data[container_capacity]; \
     member_type* end; \
 } vector_type##_Vector; \
  \
-vector_type##_Vector* vector_type##_Vector_Init(void * buffer, size_t size) \
+void vector_type##_Vector_Init(vector_type##_Vector* const self) \
 { \
-    assert(buffer); \
-    assert(size >= sizeof(vector_type##_Vector)); \
+    assert(self); \
     \
-    vector_type##_Vector* vector = (vector_type##_Vector*)buffer; \
-    vector->element_size = sizeof(member_type); \
-    vector->size = 0; \
-    vector->capacity = (size - sizeof(vector_type##_Vector)) / vector->element_size; \
-    vector->end = (member_type*)((uint8_t*)vector + sizeof(vector_type##_Vector)); \
-    \
-    return vector; \
+    self->size = 0; \
+    self->end = self->data; \
 } \
 \
 size_t vector_type##_Vector_Size(vector_type##_Vector * const self) \
@@ -43,7 +32,7 @@ int vector_type##_Vector_PushBack(vector_type##_Vector * const self, member_type
     assert(self); \
     assert(data); \
     \
-    if(self->size < self->capacity) \
+    if(self->size < container_capacity) \
     { \
         *self->end = data; \
         ++self->end; \
@@ -71,7 +60,3 @@ int vector_type##_Vector_PopBack(vector_type##_Vector * const self) \
         return 0; \
     } \
 }
-
-#ifdef __cplusplus
-}
-#endif

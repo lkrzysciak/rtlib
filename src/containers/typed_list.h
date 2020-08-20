@@ -1,140 +1,90 @@
 #pragma once
 
-/*
-#include <string.h>
-#include <stdint.h>
-#include <stdbool.h>
 #include <assert.h>
+#include "../memory/typed_pool.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#define node_t(Name, Type) \
-typedef struct Name Name; \
-typedef struct Name \
+#define typed_list_t(type_name, member_type, list_capacity) \
+\
+typedef struct type_name type_name; \
+typedef struct type_name##_iterator type_name##_iterator; \
+\ 
+typedef struct type_name##_iterator \
 { \
-    Name* prev; \
-    Name* next; \
-    Type data; \
-} Name;
-
-#define list_t(Name, Type, Size) \
+    type_name##_iterator * prev; \
+    type_name##_iterator * next; \
+    member_type value; \
+} type_name##_iterator; \
 \
-node_t(Name##_Node, Type); \
+typedef type_name##_iterator type_name##_node; \
 \
-typedef struct \
+typed_pool_t(type_name##_pool, type_name##_node, list_capacity + 1); \
+\
+typedef struct type_name \
 { \
-    bool memory_chunks[Size]; \
-    Name##_Node nodes[Size]; \
-    Name##_Node* first; \
-    Name##_Node* last; \
-} Name; \
+    type_name##_node* begin; \
+    type_name##_node* end; \
+    type_name##_pool pool; \
+    size_t size; \
+} type_name; \
 \
-Name##_Node* get_free_node_chunk_##Name(Name* const self) \
-{ \
-  for(int idx=0; idx<Size; ++idx) \
-  { \
-    if(self->memory_chunks[idx] == false) \
-    { \
-        self->memory_chunks[idx] = true; \
-        return &self->nodes[idx]; \
-    } \
-  } \
-  return NULL; \
-} \
-\
-Name##_Node* get_node_by_index_##Name(Name* const self, int index) \
-{ \
-    const size_t size = size_##Name(self); \
-    if(index >= size) \
-    { \
-        return NULL; \
-    } \
-    Name##_Node* node_ptr = self->first; \
-    while(index--) \
-    { \
-        node_ptr = node_ptr->next; \
-    } \
-    return node_ptr; \
-} \
-\
-void init_##Name(Name* const self) \
+void type_name##_Init(type_name* const self) \
 { \
     assert(self); \
-    self->first = NULL; \
-    self->last = NULL; \
-    memset(self->nodes, 0, Size * sizeof(Type)); \
-    memset(self->memory_map, 0, Size % 8 + 1); \
+    \
+    type_name##_pool_Init(&self->pool); \
+    self->end = type_name##_pool_Alloc(&self->pool); \
+    assert(self->end); \
+    self->begin = self->end; \
+    self->begin->prev = NULL; \
+    self->begin->next = NULL; \
+    self->size = 0; \
 } \
 \
-size_t size_##Name(Name* const self) \
+int type_name##_PushBack(type_name* const self, member_type value) \
 { \
     assert(self); \
-    size_t size = 0; \
-    Name##_Node* node_ptr = self->first; \
-    while(node_ptr != self->last) \
+    \
+    type_name##_node* node = type_name##_pool_Alloc(&self->pool); \
+    if(node) \
+    { \
+        type_name##_node* old_end_node = self->end->prev; \
+        if(old_end_node) \
         { \
-        node_ptr = node_ptr->next; \
-        ++size; \
-    } \
-    return size; \
-} \
-\
-int insert_##Name(Name* const self, Type value, int index) \
-{ \
-    assert(self); \
-    const size_t size = size_##Name(self); \
-    if(index > size) { return -1; } \
-    else { \
-        Name##_Node* node_ptr = get_free_node_chunk_##Name(self); \
-        if(mem_chunk_no == NULL) \
-        { \
-            assert(false); \
-            return -1; \
+            old_end_node->next = node; \
         } \
-        \
-        if(index == 0) \
-        {
-            self->first = node_ptr;
-            node_ptr->prev = NULL;
-            node_ptr->next = ??;
-        }
-        if(index == size)
-        {
-            self->last = node_ptr;
-            node_ptr->next = NULL;
-            node_ptr->prev = ??;
-        }
-        if(index > 0 && index < size)
-        {
-
-        }
+        else \
+        { \
+            self->begin = node; \
+        } \
+        node->prev = old_end_node; \
+        node->next = self->end; \
+        self->end->prev = node; \
+        node->value = value; \
         return 0; \
     } \
+    else \
+    { \
+        return -1; \
+    } \
 } \
 \
-void push_back_##Name(Name* object, Type value) \
+int type_name##_PopBack(type_name* const self) \
 { \
-  \
+    assert(self); \
+    \
+    type_name##_node* old_end_node = self->end->prev; \
+    type_name##_node* new_end_node = old_end_node->prev; \
+    \
+    type_name##_pool_Free(&self->pool, old_end_node); \
+    \
+    if(new_end_node == self->begin) \
+    { \
+        self->begin = self->end; \
+        self->begin->next = NULL; \
+        self->begin->prev = NULL; \
+    } \
+    else \
+    { \
+        new_end_node->next = self->end; \
+    } \
 } \
-\
-\
-void push_front_##Name(Name* object, Type value) \
-{ \
-  \
-} \
-\
-Type get_##Name(Name* object, int index, int err) \
-{ \
-   return object->nodes[index].data; \
-}
-
-#define list_init(Name) init_##Name
-#define list_size(Name) size_##Name
-#define list_insert(Name) insert_##Name
-
-#ifdef __cplusplus
-}
-#endif
-*/
