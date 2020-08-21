@@ -60,3 +60,19 @@ int vector_type##_PopBack(vector_type * const self) \
         return self->size; \
     } \
 } \
+\
+member_type vector_type##_Front(vector_type * const self) \
+{ \
+    assert(self); \
+    assert(self->size > 0); \
+    \
+    return self->data[0]; \
+} \
+\
+member_type vector_type##_Back(vector_type * const self) \
+{ \
+    assert(self); \
+    assert(self->size > 0); \
+    \
+    return *(self->end - 1); \
+} \

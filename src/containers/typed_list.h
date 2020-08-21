@@ -76,9 +76,7 @@ int type_name##_PopBack(type_name* const self) \
     assert(self); \
     \
     type_name##_node* old_end_node = self->end->prev; \
-    assert(old_end_node); \
     type_name##_node* new_end_node = old_end_node->prev; \
-    assert(new_end_node); \
     \
     type_name##_pool_Free(&self->pool, old_end_node); \
     \
@@ -91,9 +89,26 @@ int type_name##_PopBack(type_name* const self) \
     else \
     { \
         new_end_node->next = self->end; \
+        self->end->prev = new_end_node; \
     } \
     \
     --self->size; \
     \
     return self->size; \
+} \
+\
+member_type type_name##_Front(type_name* const self) \
+{ \
+    assert(self); \
+    assert(self->size > 0); \
+    \
+    return self->begin->value; \
+} \
+\
+member_type type_name##_Back(type_name* const self) \
+{ \
+    assert(self); \
+    assert(self->size > 0); \
+    \
+    return self->end->prev->value; \
 } \
