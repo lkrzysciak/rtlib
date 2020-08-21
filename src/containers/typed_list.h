@@ -7,7 +7,7 @@
 \
 typedef struct type_name type_name; \
 typedef struct type_name##_iterator type_name##_iterator; \
-\ 
+\
 typedef struct type_name##_iterator \
 { \
     type_name##_iterator * prev; \
@@ -60,7 +60,10 @@ int type_name##_PushBack(type_name* const self, member_type value) \
         node->next = self->end; \
         self->end->prev = node; \
         node->value = value; \
-        return 0; \
+        \
+        ++self->size; \
+        \
+        return self->size; \
     } \
     else \
     { \
@@ -73,11 +76,13 @@ int type_name##_PopBack(type_name* const self) \
     assert(self); \
     \
     type_name##_node* old_end_node = self->end->prev; \
+    assert(old_end_node); \
     type_name##_node* new_end_node = old_end_node->prev; \
+    assert(new_end_node); \
     \
     type_name##_pool_Free(&self->pool, old_end_node); \
     \
-    if(new_end_node == self->begin) \
+    if(new_end_node == NULL) \
     { \
         self->begin = self->end; \
         self->begin->next = NULL; \
@@ -87,4 +92,8 @@ int type_name##_PopBack(type_name* const self) \
     { \
         new_end_node->next = self->end; \
     } \
+    \
+    --self->size; \
+    \
+    return self->size; \
 } \

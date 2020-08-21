@@ -5,14 +5,14 @@
 #include <string.h>
 
 #define typed_vector_t(vector_type, member_type, container_capacity) \
-typedef struct vector_type##_Vector \
+typedef struct vector_type \
 { \
     size_t size; \
     member_type data[container_capacity]; \
     member_type* end; \
-} vector_type##_Vector; \
+} vector_type; \
  \
-void vector_type##_Vector_Init(vector_type##_Vector* const self) \
+void vector_type##_Init(vector_type* const self) \
 { \
     assert(self); \
     \
@@ -20,14 +20,14 @@ void vector_type##_Vector_Init(vector_type##_Vector* const self) \
     self->end = self->data; \
 } \
 \
-size_t vector_type##_Vector_Size(vector_type##_Vector * const self) \
+size_t vector_type##_Size(vector_type * const self) \
 { \
     assert(self); \
     \
     return self->size; \
 } \
 \
-int vector_type##_Vector_PushBack(vector_type##_Vector * const self, member_type data) \
+int vector_type##_PushBack(vector_type * const self, member_type data) \
 { \
     assert(self); \
     assert(data); \
@@ -38,7 +38,7 @@ int vector_type##_Vector_PushBack(vector_type##_Vector * const self, member_type
         ++self->end; \
         ++self->size; \
         \
-        return 0; \
+        return self->size; \
     } \
     else \
     { \
@@ -46,7 +46,7 @@ int vector_type##_Vector_PushBack(vector_type##_Vector * const self, member_type
     } \
 } \
 \
-int vector_type##_Vector_PopBack(vector_type##_Vector * const self) \
+int vector_type##_PopBack(vector_type * const self) \
 { \
     assert(self); \
     if(self->size == 0) \
@@ -57,6 +57,6 @@ int vector_type##_Vector_PopBack(vector_type##_Vector * const self) \
     { \
         --self->size; \
         --self->end; \
-        return 0; \
+        return self->size; \
     } \
-}
+} \

@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 project(rtlib-ut)
 
 set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_C_STANDARD 11)
 
 include_directories(googletest-release-1.10.0/googletest/include)
 include_directories(${CMAKE_HOME_DIRECTORY}/src)
@@ -20,6 +21,7 @@ set(TESTS
     heap_test.cpp
     object_pool_test.cpp
     typed_pool_test.cpp
+    typed_containers_test.cpp
     )
 
 set(PERF_TESTS
