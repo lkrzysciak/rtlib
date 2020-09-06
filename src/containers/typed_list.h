@@ -112,3 +112,46 @@ member_type type_name##_Back(type_name* const self) \
     \
     return self->end->prev->value; \
 } \
+\
+type_name##_iterator*  type_name##_Begin(type_name* const self) \
+{ \
+    assert(self); \
+    \
+    return self->begin; \
+} \
+\
+type_name##_iterator* type_name##_End(type_name* const self) \
+{ \
+    assert(self); \
+    \
+    return self->end; \
+} \
+\
+member_type type_name##_Iterator_GetValue(const type_name##_iterator* const self) \
+{ \
+    assert(self); \
+    \
+    return self->value; \
+} \
+\
+void type_name##_Iterator_SetValue(type_name##_iterator* const self, member_type value) \
+{ \
+    assert(self); \
+    \
+    self->value = value; \
+} \
+\
+type_name##_iterator* type_name##_Iterator_Increment(const type_name##_iterator* const self) \
+{ \
+    assert(self); \
+    \
+    return self->next; \
+} \
+\
+type_name##_iterator* type_name##_Iterator_Decrement(const type_name##_iterator* const self) \
+{ \
+    assert(self); \
+    \
+    return self->prev; \
+} \
+

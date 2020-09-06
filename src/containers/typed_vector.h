@@ -11,7 +11,9 @@ typedef struct vector_type \
     member_type data[container_capacity]; \
     member_type* end; \
 } vector_type; \
- \
+\
+typedef member_type vector_type##_iterator; \
+\
 void vector_type##_Init(vector_type* const self) \
 { \
     assert(self); \
@@ -76,3 +78,48 @@ member_type vector_type##_Back(vector_type * const self) \
     \
     return *(self->end - 1); \
 } \
+\
+vector_type##_iterator* vector_type##_Begin(vector_type * const self) \
+{ \
+    assert(self); \
+    \
+    return self->data; \
+} \
+\
+vector_type##_iterator* vector_type##_End(vector_type * const self) \
+{ \
+    assert(self); \
+    \
+    return self->end; \
+} \
+\
+member_type vector_type##_Iterator_GetValue(const vector_type##_iterator* const self) \
+{ \
+    assert(self); \
+    \
+    return *self; \
+} \
+\
+void vector_type##_Iterator_SetValue(vector_type##_iterator* const self, member_type value) \
+{ \
+    assert(self); \
+    \
+    *self = value; \
+} \
+\
+vector_type##_iterator* vector_type##_Iterator_Increment(const vector_type##_iterator* const self) \
+{ \
+    assert(self); \
+    \
+    vector_type##_iterator* next_it = (vector_type##_iterator*)self + 1; \
+    return next_it; \
+} \
+\
+vector_type##_iterator* vector_type##_Iterator_Decrement(const vector_type##_iterator* const self) \
+{ \
+    assert(self); \
+    \
+    vector_type##_iterator* prev_it = (vector_type##_iterator*)self - 1; \
+    return prev_it; \
+} \
+
