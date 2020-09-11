@@ -138,19 +138,32 @@ int type_name##_PopFront(type_name* const self) \
     return self->size; \
 } \
 \
-int type_name##_Insert(type_name* const self, member_type value, size_t index) \
+int type_name##_Insert(type_name* const self, member_type value, type_name##_iterator* const iterator) \
 { \
     assert(self); \
-    \
+    assert(iterator); \
+   \
+   if(iterator == self->begin) \
+   { \
+        return type_name##_PushFront(self, value); \
+   } \
+   \
+   else if(iterator == self->end) \
+   { \
+       return type_name##_PushBack(self, value); \
+   } \
     type_name##_node* node = type_name##_pool_Alloc(&self->pool); \
     if(node) \
     { \
-        type_name##_node* old_begin_node = self->begin; \
-        old_begin_node->prev = node; \
-        node->next = old_begin_node; \
-        node->prev = NULL; \
+        type_name##_node* next_iterator = iterator; \
+        assert(next_iterator); \
+        type_name##_node* prev_iterator = next_iterator->prev; \
+        assert(prev_iterator); \
+        next_iterator->prev = node; \
+        prev_iterator->next = node; \
+        node->next = next_iterator; \
+        node->prev = prev_iterator; \
         node->value = value; \
-        self->begin = node; \
         \
         ++self->size; \
         \
@@ -162,17 +175,22 @@ int type_name##_Insert(type_name* const self, member_type value, size_t index) \
     } \
 } \
 \
-int type_name##_Erase(type_name* const self, size_t index) \
+int type_name##_Erase(type_name* const self, type_name##_iterator* const iterator) \
 { \
     assert(self); \
     \
-    type_name##_node* old_begin_node = self->begin; \
-    type_name##_node* new_begin_node = old_begin_node->next; \
+    type_name##_node* to_delete_node = iterator; \
+    type_name##_node* next_node = to_delete_node->next; \
+    type_name##_node* prev_node = to_delete_node->prev; \
     \
-    type_name##_pool_Free(&self->pool, old_begin_node); \
+    type_name##_pool_Free(&self->pool, to_delete_node); \
     \
-    new_begin_node->prev = NULL; \
-    self->begin = new_begin_node; \
+    if(!prev_node) \
+    { \
+        return type_name##_PopFront(self); \
+    } \
+    prev_node->next = next_node; \
+    next_node->prev = prev_node; \
     \
     --self->size; \
     \

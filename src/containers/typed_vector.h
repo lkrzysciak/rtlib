@@ -98,49 +98,44 @@ int vector_type##_PopFront(vector_type * const self) \
     } \
 } \
 \
-int vector_type##_Insert(vector_type * const self, member_type data, size_t index) \
+int vector_type##_Insert(vector_type * const self, member_type data, vector_type##_iterator* const iterator) \
 { \
     assert(self); \
+    assert(iterator); \
     \
     if(self->size < container_capacity) \
     { \
-        if(index <= self->size) \
-        { \
-            const size_t to_move_elements = self->size - index; \
-            memmove(&self->data[index + 1], &self->data[index], to_move_elements * sizeof(member_type)); \
-            self->data[index] = data; \
-            ++self->end; \
-            ++self->size; \
-            \
-            return self->size; \
-        } \
-        else \
-        { \
-            /* Out of range */ \
-            return -2; \
-        } \
+        const size_t to_move_bytes = (uint8_t*)self->end - (uint8_t*)iterator; \
+        memmove(iterator + 1, iterator, to_move_bytes); \
+        *iterator = data; \
+        ++self->end; \
+        ++self->size; \
+        \
+        return self->size; \
     } \
     else \
     { \
-        /* Allocation error */ \
         return -1; \
     } \
 } \
 \
-int vector_type##_Erase(vector_type * const self, size_t index) \
+int vector_type##_Erase(vector_type * const self, vector_type##_iterator* const iterator) \
 { \
     assert(self); \
-    if(self->size == 0 || index >= self->size) \
-    { \
-        /* Out of range */ \
-        return -2; \
-    } \
+    assert(iterator); \
     \
-    --self->size; \
-    --self->end; \
-    const size_t to_move_elements = self->size - index; \
-    memmove(&self->data[index], &self->data[index + 1], to_move_elements * sizeof(member_type)); \
-    return self->size; \
+    if(self->size == 0) \
+    { \
+        return -1; \
+    } \
+    else \
+    { \
+        --self->size; \
+        --self->end; \
+        const size_t to_move_bytes = (uint8_t*)self->end - (uint8_t*)iterator; \
+        memmove(iterator, iterator+1, to_move_bytes); \
+        return self->size; \
+    } \
 } \
 \
 member_type vector_type##_Front(vector_type * const self) \
