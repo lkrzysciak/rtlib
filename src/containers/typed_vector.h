@@ -4,17 +4,20 @@
 #include <assert.h>
 #include <string.h>
 
-#define typed_vector_t(vector_type, member_type, container_capacity) \
-typedef struct vector_type \
+#define typed_vector_t(container_t, member_t, container_capacity) \
+typedef struct container_t \
 { \
     size_t size; \
-    member_type data[container_capacity]; \
-    member_type* end; \
-} vector_type; \
+    member_t data[container_capacity]; \
+    member_t* end; \
+} container_t; \
 \
-typedef member_type vector_type##_iterator; \
+typedef struct container_t##_iterator \
+{ \
+    member_t* value; \
+} container_t##_iterator; \
 \
-void vector_type##_Init(vector_type* const self) \
+void container_t##_Init(container_t* const self) \
 { \
     assert(self); \
     \
@@ -22,14 +25,14 @@ void vector_type##_Init(vector_type* const self) \
     self->end = self->data; \
 } \
 \
-size_t vector_type##_Size(vector_type * const self) \
+size_t container_t##_Size(container_t * const self) \
 { \
     assert(self); \
     \
     return self->size; \
 } \
 \
-int vector_type##_PushBack(vector_type * const self, member_type data) \
+int container_t##_PushBack(container_t * const self, member_t data) \
 { \
     assert(self); \
     assert(data); \
@@ -48,7 +51,7 @@ int vector_type##_PushBack(vector_type * const self, member_type data) \
     } \
 } \
 \
-int vector_type##_PopBack(vector_type * const self) \
+int container_t##_PopBack(container_t * const self) \
 { \
     assert(self); \
     if(self->size == 0) \
@@ -63,13 +66,13 @@ int vector_type##_PopBack(vector_type * const self) \
     } \
 } \
 \
-int vector_type##_PushFront(vector_type * const self, member_type data) \
+int container_t##_PushFront(container_t * const self, member_t data) \
 { \
     assert(self); \
     \
     if(self->size < container_capacity) \
     { \
-        memmove(&self->data[1], &self->data[0], self->size * sizeof(member_type)); \
+        memmove(&self->data[1], &self->data[0], self->size * sizeof(member_t)); \
         self->data[0] = data; \
         ++self->end; \
         ++self->size; \
@@ -82,7 +85,7 @@ int vector_type##_PushFront(vector_type * const self, member_type data) \
     } \
 } \
 \
-int vector_type##_PopFront(vector_type * const self) \
+int container_t##_PopFront(container_t * const self) \
 { \
     assert(self); \
     if(self->size == 0) \
@@ -93,21 +96,21 @@ int vector_type##_PopFront(vector_type * const self) \
     { \
         --self->size; \
         --self->end; \
-        memmove(&self->data[0], &self->data[1], self->size * sizeof(member_type)); \
+        memmove(&self->data[0], &self->data[1], self->size * sizeof(member_t)); \
         return self->size; \
     } \
 } \
 \
-int vector_type##_Insert(vector_type * const self, member_type data, vector_type##_iterator* const iterator) \
+int container_t##_Insert(container_t * const self, member_t data, container_t##_iterator* const iterator) \
 { \
     assert(self); \
     assert(iterator); \
     \
     if(self->size < container_capacity) \
     { \
-        const size_t to_move_bytes = (uint8_t*)self->end - (uint8_t*)iterator; \
-        memmove(iterator + 1, iterator, to_move_bytes); \
-        *iterator = data; \
+        const size_t to_move_bytes = (uint8_t*)self->end - (uint8_t*)iterator->value; \
+        memmove(iterator->value + 1, iterator->value, to_move_bytes); \
+        *iterator->value = data; \
         ++self->end; \
         ++self->size; \
         \
@@ -119,7 +122,7 @@ int vector_type##_Insert(vector_type * const self, member_type data, vector_type
     } \
 } \
 \
-int vector_type##_Erase(vector_type * const self, vector_type##_iterator* const iterator) \
+int container_t##_Erase(container_t * const self, container_t##_iterator* const iterator) \
 { \
     assert(self); \
     assert(iterator); \
@@ -132,13 +135,13 @@ int vector_type##_Erase(vector_type * const self, vector_type##_iterator* const 
     { \
         --self->size; \
         --self->end; \
-        const size_t to_move_bytes = (uint8_t*)self->end - (uint8_t*)iterator; \
-        memmove(iterator, iterator+1, to_move_bytes); \
+        const size_t to_move_bytes = (uint8_t*)self->end - (uint8_t*)iterator->value; \
+        memmove(iterator->value, iterator->value + 1, to_move_bytes); \
         return self->size; \
     } \
 } \
 \
-member_type vector_type##_Front(vector_type * const self) \
+member_t container_t##_Front(container_t * const self) \
 { \
     assert(self); \
     assert(self->size > 0); \
@@ -146,7 +149,7 @@ member_type vector_type##_Front(vector_type * const self) \
     return self->data[0]; \
 } \
 \
-member_type vector_type##_Back(vector_type * const self) \
+member_t container_t##_Back(container_t * const self) \
 { \
     assert(self); \
     assert(self->size > 0); \
@@ -154,47 +157,61 @@ member_type vector_type##_Back(vector_type * const self) \
     return *(self->end - 1); \
 } \
 \
-vector_type##_iterator* vector_type##_Begin(vector_type * const self) \
+container_t##_iterator container_t##_Begin(container_t * const self) \
 { \
     assert(self); \
     \
-    return self->data; \
+    container_t##_iterator it; \
+    it.value = self->data; \
+    \
+    return it; \
 } \
 \
-vector_type##_iterator* vector_type##_End(vector_type * const self) \
+container_t##_iterator container_t##_End(container_t * const self) \
 { \
     assert(self); \
     \
-    return self->end; \
+    container_t##_iterator it; \
+    it.value = self->end; \
+    \
+    return it; \
 } \
 \
-member_type vector_type##_Iterator_GetValue(const vector_type##_iterator* const self) \
+member_t container_t##_Iterator_GetValue(const container_t##_iterator* const self) \
 { \
     assert(self); \
     \
-    return *self; \
+    return *self->value; \
 } \
 \
-void vector_type##_Iterator_SetValue(vector_type##_iterator* const self, member_type value) \
+void container_t##_Iterator_SetValue(container_t##_iterator* const self, member_t value) \
 { \
     assert(self); \
     \
-    *self = value; \
+    *self->value = value; \
 } \
 \
-vector_type##_iterator* vector_type##_Iterator_Increment(const vector_type##_iterator* const self) \
+container_t##_iterator container_t##_Iterator_Next(const container_t##_iterator* const self) \
 { \
     assert(self); \
     \
-    vector_type##_iterator* next_it = (vector_type##_iterator*)self + 1; \
+    container_t##_iterator next_it; \
+    next_it.value = self->value + 1; \
     return next_it; \
 } \
 \
-vector_type##_iterator* vector_type##_Iterator_Decrement(const vector_type##_iterator* const self) \
+container_t##_iterator container_t##_Iterator_Prev(const container_t##_iterator* const self) \
 { \
     assert(self); \
     \
-    vector_type##_iterator* prev_it = (vector_type##_iterator*)self - 1; \
+    container_t##_iterator prev_it; \
+    prev_it.value = self->value - 1; \
     return prev_it; \
+} \
+\
+bool container_t##_Iterator_Equal(const container_t##_iterator* const first, const container_t##_iterator* const second) \
+{ \
+    const bool is_equal = first->value == second->value ; \
+    return is_equal; \
 } \
 

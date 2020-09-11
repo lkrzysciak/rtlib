@@ -133,22 +133,22 @@ auto IteratorValue(ListTestType_iterator* const it)
 
 auto IteratorInc(VectorTestType_iterator* const it)
 {
-    return VectorTestType_Iterator_Increment(it);
+    return VectorTestType_Iterator_Next(it);
 }
 
 auto IteratorInc(ListTestType_iterator* const it)
 {
-    return ListTestType_Iterator_Increment(it);
+    return ListTestType_Iterator_Next(it);
 }
 
 auto IteratorDec(VectorTestType_iterator* const it)
 {
-    return VectorTestType_Iterator_Decrement(it);
+    return VectorTestType_Iterator_Prev(it);
 }
 
 auto IteratorDec(ListTestType_iterator* const it)
 {
-    return ListTestType_Iterator_Decrement(it);
+    return ListTestType_Iterator_Prev(it);
 }
 
 void IteratorSetValue(VectorTestType_iterator* const it, int value)
@@ -159,6 +159,16 @@ void IteratorSetValue(VectorTestType_iterator* const it, int value)
 void IteratorSetValue(ListTestType_iterator* const it, int value)
 {
     ListTestType_Iterator_SetValue(it, value);
+}
+
+bool Iterator_Equal(VectorTestType_iterator* const first, VectorTestType_iterator* const second)
+{
+    return VectorTestType_Iterator_Equal(first, second);
+}
+
+bool Iterator_Equal(ListTestType_iterator* const first, ListTestType_iterator* const second)
+{
+    return ListTestType_Iterator_Equal(first, second);
 }
 
 template<typename T>
@@ -220,23 +230,23 @@ TYPED_TEST(ContainerTest, Insert)
     uint32_t temp2{ 23587 };
     uint32_t temp3{ 980 };
 
-    auto it = Begin(&container);
-    ASSERT_EQ(Insert(&container, temp1, it), 1);
+    auto begin_it = Begin(&container);
+    ASSERT_EQ(Insert(&container, temp1, &begin_it), 1);
 
-    auto it_1 = IteratorInc(Begin(&container));
-    ASSERT_EQ(Insert(&container, temp2, it_1), 2);
+    begin_it = Begin(&container);
+    auto it_1 = IteratorInc(&begin_it);
+    ASSERT_EQ(Insert(&container, temp2, &it_1), 2);
     
-    auto it_2 = IteratorInc(Begin(&container));
-    ASSERT_EQ(Insert(&container, temp3, it_2), 3);
+    begin_it = Begin(&container);
+    auto it_2 = IteratorInc(&begin_it);
+    ASSERT_EQ(Insert(&container, temp3, &it_2), 3);
     
-    it = Begin(&container);
-    ASSERT_EQ(IteratorValue(it), temp1);
-    it = IteratorInc(it);
-    ASSERT_EQ(IteratorValue(it), temp3);
-    it = IteratorInc(it);
-    ASSERT_EQ(IteratorValue(it), temp2);
-    it = IteratorInc(it);
-    ASSERT_EQ(it, End(&container));
+    auto it = Begin(&container);
+    ASSERT_EQ(IteratorValue(&it), temp1);
+    it = IteratorInc(&it);
+    ASSERT_EQ(IteratorValue(&it), temp3);
+    it = IteratorInc(&it);
+    ASSERT_EQ(IteratorValue(&it), temp2);
 }
 
 TYPED_TEST(ContainerTest, Erase)
@@ -248,24 +258,37 @@ TYPED_TEST(ContainerTest, Erase)
     uint32_t temp2{ 23587 };
     uint32_t temp3{ 980 };
 
-    auto it = Begin(&container);
-    ASSERT_EQ(Insert(&container, temp1, it), 1);
-
-    auto it_1 = IteratorInc(Begin(&container));
-    ASSERT_EQ(Insert(&container, temp2, it_1), 2);
-    
-    auto it_2 = IteratorInc(Begin(&container));
-    ASSERT_EQ(Insert(&container, temp3, it_2), 3);
-
-    ASSERT_EQ(Erase(&container, IteratorInc(Begin(&container))), 2);
-    ASSERT_EQ(Front(&container), temp1);
-    ASSERT_EQ(Back(&container), temp2);
-    
-    ASSERT_EQ(Erase(&container, IteratorInc(Begin(&container))), 1);
+    auto begin_it = Begin(&container);
+    ASSERT_EQ(Insert(&container, temp1, &begin_it), 1);
     ASSERT_EQ(Front(&container), temp1);
     ASSERT_EQ(Back(&container), temp1);
 
-    ASSERT_EQ(Erase(&container, Begin(&container)), 0);
+    begin_it = Begin(&container);
+    auto it_1 = IteratorInc(&begin_it);
+    ASSERT_EQ(Insert(&container, temp2, &it_1), 2);
+    ASSERT_EQ(Front(&container), temp1);
+    ASSERT_EQ(Back(&container), temp2);
+    
+    begin_it = Begin(&container);
+    auto it_2 = IteratorInc(&begin_it);
+    ASSERT_EQ(Insert(&container, temp3, &it_2), 3);
+    ASSERT_EQ(Front(&container), temp1);
+    ASSERT_EQ(Back(&container), temp2);
+
+    begin_it = Begin(&container);
+    auto _2nd_iterator = IteratorInc(&begin_it);
+    ASSERT_EQ(Erase(&container, &_2nd_iterator), 2);
+    ASSERT_EQ(Front(&container), temp1);
+    ASSERT_EQ(Back(&container), temp2);
+    
+    begin_it = Begin(&container);
+    _2nd_iterator = IteratorInc(&begin_it);
+    ASSERT_EQ(Erase(&container, &_2nd_iterator), 1);
+    ASSERT_EQ(Front(&container), temp1);
+    ASSERT_EQ(Back(&container), temp1);
+
+    begin_it = Begin(&container);
+    ASSERT_EQ(Erase(&container, &begin_it), 0);
 }
 
 TYPED_TEST(ContainerTest, PopBack)
@@ -322,10 +345,10 @@ TYPED_TEST(ContainerTest, BeginEndIterator)
     auto it_begin = Begin(&container);
     auto it_end = End(&container);
 
-    auto it = IteratorDec(it_end);
+    auto it = IteratorDec(&it_end);
 
-    ASSERT_EQ(IteratorValue(it_begin), temp1);
-    ASSERT_EQ(IteratorValue(it), temp2);
+    ASSERT_EQ(IteratorValue(&it_begin), temp1);
+    ASSERT_EQ(IteratorValue(&it), temp2);
 }
 
 TYPED_TEST(ContainerTest, IteratorIncrementation)
@@ -343,11 +366,11 @@ TYPED_TEST(ContainerTest, IteratorIncrementation)
     auto it_end = End(&container);
     auto it = it_begin;
 
-    ASSERT_EQ(IteratorValue(it), temp1);
-    it = IteratorInc(it);
-    ASSERT_EQ(IteratorValue(it), temp2);
-    it = IteratorInc(it);
-    ASSERT_EQ(it, it_end);
+    ASSERT_EQ(IteratorValue(&it), temp1);
+    it = IteratorInc(&it);
+    ASSERT_EQ(IteratorValue(&it), temp2);
+    it = IteratorInc(&it);
+    ASSERT_TRUE(Iterator_Equal(&it, &it_end));
 }
 
 TYPED_TEST(ContainerTest, IteratorDecrementation)
@@ -365,11 +388,11 @@ TYPED_TEST(ContainerTest, IteratorDecrementation)
     auto it_end = End(&container);
 
     auto it = it_end;
-    it = IteratorDec(it);
-    ASSERT_EQ(IteratorValue(it), temp2);
-    it = IteratorDec(it);
-    ASSERT_EQ(IteratorValue(it), temp1);
-    ASSERT_EQ(it, it_begin);
+    it = IteratorDec(&it);
+    ASSERT_EQ(IteratorValue(&it), temp2);
+    it = IteratorDec(&it);
+    ASSERT_EQ(IteratorValue(&it), temp1);
+    ASSERT_TRUE(Iterator_Equal(&it_begin, &it));
 }
 
 TYPED_TEST(ContainerTest, IteratorAfterInit)
@@ -380,7 +403,7 @@ TYPED_TEST(ContainerTest, IteratorAfterInit)
     auto it_begin = Begin(&container);
     auto it_end = End(&container);
 
-    ASSERT_EQ(it_begin, it_end);
+    ASSERT_TRUE(Iterator_Equal(&it_begin, &it_end));
 }
 
 TYPED_TEST(ContainerTest, IteratorValues)
@@ -398,13 +421,13 @@ TYPED_TEST(ContainerTest, IteratorValues)
     auto it_end = End(&container);
 
     auto it = it_end;
-    it = IteratorDec(it);
+    it = IteratorDec(&it);
     uint32_t newTemp2{ 2468 };
-    IteratorSetValue(it, newTemp2);
-    ASSERT_EQ(IteratorValue(it), newTemp2);
-    it = IteratorDec(it);
+    IteratorSetValue(&it, newTemp2);
+    ASSERT_EQ(IteratorValue(&it), newTemp2);
+    it = IteratorDec(&it);
     uint32_t newTemp1{ 1357 };
-    IteratorSetValue(it, newTemp1);
-    ASSERT_EQ(IteratorValue(it), newTemp1);
-    ASSERT_EQ(it, it_begin);
+    IteratorSetValue(&it, newTemp1);
+    ASSERT_EQ(IteratorValue(&it), newTemp1);
+    ASSERT_TRUE(Iterator_Equal(&it_begin, &it));
 }

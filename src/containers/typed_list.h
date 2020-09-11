@@ -3,36 +3,40 @@
 #include <assert.h>
 #include "../memory/typed_pool.h"
 
-#define typed_list_t(type_name, member_type, list_capacity) \
+#define typed_list_t(container_t, member_t, container_capacity) \
 \
-typedef struct type_name type_name; \
-typedef struct type_name##_iterator type_name##_iterator; \
+typedef struct container_t container_t; \
+typedef struct container_t##_iterator container_t##_iterator; \
+typedef struct container_t##_node container_t##_node; \
 \
-typedef struct type_name##_iterator \
+typedef struct container_t##_node \
 { \
-    type_name##_iterator * prev; \
-    type_name##_iterator * next; \
-    member_type value; \
-} type_name##_iterator; \
+    container_t##_node * prev; \
+    container_t##_node * next; \
+    member_t value; \
+} container_t##_node; \
 \
-typedef type_name##_iterator type_name##_node; \
-\
-typed_pool_t(type_name##_pool, type_name##_node, list_capacity + 1); \
-\
-typedef struct type_name \
+typedef struct container_t##_iterator \
 { \
-    type_name##_node* begin; \
-    type_name##_node* end; \
-    type_name##_pool pool; \
+    container_t##_node * node; \
+} container_t##_iterator; \
+\
+typed_pool_t(container_t##_pool, container_t##_node, container_capacity + 1); \
+\
+typedef struct container_t \
+{ \
+    container_t##_node* begin; \
+    container_t##_node* end; \
+    container_t##_pool pool; \
     size_t size; \
-} type_name; \
+} container_t; \
 \
-void type_name##_Init(type_name* const self) \
+void container_t##_Init(container_t* const self) \
 { \
     assert(self); \
     \
-    type_name##_pool_Init(&self->pool); \
-    self->end = type_name##_pool_Alloc(&self->pool); \
+    container_t##_pool_Init(&self->pool); \
+    self->end = container_t##_pool_Alloc(&self->pool); \
     assert(self->end); \
     self->begin = self->end; \
     self->begin->prev = NULL; \
@@ -40,14 +44,14 @@ void type_name##_Init(type_name* const self) \
     self->size = 0; \
 } \
 \
-int type_name##_PushBack(type_name* const self, member_type value) \
+int container_t##_PushBack(container_t* const self, member_t value) \
 { \
     assert(self); \
     \
-    type_name##_node* node = type_name##_pool_Alloc(&self->pool); \
+    container_t##_node* node = container_t##_pool_Alloc(&self->pool); \
     if(node) \
     { \
-        type_name##_node* old_end_node = self->end->prev; \
+        container_t##_node* old_end_node = self->end->prev; \
         if(old_end_node) \
         { \
             old_end_node->next = node; \
@@ -71,14 +75,14 @@ int type_name##_PushBack(type_name* const self, member_type value) \
     } \
 } \
 \
-int type_name##_PopBack(type_name* const self) \
+int container_t##_PopBack(container_t* const self) \
 { \
     assert(self); \
     \
-    type_name##_node* old_end_node = self->end->prev; \
-    type_name##_node* new_end_node = old_end_node->prev; \
+    container_t##_node* old_end_node = self->end->prev; \
+    container_t##_node* new_end_node = old_end_node->prev; \
     \
-    type_name##_pool_Free(&self->pool, old_end_node); \
+    container_t##_pool_Free(&self->pool, old_end_node); \
     \
     if(new_end_node == NULL) \
     { \
@@ -97,14 +101,14 @@ int type_name##_PopBack(type_name* const self) \
     return self->size; \
 } \
 \
-int type_name##_PushFront(type_name* const self, member_type value) \
+int container_t##_PushFront(container_t* const self, member_t value) \
 { \
     assert(self); \
     \
-    type_name##_node* node = type_name##_pool_Alloc(&self->pool); \
+    container_t##_node* node = container_t##_pool_Alloc(&self->pool); \
     if(node) \
     { \
-        type_name##_node* old_begin_node = self->begin; \
+        container_t##_node* old_begin_node = self->begin; \
         old_begin_node->prev = node; \
         node->next = old_begin_node; \
         node->prev = NULL; \
@@ -121,14 +125,14 @@ int type_name##_PushFront(type_name* const self, member_type value) \
     } \
 } \
 \
-int type_name##_PopFront(type_name* const self) \
+int container_t##_PopFront(container_t* const self) \
 { \
     assert(self); \
     \
-    type_name##_node* old_begin_node = self->begin; \
-    type_name##_node* new_begin_node = old_begin_node->next; \
+    container_t##_node* old_begin_node = self->begin; \
+    container_t##_node* new_begin_node = old_begin_node->next; \
     \
-    type_name##_pool_Free(&self->pool, old_begin_node); \
+    container_t##_pool_Free(&self->pool, old_begin_node); \
     \
     new_begin_node->prev = NULL; \
     self->begin = new_begin_node; \
@@ -138,26 +142,26 @@ int type_name##_PopFront(type_name* const self) \
     return self->size; \
 } \
 \
-int type_name##_Insert(type_name* const self, member_type value, type_name##_iterator* const iterator) \
+int container_t##_Insert(container_t* const self, member_t value, container_t##_iterator* const iterator) \
 { \
     assert(self); \
     assert(iterator); \
    \
-   if(iterator == self->begin) \
+   if(iterator->node == self->begin) \
    { \
-        return type_name##_PushFront(self, value); \
+        return container_t##_PushFront(self, value); \
    } \
    \
-   else if(iterator == self->end) \
+   else if(iterator->node == self->end) \
    { \
-       return type_name##_PushBack(self, value); \
+       return container_t##_PushBack(self, value); \
    } \
-    type_name##_node* node = type_name##_pool_Alloc(&self->pool); \
+    container_t##_node* node = container_t##_pool_Alloc(&self->pool); \
     if(node) \
     { \
-        type_name##_node* next_iterator = iterator; \
+        container_t##_node* next_iterator = iterator->node; \
         assert(next_iterator); \
-        type_name##_node* prev_iterator = next_iterator->prev; \
+        container_t##_node* prev_iterator = next_iterator->prev; \
         assert(prev_iterator); \
         next_iterator->prev = node; \
         prev_iterator->next = node; \
@@ -175,19 +179,19 @@ int type_name##_Insert(type_name* const self, member_type value, type_name##_ite
     } \
 } \
 \
-int type_name##_Erase(type_name* const self, type_name##_iterator* const iterator) \
+int container_t##_Erase(container_t* const self, container_t##_iterator* const iterator) \
 { \
     assert(self); \
     \
-    type_name##_node* to_delete_node = iterator; \
-    type_name##_node* next_node = to_delete_node->next; \
-    type_name##_node* prev_node = to_delete_node->prev; \
+    container_t##_node* to_delete_node = iterator->node; \
+    container_t##_node* next_node = to_delete_node->next; \
+    container_t##_node* prev_node = to_delete_node->prev; \
     \
-    type_name##_pool_Free(&self->pool, to_delete_node); \
+    container_t##_pool_Free(&self->pool, to_delete_node); \
     \
     if(!prev_node) \
     { \
-        return type_name##_PopFront(self); \
+        return container_t##_PopFront(self); \
     } \
     prev_node->next = next_node; \
     next_node->prev = prev_node; \
@@ -197,7 +201,7 @@ int type_name##_Erase(type_name* const self, type_name##_iterator* const iterato
     return self->size; \
 } \
 \
-member_type type_name##_Front(type_name* const self) \
+member_t container_t##_Front(container_t* const self) \
 { \
     assert(self); \
     assert(self->size > 0); \
@@ -205,7 +209,7 @@ member_type type_name##_Front(type_name* const self) \
     return self->begin->value; \
 } \
 \
-member_type type_name##_Back(type_name* const self) \
+member_t container_t##_Back(container_t* const self) \
 { \
     assert(self); \
     assert(self->size > 0); \
@@ -213,45 +217,59 @@ member_type type_name##_Back(type_name* const self) \
     return self->end->prev->value; \
 } \
 \
-type_name##_iterator*  type_name##_Begin(type_name* const self) \
+container_t##_iterator container_t##_Begin(container_t* const self) \
 { \
     assert(self); \
     \
-    return self->begin; \
+    container_t##_iterator it; \
+    it.node = self->begin; \
+    return it; \
 } \
 \
-type_name##_iterator* type_name##_End(type_name* const self) \
+container_t##_iterator container_t##_End(container_t* const self) \
 { \
     assert(self); \
     \
-    return self->end; \
+    container_t##_iterator it; \
+    it.node = self->end; \
+    return it; \
 } \
 \
-member_type type_name##_Iterator_GetValue(const type_name##_iterator* const self) \
+member_t container_t##_Iterator_GetValue(const container_t##_iterator* const self) \
 { \
     assert(self); \
     \
-    return self->value; \
+    return self->node->value; \
 } \
 \
-void type_name##_Iterator_SetValue(type_name##_iterator* const self, member_type value) \
+void container_t##_Iterator_SetValue(container_t##_iterator* const self, member_t value) \
 { \
     assert(self); \
     \
-    self->value = value; \
+    self->node->value = value; \
 } \
 \
-type_name##_iterator* type_name##_Iterator_Increment(const type_name##_iterator* const self) \
+container_t##_iterator container_t##_Iterator_Next(const container_t##_iterator* const self) \
 { \
     assert(self); \
     \
-    return self->next; \
+    container_t##_iterator it; \
+    it.node = self->node->next; \
+    return it; \
 } \
 \
-type_name##_iterator* type_name##_Iterator_Decrement(const type_name##_iterator* const self) \
+container_t##_iterator container_t##_Iterator_Prev(const container_t##_iterator* const self) \
 { \
     assert(self); \
     \
-    return self->prev; \
+    container_t##_iterator it; \
+    it.node = self->node->prev; \
+    return it; \
+} \
+\
+bool container_t##_Iterator_Equal(const container_t##_iterator* const first, const container_t##_iterator* const second) \
+{ \
+    const bool is_equal = first->node == second->node ; \
+    return is_equal; \
 } \
 
