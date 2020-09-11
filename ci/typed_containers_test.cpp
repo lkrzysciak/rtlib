@@ -27,6 +27,26 @@ int PushBack(ListTestType* const list, int value)
     return ListTestType_PushBack(list, value);
 }
 
+int PushFront(VectorTestType* const vector, int value)
+{
+    return VectorTestType_PushFront(vector, value);
+}
+
+int PushFront(ListTestType* const list, int value)
+{
+    return ListTestType_PushFront(list, value);
+}
+
+int Insert(VectorTestType* const vector, int value, size_t index)
+{
+    return VectorTestType_Insert(vector, value, index);
+}
+
+int Insert(ListTestType* const list, int value, size_t index)
+{
+    return ListTestType_Insert(list, value, index);
+}
+
 int PopBack(VectorTestType* const vector)
 {
     return VectorTestType_PopBack(vector);
@@ -35,6 +55,26 @@ int PopBack(VectorTestType* const vector)
 int PopBack(ListTestType* const list)
 {
     return ListTestType_PopBack(list);
+}
+
+int PopFront(VectorTestType* const vector)
+{
+    return VectorTestType_PopFront(vector);
+}
+
+int PopFront(ListTestType* const list)
+{
+    return ListTestType_PopFront(list);
+}
+
+int Erase(VectorTestType* const vector, size_t index)
+{
+    return VectorTestType_Erase(vector, index);
+}
+
+int Erase(ListTestType* const list, size_t index)
+{
+    return ListTestType_Erase(list, index);
 }
 
 int Back(VectorTestType* const vector)
@@ -107,6 +147,16 @@ auto IteratorDec(ListTestType_iterator* const it)
     return ListTestType_Iterator_Decrement(it);
 }
 
+void IteratorSetValue(VectorTestType_iterator* const it, int value)
+{
+    VectorTestType_Iterator_SetValue(it, value);
+}
+
+void IteratorSetValue(ListTestType_iterator* const it, int value)
+{
+    ListTestType_Iterator_SetValue(it, value);
+}
+
 template<typename T>
 struct ContainerTest : public testing::Test
 {};
@@ -140,6 +190,23 @@ TYPED_TEST(ContainerTest, PushBack)
     ASSERT_EQ(Back(&container), temp2);
 }
 
+TYPED_TEST(ContainerTest, PushFront)
+{
+    TypeParam container{};
+    Init(&container);
+
+    uint32_t temp1{ 3215 };
+    uint32_t temp2{ 23587 };
+
+    ASSERT_EQ(PushFront(&container, temp1), 1);
+    ASSERT_EQ(Front(&container), temp1);
+    ASSERT_EQ(Back(&container), temp1);
+
+    ASSERT_EQ(PushFront(&container, temp2), 2);
+    ASSERT_EQ(Front(&container), temp2);
+    ASSERT_EQ(Back(&container), temp1);
+}
+
 TYPED_TEST(ContainerTest, PopBack)
 {
     TypeParam container{};
@@ -158,6 +225,26 @@ TYPED_TEST(ContainerTest, PopBack)
     ASSERT_EQ(Back(&container), temp1);
     
     ASSERT_EQ(PopBack(&container), 0);
+}
+
+TYPED_TEST(ContainerTest, PopFront)
+{
+    TypeParam container{};
+    Init(&container);
+
+    uint32_t temp1{ 3215 };
+    uint32_t temp2{ 23587 };
+
+    ASSERT_EQ(PushBack(&container, temp1), 1);
+    ASSERT_EQ(PushBack(&container, temp2), 2);
+    ASSERT_EQ(Front(&container), temp1);
+    ASSERT_EQ(Back(&container), temp2);
+
+    ASSERT_EQ(PopFront(&container), 1);
+    ASSERT_EQ(Front(&container), temp2);
+    ASSERT_EQ(Back(&container), temp2);
+    
+    ASSERT_EQ(PopFront(&container), 0);
 }
 
 TYPED_TEST(ContainerTest, BeginEndIterator)
@@ -233,4 +320,30 @@ TYPED_TEST(ContainerTest, IteratorAfterInit)
     auto it_end = End(&container);
 
     ASSERT_EQ(it_begin, it_end);
+}
+
+TYPED_TEST(ContainerTest, IteratorValues)
+{
+    TypeParam container{};
+    Init(&container);
+
+    uint32_t temp1{ 3215 };
+    uint32_t temp2{ 23587 };
+
+    PushBack(&container, temp1);
+    PushBack(&container, temp2);
+
+    auto it_begin = Begin(&container);
+    auto it_end = End(&container);
+
+    auto it = it_end;
+    it = IteratorDec(it);
+    uint32_t newTemp2{ 2468 };
+    IteratorSetValue(it, newTemp2);
+    ASSERT_EQ(IteratorValue(it), newTemp2);
+    it = IteratorDec(it);
+    uint32_t newTemp1{ 1357 };
+    IteratorSetValue(it, newTemp1);
+    ASSERT_EQ(IteratorValue(it), newTemp1);
+    ASSERT_EQ(it, it_begin);
 }

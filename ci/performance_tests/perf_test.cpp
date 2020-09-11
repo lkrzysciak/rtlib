@@ -129,25 +129,33 @@ int main()
 
     uint32_t buf[10000];
     List * list = List_Init(buf, sizeof(buf), sizeof(int));
-    calculate_time_c_ptr_arg(list, List_PushBack, List_PopBack, "[list][rtlib][generic]: ");
+    calculate_time_c_ptr_arg(list, List_PushBack, List_PopBack, "[list][rtlib][generic][back]: ");
 
     TestList test_list; 
     TestList_Init(&test_list);
-    calculate_time_c_value_arg(&test_list, TestList_PushBack, TestList_PopBack, "[list][rtlib][typed]: ");
+    calculate_time_c_value_arg(&test_list, TestList_PushBack, TestList_PopBack, "[list][rtlib][typed][back]: ");
 
     std::list<int> temp_list{};
-    calculate_time_cpp_value_arg(temp_list, push_back, pop_back, "[list][stl]: ");
+    calculate_time_cpp_value_arg(temp_list, push_back, pop_back, "[list][stl][back]: ");
 
     uint32_t buf1[10000];
     Vector * vector = Vector_Init(buf1, sizeof(buf1), sizeof(int));
-    calculate_time_c_ptr_arg(vector, Vector_PushBack, Vector_PopBack, "[vector][rtlib][generic]: ");
+    calculate_time_c_ptr_arg(vector, Vector_PushBack, Vector_PopBack, "[vector][rtlib][generic][back]: ");
 
     TestVector vector_tt; 
     TestVector_Init(&vector_tt);
-    calculate_time_c_value_arg(&vector_tt, TestVector_PushBack, TestVector_PopBack, "[vector][rtlib][typed]: ");
+    calculate_time_c_value_arg(&vector_tt, TestVector_PushBack, TestVector_PopBack, "[vector][rtlib][typed][back]: ");
 
     std::vector<int> temp_vector{};
-    calculate_time_cpp_value_arg(temp_vector, emplace_back, pop_back, "[vector][stl]: ");
-    
+    calculate_time_cpp_value_arg(temp_vector, emplace_back, pop_back, "[vector][stl][back]: ");
+
+    TestList typed_list_2; 
+    TestList_Init(&typed_list_2);
+    calculate_time_c_value_arg(&typed_list_2, TestList_PushFront, TestList_PopFront, "[list][rtlib][typed][front]: ");
+
+    TestVector typed_vector_2; 
+    TestVector_Init(&typed_vector_2);
+    calculate_time_c_value_arg(&typed_vector_2, TestVector_PushFront, TestVector_PopFront, "[vector][rtlib][typed][front]: ");
+
     return 0;
 }

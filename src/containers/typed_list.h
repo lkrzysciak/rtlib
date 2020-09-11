@@ -97,6 +97,88 @@ int type_name##_PopBack(type_name* const self) \
     return self->size; \
 } \
 \
+int type_name##_PushFront(type_name* const self, member_type value) \
+{ \
+    assert(self); \
+    \
+    type_name##_node* node = type_name##_pool_Alloc(&self->pool); \
+    if(node) \
+    { \
+        type_name##_node* old_begin_node = self->begin; \
+        old_begin_node->prev = node; \
+        node->next = old_begin_node; \
+        node->prev = NULL; \
+        node->value = value; \
+        self->begin = node; \
+        \
+        ++self->size; \
+        \
+        return self->size; \
+    } \
+    else \
+    { \
+        return -1; \
+    } \
+} \
+\
+int type_name##_PopFront(type_name* const self) \
+{ \
+    assert(self); \
+    \
+    type_name##_node* old_begin_node = self->begin; \
+    type_name##_node* new_begin_node = old_begin_node->next; \
+    \
+    type_name##_pool_Free(&self->pool, old_begin_node); \
+    \
+    new_begin_node->prev = NULL; \
+    self->begin = new_begin_node; \
+    \
+    --self->size; \
+    \
+    return self->size; \
+} \
+\
+int type_name##_Insert(type_name* const self, member_type value, size_t index) \
+{ \
+    assert(self); \
+    \
+    type_name##_node* node = type_name##_pool_Alloc(&self->pool); \
+    if(node) \
+    { \
+        type_name##_node* old_begin_node = self->begin; \
+        old_begin_node->prev = node; \
+        node->next = old_begin_node; \
+        node->prev = NULL; \
+        node->value = value; \
+        self->begin = node; \
+        \
+        ++self->size; \
+        \
+        return self->size; \
+    } \
+    else \
+    { \
+        return -1; \
+    } \
+} \
+\
+int type_name##_Erase(type_name* const self, size_t index) \
+{ \
+    assert(self); \
+    \
+    type_name##_node* old_begin_node = self->begin; \
+    type_name##_node* new_begin_node = old_begin_node->next; \
+    \
+    type_name##_pool_Free(&self->pool, old_begin_node); \
+    \
+    new_begin_node->prev = NULL; \
+    self->begin = new_begin_node; \
+    \
+    --self->size; \
+    \
+    return self->size; \
+} \
+\
 member_type type_name##_Front(type_name* const self) \
 { \
     assert(self); \
