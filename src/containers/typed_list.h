@@ -147,24 +147,24 @@ int container_t##_Insert(container_t* const self, container_t##_iterator* const 
     assert(self); \
     assert(iterator); \
    \
-   if(iterator->node == self->begin) \
-   { \
-        return container_t##_PushFront(self, value); \
-   } \
-   \
-   else if(iterator->node == self->end) \
-   { \
-       return container_t##_PushBack(self, value); \
-   } \
     container_t##_node* node = container_t##_pool_Alloc(&self->pool); \
     if(node) \
     { \
         container_t##_node* next_iterator = iterator->node; \
         assert(next_iterator); \
-        container_t##_node* prev_iterator = next_iterator->prev; \
-        assert(prev_iterator); \
+        container_t##_node* prev_iterator = NULL; \
+        if(iterator->node != self->begin) \
+        { \
+            prev_iterator = next_iterator->prev; \
+            assert(prev_iterator); \
+            prev_iterator->next = node; \
+        } \
+        else \
+        { \
+            self->begin = node; \
+        } \
+        \
         next_iterator->prev = node; \
-        prev_iterator->next = node; \
         node->next = next_iterator; \
         node->prev = prev_iterator; \
         node->value = value; \
@@ -191,9 +191,12 @@ int container_t##_Erase(container_t* const self, container_t##_iterator* const i
     \
     if(!prev_node) \
     { \
-        return container_t##_PopFront(self); \
+        self->begin = next_node; \
     } \
-    prev_node->next = next_node; \
+    else \
+    { \
+        prev_node->next = next_node; \
+    } \
     next_node->prev = prev_node; \
     \
     --self->size; \
