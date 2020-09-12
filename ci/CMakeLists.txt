@@ -24,15 +24,28 @@ set(TESTS
     typed_containers_test.cpp
     )
 
-set(PERF_TESTS
-    performance_tests/perf_test.cpp)
+add_compile_options(-Wall)
 
 add_executable(ut ut.cpp ${TESTS} ${TESTED_FILES})
 target_link_libraries(ut gtest gtest_main gmock gmock_main)
 
-add_executable(perf_O0 ${PERF_TESTS} ${TESTED_FILES})
-add_executable(perf_O3 ${PERF_TESTS} ${TESTED_FILES})
+add_executable(pool_O0 ${TESTED_FILES} performance_tests/pool_performance_test.cpp)
+add_executable(pool_O3 ${TESTED_FILES} performance_tests/pool_performance_test.cpp)
+# target_compile_options(pool_O0 PRIVATE -O0 -save-temps)
+target_compile_options(pool_O3 PRIVATE -O3 )
 
-target_compile_options(perf_O0 PRIVATE "-O0")
-target_compile_options(perf_O3 PRIVATE "-O3")
-add_compile_options("-Wall -Werror -g")
+add_executable(front_O0 ${TESTED_FILES} performance_tests/front_performance_test.cpp)
+add_executable(front_O3 ${TESTED_FILES} performance_tests/front_performance_test.cpp)
+# target_compile_options(front_O0 PRIVATE -O0 -save-temps)
+target_compile_options(front_O3 PRIVATE -O3)
+
+add_executable(back_O0 ${TESTED_FILES} performance_tests/back_performance_test.cpp)
+add_executable(back_O3 ${TESTED_FILES} performance_tests/back_performance_test.cpp)
+# target_compile_options(back_O0 PRIVATE -O0 -save-temps)
+target_compile_options(back_O3 PRIVATE -O3)
+
+add_executable(middle_O0 ${TESTED_FILES} performance_tests/middle_performance_test.cpp)
+add_executable(middle_O3 ${TESTED_FILES} performance_tests/middle_performance_test.cpp)
+# target_compile_options(middle_O0 PRIVATE -O0)
+target_compile_options(middle_O3 PRIVATE -O3)
+

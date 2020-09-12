@@ -101,7 +101,7 @@ int container_t##_PopFront(container_t * const self) \
     } \
 } \
 \
-int container_t##_Insert(container_t * const self, member_t data, container_t##_iterator* const iterator) \
+int container_t##_Insert(container_t * const self, container_t##_iterator* const iterator, member_t data) \
 { \
     assert(self); \
     assert(iterator); \

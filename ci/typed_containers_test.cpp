@@ -40,13 +40,13 @@ int PushFront(ListTestType* const list, int value)
 template<typename iterator_t>
 int Insert(VectorTestType* const vector, int value, iterator_t* it)
 {
-    return VectorTestType_Insert(vector, value, it);
+    return VectorTestType_Insert(vector, it, value);
 }
 
 template<typename iterator_t>
 int Insert(ListTestType* const list, int value, iterator_t* it)
 {
-    return ListTestType_Insert(list, value, it);
+    return ListTestType_Insert(list, it, value);
 }
 
 int PopBack(VectorTestType* const vector)

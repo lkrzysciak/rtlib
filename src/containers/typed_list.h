@@ -142,7 +142,7 @@ int container_t##_PopFront(container_t* const self) \
     return self->size; \
 } \
 \
-int container_t##_Insert(container_t* const self, member_t value, container_t##_iterator* const iterator) \
+int container_t##_Insert(container_t* const self, container_t##_iterator* const iterator, member_t value) \
 { \
     assert(self); \
     assert(iterator); \
