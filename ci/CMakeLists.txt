@@ -24,7 +24,7 @@ set(TESTS
     typed_containers_test.cpp
     )
 
-set(CMAKE_CXX_FLAGS "-Wall -save-temps=obj")
+set(CMAKE_CXX_FLAGS "-Wall -Werror -save-temps=obj")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -Og")
 set(CMAKE_CXX_FLAGS_RELEASE "-g -O3")
 

@@ -5,7 +5,6 @@
 #include "../memory/typed_pool.h"
 
 #define typed_list_t(container_t, member_t, container_capacity) \
-\
 typedef struct container_t container_t; \
 typedef struct container_t##_iterator container_t##_iterator; \
 typedef struct container_t##_node container_t##_node; \
@@ -308,3 +307,4 @@ container_t##_iterator container_t##_Find(container_t * const self, member_t dat
     } \
     return it; \
 } \
+

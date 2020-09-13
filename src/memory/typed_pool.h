@@ -62,3 +62,4 @@ void type_name##_Free(type_name* const self, member_type* object) \
         self->first_free_block = node; \
     } \
 } \
+
