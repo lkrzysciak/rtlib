@@ -191,6 +191,17 @@ bool Iterator_Equal(ListTestType_iterator* const first, ListTestType_iterator* c
     return ListTestType_Iterator_Equal(first, second);
 }
 
+auto Find(VectorTestType* const vector, int value, bool(*fun)(const int*, const int*))
+{
+    return VectorTestType_Find(vector, value, fun);
+}
+
+auto Find(ListTestType* const list, int value, bool(*fun)(const int*, const int*))
+{
+    return ListTestType_Find(list, value, fun);
+}
+
+
 template<typename T>
 struct ContainerTest : public testing::Test
 {};
@@ -500,4 +511,35 @@ TYPED_TEST(ContainerTest, IteratorValues)
     IteratorSetValue(&it, newTemp1);
     ASSERT_EQ(IteratorValue(&it), newTemp1);
     ASSERT_TRUE(Iterator_Equal(&it_begin, &it));
+}
+
+bool compare_ints(const int* v1, const int* v2)
+{
+    return *v1 == *v2;
+}
+
+TYPED_TEST(ContainerTest, FindAllValues)
+{
+    TypeParam container{};
+    Init(&container);
+
+    uint32_t temp1{ 3215 };
+    uint32_t temp2{ 23587 };
+    uint32_t temp3{ 582 };
+
+    PushBack(&container, temp1);
+    PushBack(&container, temp2);
+    PushBack(&container, temp3);
+
+    auto end_it = End(&container);
+
+    auto it_1 = Find(&container, temp1, compare_ints);
+    ASSERT_EQ(IteratorValue(&it_1), temp1);
+    auto it_2 = Find(&container, temp2, compare_ints);
+    ASSERT_EQ(IteratorValue(&it_2), temp2);
+    auto it_3 = Find(&container, temp3, compare_ints);
+    ASSERT_EQ(IteratorValue(&it_3), temp3);
+
+    auto it_4 = Find(&container, temp3 + 1, compare_ints);
+    ASSERT_TRUE(Iterator_Equal(&it_4, &end_it));
 }

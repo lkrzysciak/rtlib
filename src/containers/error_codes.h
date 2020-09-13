@@ -3,5 +3,6 @@
 enum ErrorCode
 {
     OK,
-    ALLOCATION_ERROR
+    ALLOCATION_ERROR,
+    NON_EXISTING_ELEMENT
 };

@@ -1,7 +1,7 @@
 # rtlib
 Utils for real-time systems
 
-ToDo:
-1. Change iterator functions names:
-Inc -> Next
-Dec -> Previous
+Assumptions:
+Containers need to operate on valid iterators. Passing invalid iterator causes undefined behaviour.
+Increment end iterator and decrement begin iterator is undefined behaviour
+
