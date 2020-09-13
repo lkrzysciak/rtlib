@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <stdbool.h>
+#include "error_codes.h"
 
 #define typed_vector_t(container_t, member_t, container_capacity) \
 typedef struct container_t \
@@ -32,6 +34,13 @@ size_t container_t##_Size(container_t * const self) \
     return self->size; \
 } \
 \
+bool container_t##_Empty(container_t * const self) \
+{ \
+    assert(self); \
+    \
+    return self->size == 0; \
+} \
+\
 int container_t##_PushBack(container_t * const self, member_t data) \
 { \
     assert(self); \
@@ -54,16 +63,10 @@ int container_t##_PushBack(container_t * const self, member_t data) \
 int container_t##_PopBack(container_t * const self) \
 { \
     assert(self); \
-    if(self->size == 0) \
-    { \
-        return -1; \
-    } \
-    else \
-    { \
-        --self->size; \
-        --self->end; \
-        return self->size; \
-    } \
+    \
+    --self->size; \
+    --self->end; \
+    return self->size; \
 } \
 \
 int container_t##_PushFront(container_t * const self, member_t data) \
@@ -88,17 +91,11 @@ int container_t##_PushFront(container_t * const self, member_t data) \
 int container_t##_PopFront(container_t * const self) \
 { \
     assert(self); \
-    if(self->size == 0) \
-    { \
-        return -1; \
-    } \
-    else \
-    { \
-        --self->size; \
-        --self->end; \
-        memmove(&self->data[0], &self->data[1], self->size * sizeof(member_t)); \
-        return self->size; \
-    } \
+    \
+    --self->size; \
+    --self->end; \
+    memmove(&self->data[0], &self->data[1], self->size * sizeof(member_t)); \
+    return self->size; \
 } \
 \
 int container_t##_Insert(container_t * const self, container_t##_iterator* const iterator, member_t data) \
@@ -118,7 +115,7 @@ int container_t##_Insert(container_t * const self, container_t##_iterator* const
     } \
     else \
     { \
-        return -1; \
+        return ALLOCATION_ERROR; \
     } \
 } \
 \
@@ -127,18 +124,11 @@ int container_t##_Erase(container_t * const self, container_t##_iterator* const 
     assert(self); \
     assert(iterator); \
     \
-    if(self->size == 0) \
-    { \
-        return -1; \
-    } \
-    else \
-    { \
-        --self->size; \
-        --self->end; \
-        const size_t to_move_bytes = (uint8_t*)self->end - (uint8_t*)iterator->value; \
-        memmove(iterator->value, iterator->value + 1, to_move_bytes); \
-        return self->size; \
-    } \
+    --self->size; \
+    --self->end; \
+    const size_t to_move_bytes = (uint8_t*)self->end - (uint8_t*)iterator->value; \
+    memmove(iterator->value, iterator->value + 1, to_move_bytes); \
+    return self->size; \
 } \
 \
 member_t container_t##_Front(container_t * const self) \

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <assert.h>
+#include <stdbool.h>
 #include "../memory/typed_pool.h"
 
 #define typed_list_t(container_t, member_t, container_capacity) \
@@ -42,6 +43,20 @@ void container_t##_Init(container_t* const self) \
     self->begin->prev = NULL; \
     self->begin->next = NULL; \
     self->size = 0; \
+} \
+\
+size_t container_t##_Size(const container_t* const self) \
+{ \
+    assert(self); \
+    \
+    return self->size; \
+} \
+\
+bool container_t##_Empty(const container_t* const self) \
+{ \
+    assert(self); \
+    \
+    return self->size == 0; \
 } \
 \
 int container_t##_PushBack(container_t* const self, member_t value) \

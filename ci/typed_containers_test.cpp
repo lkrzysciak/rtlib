@@ -17,6 +17,26 @@ void Init(ListTestType* const list)
     ListTestType_Init(list);
 }
 
+size_t Size(VectorTestType* const vector)
+{
+    return VectorTestType_Size(vector);
+}
+
+size_t Size(ListTestType* const list)
+{
+    return ListTestType_Size(list);
+}
+
+bool Empty(VectorTestType* const vector)
+{
+    return VectorTestType_Empty(vector);
+}
+
+bool Empty(ListTestType* const list)
+{
+    return ListTestType_Empty(list);
+}
+
 int PushBack(VectorTestType* const vector, int value)
 {
     return VectorTestType_PushBack(vector, value);
@@ -187,6 +207,15 @@ TYPED_TEST(ContainerTest, Init)
     Init(&container);
 }
 
+TYPED_TEST(ContainerTest, IsEmptyAfterInit)
+{
+    TypeParam container{};
+    Init(&container);
+
+    ASSERT_EQ(Size(&container), 0);
+    ASSERT_TRUE(Empty(&container));
+}
+
 TYPED_TEST(ContainerTest, PushBack)
 {
     TypeParam container{};
@@ -194,6 +223,7 @@ TYPED_TEST(ContainerTest, PushBack)
 
     uint32_t temp1{ 3215 };
     uint32_t temp2{ 23587 };
+    uint32_t temp3{ 980 };
 
     ASSERT_EQ(PushBack(&container, temp1), 1);
     ASSERT_EQ(Front(&container), temp1);
@@ -202,6 +232,17 @@ TYPED_TEST(ContainerTest, PushBack)
     ASSERT_EQ(PushBack(&container, temp2), 2);
     ASSERT_EQ(Front(&container), temp1);
     ASSERT_EQ(Back(&container), temp2);
+
+    ASSERT_EQ(PushBack(&container, temp3), 3);
+    auto it = Begin(&container);
+    ASSERT_EQ(IteratorValue(&it), temp1);
+    IteratorInc(&it);
+    ASSERT_EQ(IteratorValue(&it), temp2);
+    IteratorInc(&it);
+    ASSERT_EQ(IteratorValue(&it), temp3);
+    
+    ASSERT_EQ(Size(&container), 3);
+    ASSERT_FALSE(Empty(&container));
 }
 
 TYPED_TEST(ContainerTest, PushFront)
@@ -211,6 +252,7 @@ TYPED_TEST(ContainerTest, PushFront)
 
     uint32_t temp1{ 3215 };
     uint32_t temp2{ 23587 };
+    uint32_t temp3{ 980 };
 
     ASSERT_EQ(PushFront(&container, temp1), 1);
     ASSERT_EQ(Front(&container), temp1);
@@ -219,6 +261,17 @@ TYPED_TEST(ContainerTest, PushFront)
     ASSERT_EQ(PushFront(&container, temp2), 2);
     ASSERT_EQ(Front(&container), temp2);
     ASSERT_EQ(Back(&container), temp1);
+
+    ASSERT_EQ(PushFront(&container, temp3), 3);
+    auto it = Begin(&container);
+    ASSERT_EQ(IteratorValue(&it), temp3);
+    IteratorInc(&it);
+    ASSERT_EQ(IteratorValue(&it), temp2);
+    IteratorInc(&it);
+    ASSERT_EQ(IteratorValue(&it), temp1);
+
+    ASSERT_EQ(Size(&container), 3);
+    ASSERT_FALSE(Empty(&container));
 }
 
 TYPED_TEST(ContainerTest, Insert)
@@ -247,6 +300,9 @@ TYPED_TEST(ContainerTest, Insert)
     ASSERT_EQ(IteratorValue(&it), temp3);
     IteratorInc(&it);
     ASSERT_EQ(IteratorValue(&it), temp2);
+
+    ASSERT_EQ(Size(&container), 3);
+    ASSERT_FALSE(Empty(&container));
 }
 
 TYPED_TEST(ContainerTest, Erase)
@@ -268,10 +324,15 @@ TYPED_TEST(ContainerTest, Erase)
     ASSERT_EQ(Insert(&container, temp2, &it), 2);
     ASSERT_EQ(Front(&container), temp1);
     ASSERT_EQ(Back(&container), temp2);
-    
+
     it = Begin(&container);
     IteratorInc(&it);
     ASSERT_EQ(Insert(&container, temp3, &it), 3);
+    ASSERT_EQ(Front(&container), temp1);
+    ASSERT_EQ(Back(&container), temp2);
+    
+    it = Begin(&container);
+    IteratorInc(&it);
     ASSERT_EQ(Front(&container), temp1);
     ASSERT_EQ(Back(&container), temp2);
 
@@ -289,6 +350,9 @@ TYPED_TEST(ContainerTest, Erase)
 
     it = Begin(&container);
     ASSERT_EQ(Erase(&container, &it), 0);
+
+    ASSERT_EQ(Size(&container), 0);
+    ASSERT_TRUE(Empty(&container));
 }
 
 TYPED_TEST(ContainerTest, PopBack)
@@ -309,6 +373,9 @@ TYPED_TEST(ContainerTest, PopBack)
     ASSERT_EQ(Back(&container), temp1);
     
     ASSERT_EQ(PopBack(&container), 0);
+
+    ASSERT_EQ(Size(&container), 0);
+    ASSERT_TRUE(Empty(&container));
 }
 
 TYPED_TEST(ContainerTest, PopFront)
@@ -329,6 +396,9 @@ TYPED_TEST(ContainerTest, PopFront)
     ASSERT_EQ(Back(&container), temp2);
     
     ASSERT_EQ(PopFront(&container), 0);
+
+    ASSERT_EQ(Size(&container), 0);
+    ASSERT_TRUE(Empty(&container));
 }
 
 TYPED_TEST(ContainerTest, BeginEndIterator)
