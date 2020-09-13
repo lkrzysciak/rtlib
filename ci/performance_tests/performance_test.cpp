@@ -12,27 +12,6 @@
 
 int samples[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
-#define calculate_time_c_ptr_arg(container_ob, push_back_ptr, pop_back_ptr, description) \
-{ \
-auto start = std::chrono::high_resolution_clock::now(); \
-\
-for(int i=0; i<10000000; ++i) \
-{ \
-    for(int j=0; j<16; ++j) \
-    { \
-        push_back_ptr(container_ob, &samples[j]); \
-    } \
-    for(int j=0; j<16; ++j) \
-    { \
-        pop_back_ptr(container_ob); \
-    } \
-} \
-auto stop = std::chrono::high_resolution_clock::now(); \
-\
-auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
-std::cout << description << duration.count() << std::endl; \
-}
-
 typed_vector_t(TestVector, int, 20);
 typed_list_t(TestList, int, 20);
 
@@ -57,7 +36,7 @@ void calculateRtlibStaticListBack()
     auto stop = std::chrono::high_resolution_clock::now();
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[list][rtlib][typed][back]: " << duration.count() << std::endl;
+    std::cout << "[RTLib][list-typed-static][back]: " << duration.count() << std::endl;
 }
 
 void calculateRtlibStaticVectorBack()
@@ -81,7 +60,7 @@ void calculateRtlibStaticVectorBack()
     auto stop = std::chrono::high_resolution_clock::now();
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[vector][rtlib][typed][back]: " << duration.count() << std::endl;
+    std::cout << "[RTLib][vector-typed-static][back]: " << duration.count() << std::endl;
 }
 
 void calculateSTLListBack()
@@ -103,7 +82,7 @@ void calculateSTLListBack()
     }
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[list][stl][back]: " << duration.count() << std::endl;
+    std::cout << "[STL][list][back]: " << duration.count() << std::endl;
 }
 
 void calculateSTLVectorBack()
@@ -125,7 +104,7 @@ void calculateSTLVectorBack()
     }
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[vector][stl][back]: " << duration.count() << std::endl;
+    std::cout << "[STL][vector][back]: " << duration.count() << std::endl;
 }
 
 void calculateRtlibGenericStaticListBack_ForTest()
@@ -149,7 +128,7 @@ void calculateRtlibGenericStaticListBack_ForTest()
     auto stop = std::chrono::high_resolution_clock::now();
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[list][rtlib][generic][back]: " << duration.count() << std::endl;
+    std::cout << "[RTLib][list-generic-static][back]: " << duration.count() << std::endl;
 }
 
 void calculateRtlibGenericStaticVectorBack_ForTest()
@@ -173,7 +152,7 @@ void calculateRtlibGenericStaticVectorBack_ForTest()
     auto stop = std::chrono::high_resolution_clock::now();
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[vector][rtlib][generic][back]: " << duration.count() << std::endl;
+    std::cout << "[RTLib][vector-generic-static][back]: " << duration.count() << std::endl;
 }
 
 void calculateOneDirectMemoryOperation_ForTest()
@@ -239,7 +218,7 @@ void calculateRtlibStaticListFront()
     auto stop = std::chrono::high_resolution_clock::now();
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[list][rtlib][typed][front]: " << duration.count() << std::endl;
+    std::cout << "[RTLib][list-typed-static][front]: " << duration.count() << std::endl;
 }
 
 void calculateRtlibStaticVectorFront()
@@ -263,7 +242,7 @@ void calculateRtlibStaticVectorFront()
     auto stop = std::chrono::high_resolution_clock::now();
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[vector][rtlib][typed][front]: " << duration.count() << std::endl;
+    std::cout << "[RTLib][vector-typed-static][front]: " << duration.count() << std::endl;
 }
 
 void calculateSTLListFront()
@@ -285,7 +264,7 @@ void calculateSTLListFront()
     }
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[list][stl][front]: " << duration.count() << std::endl;
+    std::cout << "[STL][list][front]: " << duration.count() << std::endl;
 }
 
 void calculateRtlibStaticListMiddle()
@@ -318,7 +297,7 @@ void calculateRtlibStaticListMiddle()
     auto stop = std::chrono::high_resolution_clock::now();
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[list][rtlib][typed][middle]: " << duration.count() << std::endl;
+    std::cout << "[RTLib][list-typed-static][middle]: " << duration.count() << std::endl;
 }
 
 void calculateRtlibStaticVectorMiddle()
@@ -351,7 +330,7 @@ void calculateRtlibStaticVectorMiddle()
     auto stop = std::chrono::high_resolution_clock::now();
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[vector][rtlib][typed][middle]: " << duration.count() << std::endl;
+    std::cout << "[RTLib][vector-typed-static][middle]: " << duration.count() << std::endl;
 }
 
 void calculateSTLListMiddle()
@@ -381,7 +360,7 @@ void calculateSTLListMiddle()
     }
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[list][stl][middle]: " << duration.count() << std::endl;
+    std::cout << "[STL][list][middle]: " << duration.count() << std::endl;
 }
 
 typed_pool_t(TestPool, int, 20);
@@ -404,7 +383,7 @@ void measureGenericPool()
     auto stop = std::chrono::high_resolution_clock::now();
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[pool][rtlib][generic]: " << duration.count() << std::endl;
+    std::cout << "[RTLib][pool-generic-static]: " << duration.count() << std::endl;
 }
 
 void measureTypedPool()
@@ -425,32 +404,37 @@ void measureTypedPool()
     auto stop = std::chrono::high_resolution_clock::now();
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[pool][rtlib][typed]: " << duration.count() << std::endl;
+    std::cout << "[RTLib][pool-typed-static]: " << duration.count() << std::endl;
 }
 
 int main()
 {
     /* Back */
+    std::cout << "Back: " << std::endl;
     calculateRtlibStaticListBack();
     calculateRtlibStaticVectorBack();
     calculateSTLListBack();
     calculateSTLVectorBack();
 
     /* Front */
+    std::cout << "Front: " << std::endl;
     calculateRtlibStaticListFront();
     calculateRtlibStaticVectorFront();
     calculateSTLListFront();
 
     /* Middle */
+    std::cout << "Middle: " << std::endl;
     calculateRtlibStaticListMiddle();
     calculateRtlibStaticVectorMiddle();
     calculateSTLListMiddle();
 
     /* Pool */
+    std::cout << "Pool: " << std::endl;
     measureGenericPool();
     measureTypedPool();
 
     /* For test */
+    std::cout << "For tests: " << std::endl;
     calculateRtlibGenericStaticListBack_ForTest();
     calculateRtlibGenericStaticVectorBack_ForTest();
     calculateOneDirectMemoryOperation_ForTest();

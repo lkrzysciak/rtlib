@@ -56,7 +56,7 @@ int container_t##_PushBack(container_t * const self, member_t data) \
     } \
     else \
     { \
-        return -1; \
+        return ALLOCATION_ERROR; \
     } \
 } \
 \
@@ -84,7 +84,7 @@ int container_t##_PushFront(container_t * const self, member_t data) \
     } \
     else \
     { \
-        return -1; \
+        return ALLOCATION_ERROR; \
     } \
 } \
 \
