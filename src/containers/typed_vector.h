@@ -191,27 +191,22 @@ void container_t##_Iterator_SetValue(container_t##_iterator* const self, member_
     *self->value = value; \
 } \
 \
-container_t##_iterator container_t##_Iterator_Next(const container_t##_iterator* const self) \
-{ \
-    assert(self); \
-    \
-    container_t##_iterator next_it; \
-    next_it.value = self->value + 1; \
-    return next_it; \
-} \
-\
-container_t##_iterator container_t##_Iterator_Prev(const container_t##_iterator* const self) \
-{ \
-    assert(self); \
-    \
-    container_t##_iterator prev_it; \
-    prev_it.value = self->value - 1; \
-    return prev_it; \
-} \
-\
 bool container_t##_Iterator_Equal(const container_t##_iterator* const first, const container_t##_iterator* const second) \
 { \
     const bool is_equal = first->value == second->value ; \
     return is_equal; \
 } \
-
+\
+void container_t##_Iterator_Increment(container_t##_iterator* const self) \
+{ \
+    assert(self); \
+    \
+    self->value = self->value + 1; \
+} \
+\
+void container_t##_Iterator_Decrement(container_t##_iterator* const self) \
+{ \
+    assert(self); \
+    \
+    self->value = self->value - 1; \
+} \

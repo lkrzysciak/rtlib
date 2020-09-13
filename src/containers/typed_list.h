@@ -151,12 +151,10 @@ int container_t##_Insert(container_t* const self, container_t##_iterator* const 
     if(node) \
     { \
         container_t##_node* next_iterator = iterator->node; \
-        assert(next_iterator); \
         container_t##_node* prev_iterator = NULL; \
         if(iterator->node != self->begin) \
         { \
             prev_iterator = next_iterator->prev; \
-            assert(prev_iterator); \
             prev_iterator->next = node; \
         } \
         else \
@@ -252,27 +250,23 @@ void container_t##_Iterator_SetValue(container_t##_iterator* const self, member_
     self->node->value = value; \
 } \
 \
-container_t##_iterator container_t##_Iterator_Next(const container_t##_iterator* const self) \
-{ \
-    assert(self); \
-    \
-    container_t##_iterator it; \
-    it.node = self->node->next; \
-    return it; \
-} \
-\
-container_t##_iterator container_t##_Iterator_Prev(const container_t##_iterator* const self) \
-{ \
-    assert(self); \
-    \
-    container_t##_iterator it; \
-    it.node = self->node->prev; \
-    return it; \
-} \
-\
 bool container_t##_Iterator_Equal(const container_t##_iterator* const first, const container_t##_iterator* const second) \
 { \
     const bool is_equal = first->node == second->node ; \
     return is_equal; \
+} \
+\
+void container_t##_Iterator_Increment(container_t##_iterator* const self) \
+{ \
+    assert(self); \
+    \
+    self->node = self->node->next; \
+} \
+\
+void container_t##_Iterator_Decrement(container_t##_iterator* const self) \
+{ \
+    assert(self); \
+    \
+    self->node = self->node->prev; \
 } \
 

@@ -24,28 +24,15 @@ set(TESTS
     typed_containers_test.cpp
     )
 
-add_compile_options(-Wall)
+set(CMAKE_CXX_FLAGS "-Wall -save-temps=obj")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -Og")
+set(CMAKE_CXX_FLAGS_RELEASE "-g -O3")
 
-add_executable(ut ut.cpp ${TESTS} ${TESTED_FILES})
-target_link_libraries(ut gtest gtest_main gmock gmock_main)
+add_library(tested_utils ${TESTED_FILES})
 
-# add_executable(pool_O0 ${TESTED_FILES} performance_tests/pool_performance_test.cpp)
-add_executable(pool_O3 ${TESTED_FILES} performance_tests/pool_performance_test.cpp)
-# target_compile_options(pool_O0 PRIVATE -O0 -save-temps)
-target_compile_options(pool_O3 PRIVATE -O3 )
+add_executable(ut ut.cpp ${TESTS})
+target_link_libraries(ut gtest gtest_main gmock gmock_main tested_utils)
 
-# add_executable(front_O0 ${TESTED_FILES} performance_tests/front_performance_test.cpp)
-add_executable(front_O3 ${TESTED_FILES} performance_tests/front_performance_test.cpp)
-# target_compile_options(front_O0 PRIVATE -O0 -save-temps)
-target_compile_options(front_O3 PRIVATE -O3)
-
-# add_executable(back_O0 ${TESTED_FILES} performance_tests/back_performance_test.cpp)
-add_executable(back_O3 ${TESTED_FILES} performance_tests/back_performance_test.cpp)
-# target_compile_options(back_O0 PRIVATE -O0 -save-temps)
-target_compile_options(back_O3 PRIVATE -O3)
-
-# add_executable(middle_O0 ${TESTED_FILES} performance_tests/middle_performance_test.cpp)
-add_executable(middle_O3 ${TESTED_FILES} performance_tests/middle_performance_test.cpp)
-# target_compile_options(middle_O0 PRIVATE -O0)
-target_compile_options(middle_O3 PRIVATE -O3)
+add_executable(performance_tests ${TESTED_FILES} performance_tests/performance_test.cpp)
+target_link_libraries(performance_tests tested_utils)
 
