@@ -4,8 +4,10 @@
 #include <cstdint>
 #include <tuple>
 
-typed_vector_t(VectorTestType, int, 5);
-typed_list_t(ListTestType, int, 5);
+declare_static_vector_t(VectorTestType, int, 5);
+define_static_vector_t(VectorTestType, int, 5);
+declare_static_list_t(ListTestType, int, 5);
+define_static_list_t(ListTestType, int, 5);
 
 void Init(VectorTestType* const vector)
 {

@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include "error_codes.h"
 
-#define typed_vector_t(container_t, member_t, container_capacity) \
+#define declare_static_vector_t(container_t, member_t, container_capacity) \
 typedef struct container_t \
 { \
     size_t size; \
@@ -19,6 +19,28 @@ typedef struct container_t##_iterator \
     member_t* value; \
 } container_t##_iterator; \
 \
+void container_t##_Init(container_t* const self); \
+size_t container_t##_Size(const container_t * const self); \
+bool container_t##_Empty(const container_t * const self); \
+int container_t##_PushBack(container_t * const self, member_t data); \
+int container_t##_PopBack(container_t * const self); \
+int container_t##_PushFront(container_t * const self, member_t data); \
+int container_t##_PopFront(container_t * const self); \
+int container_t##_Insert(container_t * const self, container_t##_iterator* const iterator, member_t data); \
+int container_t##_Erase(container_t * const self, container_t##_iterator* const iterator); \
+member_t container_t##_Front(container_t * const self); \
+member_t container_t##_Back(container_t * const self); \
+container_t##_iterator container_t##_Begin(container_t * const self); \
+container_t##_iterator container_t##_End(container_t * const self); \
+member_t container_t##_Iterator_GetValue(const container_t##_iterator* const self); \
+void container_t##_Iterator_SetValue(container_t##_iterator* const self, member_t value); \
+bool container_t##_Iterator_Equal(const container_t##_iterator* const first, const container_t##_iterator* const second); \
+bool container_t##_Iterator_NotEqual(const container_t##_iterator* const first, const container_t##_iterator* const second); \
+void container_t##_Iterator_Increment(container_t##_iterator* const self); \
+void container_t##_Iterator_Decrement(container_t##_iterator* const self); \
+container_t##_iterator container_t##_Find(container_t * const self, member_t data, bool(*fun)(const member_t*, const member_t*));
+
+#define define_static_vector_t(container_t, member_t, container_capacity) \
 void container_t##_Init(container_t* const self) \
 { \
     assert(self); \
@@ -27,14 +49,14 @@ void container_t##_Init(container_t* const self) \
     self->end = self->data; \
 } \
 \
-size_t container_t##_Size(container_t * const self) \
+size_t container_t##_Size(const container_t * const self) \
 { \
     assert(self); \
     \
     return self->size; \
 } \
 \
-bool container_t##_Empty(container_t * const self) \
+bool container_t##_Empty(const container_t * const self) \
 { \
     assert(self); \
     \
