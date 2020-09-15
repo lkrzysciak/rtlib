@@ -62,4 +62,11 @@ void type_name##_Free(type_name* const self, member_type* object) \
         self->first_free_block = node; \
     } \
 } \
+\
+size_t type_name##_Capacity(type_name* const self) \
+{ \
+    assert(self); \
+    \
+    return pool_capacity; \
+} \
 

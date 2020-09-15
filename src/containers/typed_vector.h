@@ -44,6 +44,7 @@ container_t##_iterator container_t##_Find(container_t * const self, member_t dat
 void container_t##_Init(container_t* const self) \
 { \
     assert(self); \
+    assert(sizeof(self->data) / sizeof(member_t) == container_capacity); \
     \
     self->size = 0; \
     self->end = self->data; \

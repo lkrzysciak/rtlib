@@ -58,6 +58,7 @@ void container_t##_Init(container_t* const self) \
     assert(self); \
     \
     container_t##_pool_Init(&self->pool); \
+    assert(container_t##_pool_Capacity(&self->pool) - 1 == container_capacity); \
     self->end = container_t##_pool_Alloc(&self->pool); \
     assert(self->end); \
     self->begin = self->end; \
