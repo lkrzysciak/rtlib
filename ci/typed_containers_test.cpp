@@ -143,6 +143,26 @@ auto End(ListTestType* const list)
     return ListTestType_End(list);
 }
 
+auto GetValue(VectorTestType* const vector, size_t index)
+{
+    return VectorTestType_GetValue(vector, index);
+}
+
+auto GetValue(ListTestType* const list, size_t index)
+{
+    return ListTestType_GetValue(list, index);
+}
+
+void SetValue(VectorTestType* const vector, size_t index, int value)
+{
+    VectorTestType_SetValue(vector, index, value);
+}
+
+void SetValue(ListTestType* const list, size_t index, int value)
+{
+    ListTestType_SetValue(list, index, value);
+}
+
 auto IteratorValue(VectorTestType_iterator* const it)
 {
     return VectorTestType_Iterator_GetValue(it);
@@ -513,6 +533,32 @@ TYPED_TEST(ContainerTest, IteratorValues)
     IteratorSetValue(&it, newTemp1);
     ASSERT_EQ(IteratorValue(&it), newTemp1);
     ASSERT_TRUE(Iterator_Equal(&it_begin, &it));
+}
+
+TYPED_TEST(ContainerTest, IndexValues)
+{
+    TypeParam container{};
+    Init(&container);
+
+    uint32_t temp1{ 3215 };
+    uint32_t temp2{ 23587 };
+
+    PushBack(&container, temp1);
+    PushBack(&container, temp2);
+
+    ASSERT_EQ(GetValue(&container, 0), temp1);
+    ASSERT_EQ(GetValue(&container, 1), temp2);
+
+    uint32_t newTemp1{ 1357 };
+    uint32_t newTemp2{ 2468 };
+
+    SetValue(&container, 0, newTemp1);
+    ASSERT_EQ(GetValue(&container, 0), newTemp1);
+    ASSERT_EQ(GetValue(&container, 1), temp2);
+
+    SetValue(&container, 1, newTemp2);
+    ASSERT_EQ(GetValue(&container, 0), newTemp1);
+    ASSERT_EQ(GetValue(&container, 1), newTemp2);
 }
 
 bool compare_ints(const int* v1, const int* v2)

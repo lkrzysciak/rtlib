@@ -28,10 +28,12 @@ int container_t##_PushFront(container_t * const self, member_t data); \
 int container_t##_PopFront(container_t * const self); \
 int container_t##_Insert(container_t * const self, container_t##_iterator* const iterator, member_t data); \
 int container_t##_Erase(container_t * const self, container_t##_iterator* const iterator); \
-member_t container_t##_Front(container_t * const self); \
-member_t container_t##_Back(container_t * const self); \
-container_t##_iterator container_t##_Begin(container_t * const self); \
-container_t##_iterator container_t##_End(container_t * const self); \
+member_t container_t##_Front(const container_t * const self); \
+member_t container_t##_Back(const container_t * const self); \
+member_t container_t##_GetValue(const container_t * const self, size_t index); \
+void container_t##_SetValue(container_t * const self, size_t index, member_t value); \
+container_t##_iterator container_t##_Begin(const container_t * const self); \
+container_t##_iterator container_t##_End(const container_t * const self); \
 member_t container_t##_Iterator_GetValue(const container_t##_iterator* const self); \
 void container_t##_Iterator_SetValue(container_t##_iterator* const self, member_t value); \
 bool container_t##_Iterator_Equal(const container_t##_iterator* const first, const container_t##_iterator* const second); \
@@ -168,6 +170,17 @@ member_t container_t##_Back(container_t * const self) \
     assert(self->size > 0); \
     \
     return *(self->end - 1); \
+} \
+\
+member_t container_t##_GetValue(const container_t * const self, size_t index) \
+{ \
+    const member_t value = self->data[index]; \
+    return value; \
+} \
+\
+void container_t##_SetValue(container_t * const self, size_t index, member_t value) \
+{ \
+    self->data[index] = value; \
 } \
 \
 container_t##_iterator container_t##_Begin(container_t * const self) \
