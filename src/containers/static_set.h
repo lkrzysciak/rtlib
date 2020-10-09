@@ -182,6 +182,16 @@ container_t##_iterator container_t##_End(const container_t * const self) \
     assert(self); \
     \
     container_t##_iterator it = {0}; \
+    \
+    /* Go to the last right node */ \
+    container_t##_node* parent_node = NULL; \
+    container_t##_node* child_node = self->root; \
+    while(child_node) \
+    { \
+        parent_node = child_node; \
+        child_node = child_node->right; \
+    } \
+    it.prev = parent_node; \
     return it; \
 } \
 \
