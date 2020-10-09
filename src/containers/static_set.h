@@ -46,7 +46,6 @@ container_t##_iterator container_t##_End(const container_t * const self); \
 member_t container_t##_Iterator_GetValue(const container_t##_iterator* const self); \
 void container_t##_Iterator_SetValue(container_t##_iterator* const self, member_t value); \
 bool container_t##_Iterator_Equal(const container_t##_iterator* const first, const container_t##_iterator* const second); \
-bool container_t##_Iterator_NotEqual(const container_t##_iterator* const first, const container_t##_iterator* const second); \
 void container_t##_Iterator_Increment(container_t##_iterator* const self); \
 void container_t##_Iterator_Decrement(container_t##_iterator* const self); \
 container_t##_iterator container_t##_Find(container_t * const self, member_t data);
@@ -213,11 +212,6 @@ void container_t##_Iterator_SetValue(container_t##_iterator* const self, member_
 bool container_t##_Iterator_Equal(const container_t##_iterator* const first, const container_t##_iterator* const second) \
 { \
     return first->node == second->node; \
-} \
-\
-bool container_t##_Iterator_NotEqual(const container_t##_iterator* const first, const container_t##_iterator* const second) \
-{ \
-    return !(first->node == second->node); \
 } \
 \
 void container_t##_Iterator_Increment(container_t##_iterator* const self) \

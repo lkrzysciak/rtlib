@@ -37,7 +37,6 @@ container_t##_iterator container_t##_End(const container_t * const self); \
 member_t container_t##_Iterator_GetValue(const container_t##_iterator* const self); \
 void container_t##_Iterator_SetValue(container_t##_iterator* const self, member_t value); \
 bool container_t##_Iterator_Equal(const container_t##_iterator* const first, const container_t##_iterator* const second); \
-bool container_t##_Iterator_NotEqual(const container_t##_iterator* const first, const container_t##_iterator* const second); \
 void container_t##_Iterator_Increment(container_t##_iterator* const self); \
 void container_t##_Iterator_Decrement(container_t##_iterator* const self); \
 container_t##_iterator container_t##_Find(container_t * const self, member_t data, bool(*fun)(const member_t*, const member_t*));
@@ -223,12 +222,6 @@ bool container_t##_Iterator_Equal(const container_t##_iterator* const first, con
     return is_equal; \
 } \
 \
-bool container_t##_Iterator_NotEqual(const container_t##_iterator* const first, const container_t##_iterator* const second) \
-{ \
-    const bool is_equal = first->value == second->value ; \
-    return !is_equal; \
-} \
-\
 void container_t##_Iterator_Increment(container_t##_iterator* const self) \
 { \
     assert(self); \
@@ -250,7 +243,7 @@ container_t##_iterator container_t##_Find(container_t * const self, member_t dat
     container_t##_iterator end = container_t##_End(self); \
     container_t##_iterator it=container_t##_Begin(self); \
     \
-    for(; container_t##_Iterator_NotEqual(&it, &end); container_t##_Iterator_Increment(&it)) \
+    for(; !container_t##_Iterator_Equal(&it, &end); container_t##_Iterator_Increment(&it)) \
     { \
         const member_t it_value = container_t##_Iterator_GetValue(&it); \
         if(fun(&data, &it_value)) \
