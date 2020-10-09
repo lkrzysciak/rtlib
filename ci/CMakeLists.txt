@@ -21,7 +21,8 @@ set(TESTS
     heap_test.cpp
     object_pool_test.cpp
     typed_pool_test.cpp
-    typed_containers_test.cpp
+    queue_containers_test.cpp
+    set_test.cpp
     )
 
 set(CMAKE_CXX_FLAGS "-Wall -Werror -save-temps=obj")
