@@ -98,7 +98,7 @@ int container_t##_Insert(container_t * const self, member_t data) \
             { \
                 parent_node = child_node; \
                 \
-                int compare_value = self->compare_function(&child_node->value, &data); \
+                int compare_value = self->compare_function(&data, &child_node->value); \
                 if(compare_value < 0) \
                 { \
                     child_node = child_node->left; \
