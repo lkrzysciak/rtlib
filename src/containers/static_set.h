@@ -260,7 +260,40 @@ void container_t##_Iterator_Increment(container_t##_iterator* const self) \
 \
 void container_t##_Iterator_Decrement(container_t##_iterator* const self) \
 { \
-\
+    assert(self); \
+    \
+    self->node = self->prev; \
+    if(!self->prev) \
+    { \
+        return; \
+    } \
+    else \
+    { \
+        if(self->prev->left != NULL) \
+        { \
+            self->prev = self->prev->left; \
+            while (self->prev->right != NULL) \
+            { \
+                self->prev = self->prev->right; \
+            } \
+            return; \
+        } \
+        \
+        while(1) \
+        { \
+            if(self->prev->parent == NULL) \
+            { \
+                self->prev = NULL; \
+                return; \
+            } \
+            if(self->prev->parent->right == self->prev) \
+            { \
+                self->prev = self->prev->parent; \
+                return; \
+            } \
+            self->prev = self->prev->parent; \
+        } \
+    } \
 } \
 \
 container_t##_iterator container_t##_Find(container_t * const self, member_t data) \

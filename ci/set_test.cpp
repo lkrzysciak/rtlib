@@ -111,7 +111,7 @@ TYPED_TEST(SetTest, IsEmptyAfterInit)
     ASSERT_TRUE(Empty(&container));
 }
 
-TYPED_TEST(SetTest, Insert)
+TYPED_TEST(SetTest, InsertVerifyFromBeginToEnd)
 {
     TypeParam container{};
     Init(&container);
@@ -139,6 +139,40 @@ TYPED_TEST(SetTest, Insert)
     {   
         to_compare_set.insert(IteratorValue(&it));
         IteratorInc(&it);
+    }    
+    ASSERT_EQ(expected_set, to_compare_set);
+    ASSERT_EQ(Size(&container), 5);
+    ASSERT_FALSE(Empty(&container));
+}
+
+TYPED_TEST(SetTest, InsertVerifyFromEndToBegin)
+{
+    TypeParam container{};
+    Init(&container);
+
+    int temp1{ 3215 };
+    int temp2{ 23587 };
+    int temp3{ 980 };
+    int temp4{ 1024 };
+    int temp5{ 5005 };
+
+    std::set<int> expected_set{temp1, temp2, temp3, temp4, temp5};
+
+    ASSERT_EQ(Insert(&container, temp1), 1);
+    ASSERT_EQ(Insert(&container, temp2), 2);
+    ASSERT_EQ(Insert(&container, temp3), 3);
+    ASSERT_EQ(Insert(&container, temp4), 4);
+    ASSERT_EQ(Insert(&container, temp5), 5);
+
+    std::set<int> to_compare_set{};
+
+    auto begin = Begin(&container);
+    auto it = End(&container);
+
+    while(!Iterator_Equal(&it, &begin))
+    {   
+        IteratorDec(&it);
+        to_compare_set.insert(IteratorValue(&it));
     }    
     ASSERT_EQ(expected_set, to_compare_set);
     ASSERT_EQ(Size(&container), 5);
