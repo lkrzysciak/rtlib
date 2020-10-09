@@ -21,6 +21,7 @@ typedef struct container_t##_iterator \
 { \
     container_t##_node * node; \
     container_t##_node * next; \
+    container_t##_node * prev; \
 } container_t##_iterator; \
 \
 typed_pool_t(container_t##_pool, container_t##_node, container_capacity); \
@@ -164,25 +165,39 @@ container_t##_iterator container_t##_Begin(const container_t * const self) \
         child_node = child_node->left; \
     } \
     it.node = parent_node; \
-    it.next = parent_node->parent; \
+    if(parent_node->right) \
+    { \
+        it.next = parent_node->right; \
+    } \
+    else \
+    { \
+        it.next = parent_node->parent; \
+    } \
+    it.prev = NULL; \
     return it; \
 } \
 \
 container_t##_iterator container_t##_End(const container_t * const self) \
 { \
+    assert(self); \
+    \
     container_t##_iterator it = {0}; \
     return it; \
 } \
 \
 member_t container_t##_Iterator_GetValue(const container_t##_iterator* const self) \
 { \
+    assert(self); \
+    \
     member_t member = self->node->value; \
     return member; \
 } \
 \
 void container_t##_Iterator_SetValue(container_t##_iterator* const self, member_t value) \
 { \
-\
+    assert(self); \
+    \
+    self->node->value = value; \
 } \
 \
 bool container_t##_Iterator_Equal(const container_t##_iterator* const first, const container_t##_iterator* const second) \
@@ -192,7 +207,7 @@ bool container_t##_Iterator_Equal(const container_t##_iterator* const first, con
 \
 bool container_t##_Iterator_NotEqual(const container_t##_iterator* const first, const container_t##_iterator* const second) \
 { \
-    return false; \
+    return !(first->node == second->node); \
 } \
 \
 void container_t##_Iterator_Increment(container_t##_iterator* const self) \
