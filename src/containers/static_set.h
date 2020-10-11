@@ -146,7 +146,83 @@ int container_t##_Insert(container_t * const self, member_t data) \
 \
 int container_t##_Erase(container_t * const self, container_t##_iterator* const iterator) \
 { \
-    return 0; \
+    assert(self); \
+    \
+    container_t##_node* to_delete_node = iterator->node; \
+    container_t##_node* to_delete_node_parent = iterator->node->parent; \
+    bool is_to_delete_node_left = to_delete_node_parent->left == to_delete_node; \
+    \
+    if(!to_delete_node->left && !to_delete_node->right) \
+    { \
+        /* The node has no children */ \
+        if(is_to_delete_node_left) \
+        { \
+            to_delete_node_parent->left = NULL; \
+        } \
+        else \
+        { \
+            to_delete_node_parent->right = NULL; \
+        } \
+    } \
+    else if(to_delete_node->left) \
+    { \
+        /* The node has only left child */ \
+        if(is_to_delete_node_left) \
+        { \
+            to_delete_node_parent->left = to_delete_node->left; \
+        } \
+        else \
+        { \
+            to_delete_node_parent->right = to_delete_node->left; \
+        } \
+    } \
+    else if(to_delete_node->right) \
+    { \
+        /* The node has only right child */ \
+        if(is_to_delete_node_left) \
+        { \
+            to_delete_node_parent->left = to_delete_node->right; \
+        } \
+        else \
+        { \
+            to_delete_node_parent->right = to_delete_node->right; \
+        } \
+    } \
+    else \
+    { \
+        /* The node has 2 children */ \
+        \
+        /* Find minimum in right subtree */ \
+        container_t##_node* minimum_node_in_right_subtree = to_delete_node->right; \
+        while(minimum_node_in_right_subtree->left) \
+        { \
+            minimum_node_in_right_subtree = minimum_node_in_right_subtree->left; \
+        } \
+        /* Copy mininum value into to delete node */ \
+        to_delete_node->value = minimum_node_in_right_subtree->value; \
+        \
+        /* Set to_delete_node pointer on new node */ \
+        to_delete_node = minimum_node_in_right_subtree; \
+        to_delete_node_parent = to_delete_node->parent; \
+        \
+        /* Verify if to delete node has right node */ \
+        if(to_delete_node->right) \
+        { \
+            if(to_delete_node_parent->left == to_delete_node) \
+            { \
+                to_delete_node_parent->left = to_delete_node->right; \
+            } \
+            else \
+            { \
+                to_delete_node_parent->right = to_delete_node->right; \
+            } \
+        } \
+    } \
+    \
+    container_t##_pool_Free(&self->pool, to_delete_node); \
+    \
+    --self->size; \
+    return self->size; \
 } \
 \
 container_t##_iterator container_t##_Begin(const container_t * const self) \
