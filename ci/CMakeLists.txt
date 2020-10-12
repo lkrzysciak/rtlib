@@ -26,7 +26,7 @@ set(TESTS
     )
 
 set(CMAKE_CXX_FLAGS "-Wall -Werror -save-temps=obj")
-set(CMAKE_CXX_FLAGS_DEBUG "-g -Og")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-g -O3")
 
 add_library(tested_utils ${TESTED_FILES})

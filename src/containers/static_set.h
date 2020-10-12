@@ -175,6 +175,7 @@ int container_t##_Erase(container_t * const self, container_t##_iterator* const 
         { \
             to_delete_node_parent->right = to_delete_node->left; \
         } \
+        to_delete_node->left->parent = to_delete_node_parent; \
     } \
     else if(to_delete_node->right) \
     { \
@@ -187,6 +188,7 @@ int container_t##_Erase(container_t * const self, container_t##_iterator* const 
         { \
             to_delete_node_parent->right = to_delete_node->right; \
         } \
+        to_delete_node->right->parent = to_delete_node_parent; \
     } \
     else \
     { \
