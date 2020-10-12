@@ -194,17 +194,30 @@ int container_t##_Erase(container_t * const self, container_t##_iterator* const 
     } \
     if(to_delete_node == self->root) \
     { \
-    \
-    } \
-    const bool is_to_delete_node_left = to_delete_node_parent->left == to_delete_node; \
-    \
-    if(is_to_delete_node_left) \
-    { \
-        to_delete_node_parent->left = new_node_at_this_iterator; \
+        if(to_delete_node->left) \
+        { \
+            self->root = to_delete_node->left; \
+            self->root->right = to_delete_node->right; \
+        } \
+        else \
+        { \
+            self->root = to_delete_node->right; \
+            self->root->left = NULL; \
+        } \
+        self->root->parent = NULL; \
     } \
     else \
     { \
-        to_delete_node_parent->right = new_node_at_this_iterator; \
+        const bool is_to_delete_node_left = to_delete_node_parent->left == to_delete_node; \
+        \
+        if(is_to_delete_node_left) \
+        { \
+            to_delete_node_parent->left = new_node_at_this_iterator; \
+        } \
+        else \
+        { \
+            to_delete_node_parent->right = new_node_at_this_iterator; \
+        } \
     } \
     \
     container_t##_pool_Free(&self->pool, to_delete_node); \

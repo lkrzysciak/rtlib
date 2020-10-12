@@ -249,26 +249,26 @@ TYPED_TEST(SetTest, EraseVerifyFromBeginToEnd)
     ASSERT_EQ(Size(&container), 3);
 
     /* Remove temp1 ***************************************************/
-    // it = Begin(&container);
-    // end = End(&container);
+    it = Begin(&container);
+    end = End(&container);
     
-    // while(IteratorValue(&it) != temp1)
-    // {
-    //     IteratorInc(&it);
-    // }
+    while(IteratorValue(&it) != temp1)
+    {
+        IteratorInc(&it);
+    }
 
-    // ASSERT_EQ(Erase(&container, &it), 2);
+    ASSERT_EQ(Erase(&container, &it), 2);
 
-    // std::set<int> expected_set_3{temp3, temp5};
+    std::set<int> expected_set_3{temp3, temp5};
 
-    // it = Begin(&container);
-    // end = End(&container);
-    // to_compare_set.clear();
-    // while(!Iterator_Equal(&it, &end))
-    // {   
-    //     to_compare_set.insert(IteratorValue(&it));
-    //     IteratorInc(&it);
-    // }    
-    // ASSERT_EQ(expected_set_3, to_compare_set);
-    // ASSERT_EQ(Size(&container), 2);
+    it = Begin(&container);
+    end = End(&container);
+    to_compare_set.clear();
+    while(!Iterator_Equal(&it, &end))
+    {   
+        to_compare_set.insert(IteratorValue(&it));
+        IteratorInc(&it);
+    }    
+    ASSERT_EQ(expected_set_3, to_compare_set);
+    ASSERT_EQ(Size(&container), 2);
 }
