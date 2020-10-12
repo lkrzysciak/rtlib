@@ -150,44 +150,23 @@ int container_t##_Erase(container_t * const self, container_t##_iterator* const 
     \
     container_t##_node* to_delete_node = iterator->node; \
     container_t##_node* to_delete_node_parent = iterator->node->parent; \
-    bool is_to_delete_node_left = to_delete_node_parent->left == to_delete_node; \
+    container_t##_node* new_node_at_this_iterator = NULL; \
     \
     if(!to_delete_node->left && !to_delete_node->right) \
     { \
         /* The node has no children */ \
-        if(is_to_delete_node_left) \
-        { \
-            to_delete_node_parent->left = NULL; \
-        } \
-        else \
-        { \
-            to_delete_node_parent->right = NULL; \
-        } \
+        new_node_at_this_iterator = NULL; \
     } \
     else if(to_delete_node->left) \
     { \
         /* The node has only left child */ \
-        if(is_to_delete_node_left) \
-        { \
-            to_delete_node_parent->left = to_delete_node->left; \
-        } \
-        else \
-        { \
-            to_delete_node_parent->right = to_delete_node->left; \
-        } \
+        new_node_at_this_iterator = to_delete_node->left; \
         to_delete_node->left->parent = to_delete_node_parent; \
     } \
     else if(to_delete_node->right) \
     { \
         /* The node has only right child */ \
-        if(is_to_delete_node_left) \
-        { \
-            to_delete_node_parent->left = to_delete_node->right; \
-        } \
-        else \
-        { \
-            to_delete_node_parent->right = to_delete_node->right; \
-        } \
+        new_node_at_this_iterator = to_delete_node->right; \
         to_delete_node->right->parent = to_delete_node_parent; \
     } \
     else \
@@ -210,15 +189,22 @@ int container_t##_Erase(container_t * const self, container_t##_iterator* const 
         /* Verify if to delete node has right node */ \
         if(to_delete_node->right) \
         { \
-            if(to_delete_node_parent->left == to_delete_node) \
-            { \
-                to_delete_node_parent->left = to_delete_node->right; \
-            } \
-            else \
-            { \
-                to_delete_node_parent->right = to_delete_node->right; \
-            } \
+            new_node_at_this_iterator = to_delete_node->right; \
         } \
+    } \
+    if(to_delete_node == self->root) \
+    { \
+    \
+    } \
+    const bool is_to_delete_node_left = to_delete_node_parent->left == to_delete_node; \
+    \
+    if(is_to_delete_node_left) \
+    { \
+        to_delete_node_parent->left = new_node_at_this_iterator; \
+    } \
+    else \
+    { \
+        to_delete_node_parent->right = new_node_at_this_iterator; \
     } \
     \
     container_t##_pool_Free(&self->pool, to_delete_node); \
