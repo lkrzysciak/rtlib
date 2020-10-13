@@ -151,6 +151,7 @@ int container_t##_Erase(container_t * const self, container_t##_iterator* const 
     container_t##_node* to_delete_node = iterator->node; \
     container_t##_node* to_delete_node_parent = iterator->node->parent; \
     container_t##_node* new_node_at_this_iterator = NULL; \
+    assert(to_delete_node); \
     \
     if(!to_delete_node->left && !to_delete_node->right) \
     { \
@@ -168,6 +169,7 @@ int container_t##_Erase(container_t * const self, container_t##_iterator* const 
             minimum_node_in_right_subtree = minimum_node_in_right_subtree->left; \
         } \
         /* Copy mininum value into to delete node */ \
+        assert(minimum_node_in_right_subtree); \
         to_delete_node->value = minimum_node_in_right_subtree->value; \
         \
         /* Set to_delete_node pointer on new node */ \
@@ -200,7 +202,10 @@ int container_t##_Erase(container_t * const self, container_t##_iterator* const 
     if(to_delete_node == self->root) \
     { \
         self->root = new_node_at_this_iterator; \
-        self->root->parent = NULL; \
+        if(self->root) \
+        { \
+            self->root->parent = NULL; \
+        } \
     } \
     else \
     { \
@@ -237,13 +242,16 @@ container_t##_iterator container_t##_Begin(const container_t * const self) \
         child_node = child_node->left; \
     } \
     it.node = parent_node; \
-    if(parent_node->right) \
+    if(parent_node) \
     { \
-        it.next = parent_node->right; \
-    } \
-    else \
-    { \
-        it.next = parent_node->parent; \
+        if(parent_node->right) \
+        { \
+            it.next = parent_node->right; \
+        } \
+        else \
+        { \
+            it.next = parent_node->parent; \
+        } \
     } \
     it.prev = NULL; \
     return it; \
