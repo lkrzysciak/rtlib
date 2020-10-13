@@ -157,19 +157,7 @@ int container_t##_Erase(container_t * const self, container_t##_iterator* const 
         /* The node has no children */ \
         new_node_at_this_iterator = NULL; \
     } \
-    else if(to_delete_node->left) \
-    { \
-        /* The node has only left child */ \
-        new_node_at_this_iterator = to_delete_node->left; \
-        to_delete_node->left->parent = to_delete_node_parent; \
-    } \
-    else if(to_delete_node->right) \
-    { \
-        /* The node has only right child */ \
-        new_node_at_this_iterator = to_delete_node->right; \
-        to_delete_node->right->parent = to_delete_node_parent; \
-    } \
-    else \
+    else if(to_delete_node->left && to_delete_node->right) \
     { \
         /* The node has 2 children */ \
         \
@@ -192,18 +180,26 @@ int container_t##_Erase(container_t * const self, container_t##_iterator* const 
             new_node_at_this_iterator = to_delete_node->right; \
         } \
     } \
+    else if(to_delete_node->left) \
+    { \
+        /* The node has only left child */ \
+        new_node_at_this_iterator = to_delete_node->left; \
+        to_delete_node->left->parent = to_delete_node_parent; \
+    } \
+    else if(to_delete_node->right) \
+    { \
+        /* The node has only right child */ \
+        new_node_at_this_iterator = to_delete_node->right; \
+        to_delete_node->right->parent = to_delete_node_parent; \
+    } \
+    else \
+    { \
+        assert(0); \
+    } \
+    \
     if(to_delete_node == self->root) \
     { \
-        if(to_delete_node->left) \
-        { \
-            self->root = to_delete_node->left; \
-            self->root->right = to_delete_node->right; \
-        } \
-        else \
-        { \
-            self->root = to_delete_node->right; \
-            self->root->left = NULL; \
-        } \
+        self->root = new_node_at_this_iterator; \
         self->root->parent = NULL; \
     } \
     else \
