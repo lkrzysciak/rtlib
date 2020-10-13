@@ -319,4 +319,20 @@ TYPED_TEST(SetTest, EraseVerifyFromBeginToEnd)
     }    
     ASSERT_EQ(expected_set_5, to_compare_set);
     ASSERT_EQ(Size(&container), 0);
+
+    /* Insert temp6 ****************************************/
+    int temp6{ 4321 };
+    ASSERT_EQ(Insert(&container, temp6), 1);
+    std::set<int> expected_set_6{temp6};
+
+    it = Begin(&container);
+    end = End(&container);
+    to_compare_set.clear();
+    while(!Iterator_Equal(&it, &end))
+    {   
+        to_compare_set.insert(IteratorValue(&it));
+        IteratorInc(&it);
+    }    
+    ASSERT_EQ(expected_set_6, to_compare_set);
+    ASSERT_EQ(Size(&container), 1);
 }
