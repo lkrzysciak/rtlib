@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "containers/typed_vector.h"
-#include "containers/typed_list.h"
+#include "containers/static_vector.h"
+#include "containers/static_list.h"
 #include <cstdint>
 #include <tuple>
 

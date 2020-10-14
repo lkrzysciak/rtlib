@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "../memory/typed_pool.h"
 
-#define declare_static_set_t(container_t, member_t, container_capacity) \
+#define declare_static_binary_tree_t(container_t, member_t, container_capacity) \
 typedef struct container_t container_t; \
 typedef struct container_t##_iterator container_t##_iterator; \
 typedef struct container_t##_node container_t##_node; \
@@ -51,7 +51,7 @@ void container_t##_Iterator_Decrement(container_t##_iterator* const self); \
 container_t##_iterator container_t##_Find(container_t * const self, member_t data);
 
 
-#define define_static_set_t(container_t, member_t, container_capacity) \
+#define define_static_binary_tree_t(container_t, member_t, container_capacity) \
 void container_t##_Init(container_t* const self, compare_t compare) \
 { \
     assert(self); \

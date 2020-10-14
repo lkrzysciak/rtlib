@@ -1,9 +1,9 @@
 #include "gtest/gtest.h"
-#include "containers/static_set.h"
+#include "containers/static_binary_tree.h"
 #include <map>
 
-declare_static_set_t(SetType, int, 10);
-define_static_set_t(SetType, int, 10);
+declare_static_binary_tree_t(SetType, int, 10);
+define_static_binary_tree_t(SetType, int, 10);
 
 int compare_set_ints(const int* v1, const int* v2)
 {
