@@ -373,7 +373,29 @@ void container_t##_Iterator_Decrement(container_t##_iterator* const self) \
 \
 container_t##_iterator container_t##_Find(container_t * const self, member_t data) \
 { \
+    assert(self); \
+    \
     container_t##_iterator it = {0}; \
+    \
+    container_t##_node* node = self->root; \
+    \
+    while(node) \
+    { \
+        int compare_result = self->compare_function(&data, &node->value); \
+        if(compare_result == 0) \
+        { \
+            break; \
+        } \
+        else if(compare_result < 0) \
+        { \
+            node = node->left; \
+        } \
+        else \
+        { \
+            node = node->right; \
+        } \
+    } \
+    it.node = node; \
     return it; \
 } \
 

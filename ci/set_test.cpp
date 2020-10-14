@@ -405,3 +405,24 @@ TYPED_TEST(SetTest, ModifyContainerValues)
     }    
     ASSERT_EQ(expected_set_2, to_compare_set);
 }
+
+TYPED_TEST(SetTest, FindExistedMember)
+{
+    TypeParam container{};
+    Init(&container);
+
+    int temp1{ 3215 };
+    int temp2{ 23587 };
+    int temp3{ 980 };
+    int temp4{ 1024 };
+    int temp5{ 5005 };
+
+    Insert(&container, temp1);
+    Insert(&container, temp2);
+    Insert(&container, temp3);
+    Insert(&container, temp4);
+    Insert(&container, temp5);
+
+    auto temp4It = Find(&container, temp4);
+    ASSERT_EQ(IteratorValue(&temp4It), temp4);
+}
