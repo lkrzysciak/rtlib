@@ -336,3 +336,72 @@ TYPED_TEST(SetTest, EraseVerifyFromBeginToEnd)
     ASSERT_EQ(expected_set_6, to_compare_set);
     ASSERT_EQ(Size(&container), 1);
 }
+
+TYPED_TEST(SetTest, ModifyContainerValues)
+{
+    TypeParam container{};
+    Init(&container);
+
+    int temp1{ 3215 };
+    int temp2{ 23587 };
+    int temp3{ 980 };
+    int temp4{ 1024 };
+    int temp5{ 5005 };
+
+    Insert(&container, temp1);
+    Insert(&container, temp2);
+    Insert(&container, temp3);
+    Insert(&container, temp4);
+    Insert(&container, temp5);
+
+    std::set<int> to_compare_set{};
+
+    auto it = Begin(&container);
+    auto end = End(&container);
+
+    /* Change temp4 value */
+    while(IteratorValue(&it) != temp4)
+    {
+        IteratorInc(&it);
+    }
+
+    int temp4_1{ 741 };
+
+    IteratorSetValue(&it, temp4_1);
+
+    std::set<int> expected_set_1{temp1, temp2, temp3, temp4_1, temp5};
+
+    it = Begin(&container);
+    end = End(&container);
+    to_compare_set.clear();
+    while(!Iterator_Equal(&it, &end))
+    {   
+        to_compare_set.insert(IteratorValue(&it));
+        IteratorInc(&it);
+    }    
+    ASSERT_EQ(expected_set_1, to_compare_set);
+
+    /* Change temp1 value */
+    it = Begin(&container);
+    end = End(&container);
+    while(IteratorValue(&it) != temp1)
+    {
+        IteratorInc(&it);
+    }
+
+    int temp1_1{ 8520 };
+
+    IteratorSetValue(&it, temp1_1);
+
+    std::set<int> expected_set_2{temp1_1, temp2, temp3, temp4_1, temp5};
+
+    it = Begin(&container);
+    end = End(&container);
+    to_compare_set.clear();
+    while(!Iterator_Equal(&it, &end))
+    {   
+        to_compare_set.insert(IteratorValue(&it));
+        IteratorInc(&it);
+    }    
+    ASSERT_EQ(expected_set_2, to_compare_set);
+}
