@@ -423,6 +423,42 @@ TYPED_TEST(SetTest, FindExistedMember)
     Insert(&container, temp4);
     Insert(&container, temp5);
 
+    auto temp1It = Find(&container, temp1);
+    ASSERT_EQ(IteratorValue(&temp1It), temp1);
+
+    auto temp2It = Find(&container, temp2);
+    ASSERT_EQ(IteratorValue(&temp2It), temp2);
+
+    auto temp3It = Find(&container, temp3);
+    ASSERT_EQ(IteratorValue(&temp3It), temp3);
+
     auto temp4It = Find(&container, temp4);
     ASSERT_EQ(IteratorValue(&temp4It), temp4);
+
+    auto temp5It = Find(&container, temp5);
+    ASSERT_EQ(IteratorValue(&temp5It), temp5);
+}
+
+TYPED_TEST(SetTest, FindNonExistedMember)
+{
+    TypeParam container{};
+    Init(&container);
+
+    int temp1{ 3215 };
+    int temp2{ 23587 };
+    int temp3{ 980 };
+    int temp4{ 1024 };
+    int temp5{ 5005 };
+    int temp6{ 753 };
+
+    Insert(&container, temp1);
+    Insert(&container, temp2);
+    Insert(&container, temp3);
+    Insert(&container, temp4);
+    Insert(&container, temp5);
+
+    auto end = End(&container);
+
+    auto temp6It = Find(&container, temp6);
+    ASSERT_TRUE(Iterator_Equal(&temp6It, &end));
 }
