@@ -20,7 +20,7 @@ typedef struct container_t##_iterator \
 } container_t##_iterator; \
 \
 typedef int(*compare_t)(const member_t*, const member_t*); \
-typedef int(*hash_t)(const member_t*); \
+typedef unsigned int(*hash_t)(const member_t*); \
 \
 typedef struct container_t \
 { \
@@ -107,7 +107,7 @@ member_t container_t##_Iterator_GetValue(const container_t##_iterator* const sel
 { \
     assert(self); \
     \
-    member_t member; \
+    member_t member = {0}; \
     return member; \
 } \
 \

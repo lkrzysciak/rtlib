@@ -1,9 +1,13 @@
 #include "gtest/gtest.h"
 #include "containers/static_binary_tree.h"
+#include "containers/static_hash_table.h"
 #include <map>
 
 declare_static_binary_tree_t(SetType, int, 10);
 define_static_binary_tree_t(SetType, int, 10);
+
+declare_static_hash_table_t(HashTable, int, 10);
+define_static_hash_table_t(HashTable, int, 10);
 
 int compare_set_ints(const int* v1, const int* v2)
 {
@@ -21,9 +25,19 @@ int compare_set_ints(const int* v1, const int* v2)
     }
 }
 
+unsigned int hash_function(const int* value)
+{
+    return *value;
+}
+
 void Init(SetType* const set_object)
 {
     SetType_Init(set_object, compare_set_ints);
+}
+
+void Init(HashTable* const hash_table)
+{
+    HashTable_Init(hash_table, compare_set_ints, hash_function);
 }
 
 size_t Size(SetType* const set_object)
@@ -31,14 +45,29 @@ size_t Size(SetType* const set_object)
     return SetType_Size(set_object);
 }
 
+size_t Size(HashTable* const hash_table)
+{
+    return HashTable_Size(hash_table);
+}
+
 bool Empty(SetType* const set_object)
 {
     return SetType_Empty(set_object);
 }
 
+bool Empty(HashTable* const set_object)
+{
+    return HashTable_Empty(set_object);
+}
+
 int Insert(SetType* const set_object, int value)
 {
     return SetType_Insert(set_object, value);
+}
+
+int Insert(HashTable* const set_object, int value)
+{
+    return HashTable_Insert(set_object, value);
 }
 
 template<typename iterator_t>
@@ -47,9 +76,20 @@ int Erase(SetType* const set_object, iterator_t* it)
     return SetType_Erase(set_object, it);
 }
 
+template<typename iterator_t>
+int Erase(HashTable* const set_object, iterator_t* it)
+{
+    return HashTable_Erase(set_object, it);
+}
+
 auto Begin(SetType* const set_object)
 {
     return SetType_Begin(set_object);
+}
+
+auto Begin(HashTable* const set_object)
+{
+    return HashTable_Begin(set_object);
 }
 
 auto End(SetType* const set_object)
@@ -57,9 +97,19 @@ auto End(SetType* const set_object)
     return SetType_End(set_object);
 }
 
+auto End(HashTable* const set_object)
+{
+    return HashTable_End(set_object);
+}
+
 auto IteratorValue(SetType_iterator* const it)
 {
     return SetType_Iterator_GetValue(it);
+}
+
+auto IteratorValue(HashTable_iterator* const it)
+{
+    return HashTable_Iterator_GetValue(it);
 }
 
 void IteratorInc(SetType_iterator* const it)
@@ -67,9 +117,19 @@ void IteratorInc(SetType_iterator* const it)
     return SetType_Iterator_Increment(it);
 }
 
+void IteratorInc(HashTable_iterator* const it)
+{
+    return HashTable_Iterator_Increment(it);
+}
+
 void IteratorDec(SetType_iterator* const it)
 {
     return SetType_Iterator_Decrement(it);
+}
+
+void IteratorDec(HashTable_iterator* const it)
+{
+    return HashTable_Iterator_Decrement(it);
 }
 
 void IteratorSetValue(SetType_iterator* const it, int value)
@@ -77,14 +137,29 @@ void IteratorSetValue(SetType_iterator* const it, int value)
     SetType_Iterator_SetValue(it, value);
 }
 
+void IteratorSetValue(HashTable_iterator* const it, int value)
+{
+    HashTable_Iterator_SetValue(it, value);
+}
+
 bool Iterator_Equal(SetType_iterator* const first, SetType_iterator* const second)
 {
     return SetType_Iterator_Equal(first, second);
 }
 
+bool Iterator_Equal(HashTable_iterator* const first, HashTable_iterator* const second)
+{
+    return HashTable_Iterator_Equal(first, second);
+}
+
 auto Find(SetType* const vector, int value)
 {
     return SetType_Find(vector, value);
+}
+
+auto Find(HashTable* const vector, int value)
+{
+    return HashTable_Find(vector, value);
 }
 
 template<typename T>
