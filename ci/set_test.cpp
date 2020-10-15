@@ -462,3 +462,39 @@ TYPED_TEST(SetTest, FindNonExistedMember)
     auto temp6It = Find(&container, temp6);
     ASSERT_TRUE(Iterator_Equal(&temp6It, &end));
 }
+
+TYPED_TEST(SetTest, IncrementAndDecrementIterator)
+{
+    TypeParam container{};
+    Init(&container);
+
+    int temp1{ 3215 };
+    int temp2{ 23587 };
+    int temp3{ 980 };
+    int temp4{ 1024 };
+    int temp5{ 5005 };
+
+    Insert(&container, temp1);
+    Insert(&container, temp2);
+    Insert(&container, temp3);
+    Insert(&container, temp4);
+    Insert(&container, temp5);
+
+    auto it = Begin(&container);
+
+    IteratorInc(&it);
+    IteratorInc(&it);
+    IteratorInc(&it);
+
+    auto it1Value = IteratorValue(&it);
+
+    IteratorInc(&it);
+    IteratorDec(&it);
+    auto it1_1Value = IteratorValue(&it);
+    ASSERT_EQ(it1Value, it1_1Value);
+
+    IteratorDec(&it);
+    IteratorInc(&it);
+    auto it1_2Value = IteratorValue(&it);
+    ASSERT_EQ(it1Value, it1_2Value);
+}

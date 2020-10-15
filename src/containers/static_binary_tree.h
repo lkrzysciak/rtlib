@@ -365,6 +365,7 @@ void container_t##_Iterator_Increment(container_t##_iterator* const self) \
 { \
     assert(self); \
     \
+    self->prev = self->node; \
     self->node = self->next; \
     if(!self->next) \
     { \
@@ -380,6 +381,7 @@ void container_t##_Iterator_Decrement(container_t##_iterator* const self) \
 { \
     assert(self); \
     \
+    self->next = self->node; \
     self->node = self->prev; \
     if(!self->prev) \
     { \
