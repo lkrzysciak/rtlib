@@ -52,6 +52,72 @@ container_t##_iterator container_t##_Find(container_t * const self, member_t dat
 
 
 #define define_static_binary_tree_t(container_t, member_t, container_capacity) \
+static container_t##_node* __##container_t##_GetNextNode(container_t##_node* node) \
+{ \
+    if(!node) \
+    { \
+        return NULL; \
+    } \
+    if(node->right != NULL) \
+    { \
+        node = node->right; \
+        while (node->left != NULL) \
+        { \
+            node = node->left; \
+        } \
+        return node; \
+    } \
+    \
+    while(1) \
+    { \
+        if(node->parent == NULL) \
+        { \
+            node = NULL; \
+            return node; \
+        } \
+        if(node->parent->left == node) \
+        { \
+            node = node->parent; \
+            return node; \
+        } \
+        node = node->parent; \
+    } \
+    return node; \
+} \
+\
+static container_t##_node* __##container_t##_GetPrevNode(container_t##_node* node) \
+{ \
+    if(!node) \
+    { \
+        return NULL; \
+    } \
+    if(node->left != NULL) \
+    { \
+        node = node->left; \
+        while (node->right != NULL) \
+        { \
+            node = node->right; \
+        } \
+        return node; \
+    } \
+    \
+    while(1) \
+    { \
+        if(node->parent == NULL) \
+        { \
+            node = NULL; \
+            return node; \
+        } \
+        if(node->parent->right == node) \
+        { \
+            node = node->parent; \
+            return node; \
+        } \
+        node = node->parent; \
+    } \
+    return node; \
+} \
+\
 void container_t##_Init(container_t* const self, compare_t compare) \
 { \
     assert(self); \
@@ -306,30 +372,7 @@ void container_t##_Iterator_Increment(container_t##_iterator* const self) \
     } \
     else \
     { \
-        if(self->next->right != NULL) \
-        { \
-            self->next = self->next->right; \
-            while (self->next->left != NULL) \
-            { \
-                self->next = self->next->left; \
-            } \
-            return; \
-        } \
-        \
-        while(1) \
-        { \
-            if(self->next->parent == NULL) \
-            { \
-                self->next = NULL; \
-                return; \
-            } \
-            if(self->next->parent->left == self->next) \
-            { \
-                self->next = self->next->parent; \
-                return; \
-            } \
-            self->next = self->next->parent; \
-        } \
+        self->next = __##container_t##_GetNextNode(self->node); \
     } \
 } \
 \
@@ -344,30 +387,7 @@ void container_t##_Iterator_Decrement(container_t##_iterator* const self) \
     } \
     else \
     { \
-        if(self->prev->left != NULL) \
-        { \
-            self->prev = self->prev->left; \
-            while (self->prev->right != NULL) \
-            { \
-                self->prev = self->prev->right; \
-            } \
-            return; \
-        } \
-        \
-        while(1) \
-        { \
-            if(self->prev->parent == NULL) \
-            { \
-                self->prev = NULL; \
-                return; \
-            } \
-            if(self->prev->parent->right == self->prev) \
-            { \
-                self->prev = self->prev->parent; \
-                return; \
-            } \
-            self->prev = self->prev->parent; \
-        } \
+        self->prev = __##container_t##_GetPrevNode(self->node); \
     } \
 } \
 \
@@ -396,6 +416,7 @@ container_t##_iterator container_t##_Find(container_t * const self, member_t dat
         } \
     } \
     it.node = node; \
+    it.next = __##container_t##_GetNextNode(node); \
     return it; \
 } \
 
