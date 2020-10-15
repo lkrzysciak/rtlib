@@ -167,7 +167,8 @@ struct SetTest : public testing::Test
 {};
 
 using MyTypes = testing::Types<
-    SetType
+    SetType,
+    HashTable
         >;
 TYPED_TEST_CASE(SetTest, MyTypes);
 
