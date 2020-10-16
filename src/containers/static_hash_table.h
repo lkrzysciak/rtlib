@@ -17,6 +17,7 @@ typedef struct container_t##_node \
 typedef struct container_t##_iterator \
 { \
     container_t##_node * node; \
+    container_t* container; \
 } container_t##_iterator; \
 \
 typedef int(*compare_t)(const member_t*, const member_t*); \
@@ -98,6 +99,8 @@ int container_t##_Erase(container_t * const self, container_t##_iterator* const 
 { \
     assert(self); \
     \
+    iterator->node->is_busy = false; \
+    --self->size; \
     return self->size; \
 } \
 \
@@ -106,8 +109,10 @@ container_t##_iterator container_t##_Begin(const container_t * const self) \
     assert(self); \
     \
     container_t##_iterator it = {0}; \
-    \
-    \
+    container_t##_node* begin_node = (container_t##_node*)self->data; \
+    for(;!begin_node->is_busy; ++begin_node) {} \
+    it.node = begin_node; \
+    it.container = (container_t*)self; \
     return it; \
 } \
 \
@@ -116,7 +121,9 @@ container_t##_iterator container_t##_End(const container_t * const self) \
     assert(self); \
     \
     container_t##_iterator it = {0}; \
-    \
+    container_t##_node* end_node = (container_t##_node*)self->data + container_capacity; \
+    it.node = end_node; \
+    it.container = (container_t*)self; \
     return it; \
 } \
 \
@@ -124,35 +131,61 @@ member_t container_t##_Iterator_GetValue(const container_t##_iterator* const sel
 { \
     assert(self); \
     \
-    member_t member = {0}; \
+    const member_t member = self->node->value; \
     return member; \
 } \
 \
 void container_t##_Iterator_SetValue(container_t##_iterator* const self, member_t value) \
 { \
     assert(self); \
+    \
+    self->node->value = value; \
 } \
 \
 bool container_t##_Iterator_Equal(const container_t##_iterator* const first, const container_t##_iterator* const second) \
 { \
-    return false; \
+    return first->node == second->node; \
 } \
 \
 void container_t##_Iterator_Increment(container_t##_iterator* const self) \
 { \
     assert(self); \
     \
+    container_t##_iterator end_it = container_t##_End(self->container); \
+    container_t##_node* next_node = self->node + 1; \
+    for(;!next_node->is_busy && next_node != end_it.node; ++next_node) {} \
+    self->node = next_node; \
 } \
 \
 void container_t##_Iterator_Decrement(container_t##_iterator* const self) \
 { \
     assert(self); \
     \
+    container_t##_iterator begin_it = container_t##_Begin(self->container); \
+    container_t##_node* prev_node = self->node - 1; \
+    for(;!prev_node->is_busy && prev_node != begin_it.node; --prev_node) {} \
+    self->node = prev_node; \
+    \
 } \
 \
 container_t##_iterator container_t##_Find(container_t * const self, member_t data) \
 { \
     container_t##_iterator it = {0}; \
+    container_t##_node* found_node = (container_t##_node*)self->data + container_capacity; \
+    const unsigned int hash_value = self->hash_function(&data); \
+    unsigned int start_index = hash_value % container_capacity; \
+    for(unsigned int index=0; index<container_capacity; index++) \
+    { \
+        const unsigned int index_with_offset = (index + start_index) % container_capacity; \
+        int compare_result = self->compare_function(&data,  &self->data[index_with_offset].value); \
+        if(compare_result == 0) \
+        { \
+            found_node = &self->data[index_with_offset]; \
+            break; \
+        } \
+    } \
+    it.node = found_node; \
+    it.container = (container_t*)self; \
     return it; \
 } \
 
