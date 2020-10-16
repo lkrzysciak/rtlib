@@ -49,6 +49,8 @@ container_t##_iterator container_t##_Find(container_t * const self, member_t dat
 void container_t##_Init(container_t* const self, compare_t compare, hash_t hash) \
 { \
     assert(self); \
+    assert(compare); \
+    assert(hash); \
     \
     self->size = 0; \
     self->compare_function = compare; \
@@ -74,6 +76,21 @@ int container_t##_Insert(container_t * const self, member_t data) \
 { \
     assert(self); \
     \
+    if(self->size == container_capacity) \
+    { \
+        return -1; \
+    } \
+    const unsigned int hash_value = self->hash_function(&data); \
+    unsigned int index = hash_value % container_capacity; \
+    \
+    while(self->data[index].is_busy) \
+    { \
+        ++index; \
+        index %= container_capacity; \
+    } \
+    self->data[index].is_busy = true; \
+    self->data[index].value = data; \
+    ++self->size; \
     return self->size; \
 } \
 \
