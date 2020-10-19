@@ -587,6 +587,18 @@ TYPED_TEST(SetTest, IncrementAndDecrementIterator)
     ASSERT_EQ(it1Value, it1_2Value);
 }
 
+
+TYPED_TEST(SetTest, AddedExistingElement)
+{
+    TypeParam container{};
+    Init(&container);
+
+    int temp1{ 3215 };
+
+    ASSERT_EQ(Insert(&container, temp1), 1);
+    ASSERT_EQ(Insert(&container, temp1), ELEMENT_EXISTS);
+}
+
 TYPED_TEST(StaticSetTest, InsertOverLimit)
 {
     TypeParam container{};

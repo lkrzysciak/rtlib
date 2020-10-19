@@ -184,8 +184,7 @@ int container_t##_Insert(container_t * const self, member_t data) \
                 } \
                 else \
                 { \
-                    /* Element exists */ \
-                    return -2; \
+                    return ELEMENT_EXISTS; \
                 } \
             } \
             node->right = NULL; \
