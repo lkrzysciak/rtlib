@@ -4,10 +4,12 @@
 #include <cstdint>
 #include <tuple>
 
-declare_static_vector_t(VectorTestType, int, 5);
-define_static_vector_t(VectorTestType, int, 5);
-declare_static_list_t(ListTestType, int, 5);
-define_static_list_t(ListTestType, int, 5);
+#define CONTAINER_CAPACITY  5
+
+declare_static_vector_t(VectorTestType, int, CONTAINER_CAPACITY);
+define_static_vector_t(VectorTestType, int, CONTAINER_CAPACITY);
+declare_static_list_t(ListTestType, int, CONTAINER_CAPACITY);
+define_static_list_t(ListTestType, int, CONTAINER_CAPACITY);
 
 void Init(VectorTestType* const vector)
 {
@@ -228,11 +230,22 @@ template<typename T>
 struct ContainerTest : public testing::Test
 {};
 
+template<typename T>
+struct StaticContainerTest : public testing::Test
+{};
+
 using MyTypes = testing::Types<
     VectorTestType,
     ListTestType
         >;
+
+using StaticContainerTypes = testing::Types<
+    VectorTestType,
+    ListTestType
+        >;
+
 TYPED_TEST_CASE(ContainerTest, MyTypes);
+TYPED_TEST_CASE(StaticContainerTest, StaticContainerTypes);
 
 TYPED_TEST(ContainerTest, Init)
 {
@@ -590,4 +603,48 @@ TYPED_TEST(ContainerTest, FindAllValues)
 
     auto it_4 = Find(&container, temp3 + 1, compare_ints);
     ASSERT_TRUE(Iterator_Equal(&it_4, &end_it));
+}
+
+TYPED_TEST(StaticContainerTest, PushBackOverLimit)
+{
+    TypeParam container{};
+    Init(&container);
+
+    uint32_t temp1{ 3215 };
+
+    for(int i=0; i<CONTAINER_CAPACITY; ++i)
+    {
+        ASSERT_EQ(PushBack(&container, temp1), i + 1);
+    }
+    ASSERT_EQ(PushBack(&container, temp1), ALLOCATION_ERROR);
+}
+
+TYPED_TEST(StaticContainerTest, PushFrontOverLimit)
+{
+    TypeParam container{};
+    Init(&container);
+
+    uint32_t temp1{ 3215 };
+
+    for(int i=0; i<CONTAINER_CAPACITY; ++i)
+    {
+        ASSERT_EQ(PushFront(&container, temp1), i + 1);
+    }
+    ASSERT_EQ(PushFront(&container, temp1), ALLOCATION_ERROR);
+}
+
+TYPED_TEST(StaticContainerTest, InsertOverLimit)
+{
+    TypeParam container{};
+    Init(&container);
+
+    uint32_t temp1{ 3215 };
+
+    for(int i=0; i<CONTAINER_CAPACITY; ++i)
+    {
+        auto it = Begin(&container);
+        ASSERT_EQ(Insert(&container, temp1, &it), i + 1);
+    }
+    auto it = Begin(&container);
+    ASSERT_EQ(Insert(&container, temp1, &it), ALLOCATION_ERROR);
 }

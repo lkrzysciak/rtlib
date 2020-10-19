@@ -109,7 +109,7 @@ int container_t##_PushBack(container_t* const self, member_t value) \
     } \
     else \
     { \
-        return -1; \
+        return ALLOCATION_ERROR; \
     } \
 } \
 \
@@ -159,7 +159,7 @@ int container_t##_PushFront(container_t* const self, member_t value) \
     } \
     else \
     { \
-        return -1; \
+        return ALLOCATION_ERROR; \
     } \
 } \
 \
@@ -211,7 +211,7 @@ int container_t##_Insert(container_t* const self, container_t##_iterator* const 
     } \
     else \
     { \
-        return -1; \
+        return ALLOCATION_ERROR; \
     } \
 } \
 \

@@ -165,7 +165,6 @@ void container_t##_Iterator_Decrement(container_t##_iterator* const self) \
     container_t##_node* prev_node = self->node - 1; \
     for(;!prev_node->is_busy && prev_node != begin_it.node; --prev_node) {} \
     self->node = prev_node; \
-    \
 } \
 \
 container_t##_iterator container_t##_Find(container_t * const self, member_t data) \

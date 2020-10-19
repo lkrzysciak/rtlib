@@ -2,7 +2,7 @@
 
 enum ErrorCode
 {
-    OK,
-    ALLOCATION_ERROR,
-    NON_EXISTING_ELEMENT
+    ALLOCATION_ERROR = -255,
+    NON_EXISTING_ELEMENT = -254,
+    OK = 0
 };
