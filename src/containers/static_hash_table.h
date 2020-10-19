@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdbool.h>
+#include "error_codes.h"
 
 #define declare_static_hash_table_t(container_t, member_t, container_capacity) \
 typedef struct container_t container_t; \
@@ -79,7 +80,7 @@ int container_t##_Insert(container_t * const self, member_t data) \
     \
     if(self->size == container_capacity) \
     { \
-        return -1; \
+        return ALLOCATION_ERROR; \
     } \
     const unsigned int hash_value = self->hash_function(&data); \
     unsigned int index = hash_value % container_capacity; \

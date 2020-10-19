@@ -3,11 +3,12 @@
 #include "containers/static_hash_table.h"
 #include <map>
 
-declare_static_binary_tree_t(SetType, int, 10);
-define_static_binary_tree_t(SetType, int, 10);
+#define CONTAINER_CAPACITY  10
 
-declare_static_hash_table_t(HashTable, int, 10);
-define_static_hash_table_t(HashTable, int, 10);
+declare_static_binary_tree_t(SetType, int, CONTAINER_CAPACITY);
+define_static_binary_tree_t(SetType, int, CONTAINER_CAPACITY);
+declare_static_hash_table_t(HashTable, int, CONTAINER_CAPACITY);
+define_static_hash_table_t(HashTable, int, CONTAINER_CAPACITY);
 
 int compare_set_ints(const int* v1, const int* v2)
 {
@@ -166,11 +167,22 @@ template<typename T>
 struct SetTest : public testing::Test
 {};
 
+template<typename T>
+struct StaticSetTest : public testing::Test
+{};
+
 using MyTypes = testing::Types<
     SetType,
     HashTable
         >;
+
+using StaticContainerTypes = testing::Types<
+    SetType,
+    HashTable
+        >;
+
 TYPED_TEST_CASE(SetTest, MyTypes);
+TYPED_TEST_CASE(StaticSetTest, StaticContainerTypes);
 
 TYPED_TEST(SetTest, Init)
 {
@@ -573,4 +585,18 @@ TYPED_TEST(SetTest, IncrementAndDecrementIterator)
     IteratorInc(&it);
     auto it1_2Value = IteratorValue(&it);
     ASSERT_EQ(it1Value, it1_2Value);
+}
+
+TYPED_TEST(StaticSetTest, InsertOverLimit)
+{
+    TypeParam container{};
+    Init(&container);
+
+    uint32_t temp1{ 3215 };
+
+    for(int i=0; i<CONTAINER_CAPACITY; ++i)
+    {
+        ASSERT_EQ(Insert(&container, temp1 + i), i + 1);
+    }
+    ASSERT_EQ(Insert(&container, temp1), ALLOCATION_ERROR);
 }

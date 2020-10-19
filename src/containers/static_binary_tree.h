@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include "../memory/typed_pool.h"
+#include "error_codes.h"
 
 #define declare_static_binary_tree_t(container_t, member_t, container_capacity) \
 typedef struct container_t container_t; \
@@ -127,8 +128,6 @@ void container_t##_Init(container_t* const self, compare_t compare) \
     self->compare_function = compare; \
     container_t##_pool_Init(&self->pool); \
     assert(container_t##_pool_Capacity(&self->pool) == container_capacity); \
-    void* end = container_t##_pool_Alloc(&self->pool); \
-    assert(end); \
 \
 } \
 \
@@ -206,7 +205,7 @@ int container_t##_Insert(container_t * const self, member_t data) \
     } \
     else \
     { \
-        return -1; \
+        return ALLOCATION_ERROR; \
     } \
 } \
 \
