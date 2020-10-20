@@ -2,7 +2,6 @@
 
 #include <assert.h>
 #include <stdbool.h>
-#include <stdio.h> /* delete it */
 #include "../memory/typed_pool.h"
 #include "error_codes.h"
 
@@ -13,7 +12,6 @@ typedef struct container_t##_node container_t##_node; \
 \
 typedef struct container_t##_node \
 { \
-    bool is_busy; /* delete it */ \
     member_t value; \
     container_t##_node* prev; \
     container_t##_node* next; \
@@ -32,7 +30,6 @@ typedef unsigned int(*hash_t)(const member_t*); \
 \
 typedef struct container_t \
 { \
-    container_t##_node data[container_capacity]; /* delete it */ \
     container_t##_node* nodes_table[container_capacity]; \
     compare_t compare_function; \
     hash_t hash_function; \
@@ -65,7 +62,6 @@ void container_t##_Init(container_t* const self, compare_t compare, hash_t hash)
     self->size = 0; \
     self->compare_function = compare; \
     self->hash_function = hash; \
-    memset(self->data, 0, container_capacity * sizeof(member_t)); /* delete it */ \
     memset(self->nodes_table, 0, container_capacity * sizeof(self->nodes_table[0])); \
     container_t##_pool_Init(&self->pool); \
     assert(container_t##_pool_Capacity(&self->pool) == container_capacity); \
