@@ -167,7 +167,6 @@ container_t##_iterator container_t##_End(const container_t * const self) \
     \
     container_t##_iterator it = {0}; \
     container_t##_node* end_node = (container_t##_node*)self->nodes_table[container_capacity]; \
-    printf("end it = %p, address: %p\n", end_node, &self->nodes_table[container_capacity]); \
     it.node = end_node; \
     it.container = (container_t*)self; \
     return it; \
@@ -197,7 +196,6 @@ void container_t##_Iterator_Increment(container_t##_iterator* const self) \
 { \
     assert(self); \
     \
-    printf("increment it, node: %p\n", self->node); \
     container_t##_iterator end_it = container_t##_End(self->container); \
     if(self->node == end_it.node)\
     { \
@@ -205,38 +203,25 @@ void container_t##_Iterator_Increment(container_t##_iterator* const self) \
     } \
     if(self->node->next) \
     { \
-        /* If node has subnode, assign next node */ \
         self->node = self->node->next; \
     } \
     else \
     { \
-        /* If node has not subnode, assign next root */ \
-        \
-        /* Get index for current node */ \
         const unsigned int hash_value = self->container->hash_function(&self->node->value); \
         unsigned int index = hash_value % container_capacity; \
         \
-        /* Assign to next pointer root address + 1 */ \
         container_t##_node** ptr_to_next_node_ptr = &self->container->nodes_table[index + 1]; \
         \
-        /* Get end address of roots table */ \
         container_t##_node** ptr_to_end_node_ptr = &self->container->nodes_table[container_capacity]; \
-        printf("end = %p, v: %p\n", ptr_to_end_node_ptr, *ptr_to_end_node_ptr); \
-        printf("next = %p, v: %p\n", ptr_to_next_node_ptr, *ptr_to_end_node_ptr); \
         \
-        /* Increment pointer on root table until next node exists */ \
         while(!*ptr_to_next_node_ptr) \
         { \
-            printf("next = %p, v: %p\n", ptr_to_next_node_ptr, *ptr_to_end_node_ptr); \
             ptr_to_next_node_ptr++; \
-            /* Verify if next node is not end node - if so, break loop */ \
             if(ptr_to_next_node_ptr == ptr_to_end_node_ptr) \
             { \
-                printf("it is end pointer\n"); \
                 break; \
             } \
         } \
-        printf("new node = %p\n", ptr_to_next_node_ptr); \
         self->node = *ptr_to_next_node_ptr; \
     } \
 } \
@@ -246,9 +231,44 @@ void container_t##_Iterator_Decrement(container_t##_iterator* const self) \
     assert(self); \
     \
     container_t##_iterator begin_it = container_t##_Begin(self->container); \
-    container_t##_node* prev_node = self->node - 1; \
-    for(;!prev_node->is_busy && prev_node != begin_it.node; --prev_node) {} \
-    self->node = prev_node; \
+    if(self->node == begin_it.node)\
+    { \
+        return; \
+    } \
+    if(self->node != self->container->nodes_table[container_capacity] && self->node->prev) \
+    { \
+        self->node = self->node->prev; \
+    } \
+    else \
+    { \
+        unsigned int index = 0; \
+        if(self->node == self->container->nodes_table[container_capacity]) \
+        { \
+            index = container_capacity; \
+        } \
+        else \
+        { \
+            const unsigned int hash_value = self->container->hash_function(&self->node->value); \
+            index = hash_value % container_capacity; \
+            \
+        } \
+        container_t##_node** ptr_to_next_node_ptr = &self->container->nodes_table[index - 1]; \
+        \
+        while(!*ptr_to_next_node_ptr) \
+        { \
+            ptr_to_next_node_ptr--; \
+            if(*ptr_to_next_node_ptr == begin_it.node) \
+            { \
+                break; \
+            } \
+        } \
+        container_t##_node* subnode = *ptr_to_next_node_ptr; \
+        while(subnode->next) \
+        { \
+            subnode = subnode->next; \
+        } \
+        self->node = subnode; \
+    } \
 } \
 \
 container_t##_iterator container_t##_Find(container_t * const self, member_t data) \
