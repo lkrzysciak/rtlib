@@ -99,6 +99,10 @@ int container_t##_Insert(container_t * const self, member_t data) \
         \
         while(last_node_for_this_hash) \
         { \
+            if(self->compare_function(&data, &last_node_for_this_hash->value) == 0) \
+            { \
+                return ELEMENT_EXISTS; \
+            } \
             before_the_last_node_for_this_hash = last_node_for_this_hash; \
             last_node_for_this_hash = last_node_for_this_hash->next; \
         } \
