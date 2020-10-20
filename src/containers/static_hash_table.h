@@ -132,6 +132,13 @@ int container_t##_Erase(container_t * const self, container_t##_iterator* const 
     { \
         prev_node->next = next_node; \
     } \
+    else \
+    { \
+        const unsigned int hash_value = self->hash_function(&iterator->node->value); \
+        unsigned int index = hash_value % container_capacity; \
+        self->nodes_table[index] = next_node; \
+    } \
+    \
     if(next_node) \
     { \
         next_node->prev = prev_node; \
