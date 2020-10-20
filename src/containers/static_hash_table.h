@@ -282,21 +282,20 @@ void container_t##_Iterator_Decrement(container_t##_iterator* const self) \
 \
 container_t##_iterator container_t##_Find(container_t * const self, member_t data) \
 { \
-    container_t##_iterator it = {0}; \
-    container_t##_node* found_node = (container_t##_node*)self->data + container_capacity; \
+    container_t##_iterator it = container_t##_End(self); \
     const unsigned int hash_value = self->hash_function(&data); \
-    unsigned int start_index = hash_value % container_capacity; \
-    for(unsigned int index=0; index<container_capacity; index++) \
+    unsigned int index = hash_value % container_capacity; \
+    container_t##_node* temp_node = self->nodes_table[index]; \
+    while(temp_node) \
     { \
-        const unsigned int index_with_offset = (index + start_index) % container_capacity; \
-        int compare_result = self->compare_function(&data,  &self->data[index_with_offset].value); \
+        const int compare_result = self->compare_function(&data,  &temp_node->value); \
         if(compare_result == 0) \
         { \
-            found_node = &self->data[index_with_offset]; \
+            it.node = temp_node; \
             break; \
         } \
+        temp_node = temp_node->next; \
     } \
-    it.node = found_node; \
     it.container = (container_t*)self; \
     return it; \
 } \
