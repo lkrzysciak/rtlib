@@ -11,9 +11,9 @@ include_directories(${CMAKE_HOME_DIRECTORY}/src)
 add_subdirectory(googletest-release-1.10.0)
 
 set(TESTED_FILES
-    ../src/containers/list.c
-    ../src/containers/vector.c
-    ../src/memory/object_pool.c)
+    ../src/for_tests/list.c
+    ../src/for_tests/vector.c
+    ../src/for_tests/object_pool.c)
 
 set(TESTS
     list_test.cpp

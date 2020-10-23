@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
 #include <cstdint>
 
-#include "memory/heap.h"
-#include "memory/heap.c"  // To have access to private members
+#include "for_tests/heap.h"
+#include "for_tests/heap.c"  // To have access to private members
 
 TEST(HeapTest, Init)
 {

@@ -1,8 +1,8 @@
 set(LIB_SOURCES
-    containers/list.c
-    containers/vector.c
-    memory/heap.c
-    memory/object_pool.c)
+    for_tests/list.c
+    for_tests/vector.c
+    for_tests/heap.c
+    for_tests/object_pool.c)
 
 set (CMAKE_CXX_STANDARD 17)
 

@@ -4,7 +4,7 @@ extern "C"
 #endif
 
 #include "list.h"
-#include "../memory/object_pool.h"
+#include "../for_tests/object_pool.h"
 #include <string.h>
 #include <assert.h>
 #include <stdint.h>

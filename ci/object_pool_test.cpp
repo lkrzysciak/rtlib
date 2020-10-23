@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "memory/object_pool.h"
+#include "for_tests/object_pool.h"
 #include <cstdint>
 
 extern size_t Sizeof_ObjectBlock;
