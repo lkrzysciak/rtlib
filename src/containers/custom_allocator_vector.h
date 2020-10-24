@@ -128,9 +128,10 @@ int container_t##_PushFront(container_t * const self, member_t data) \
     else \
     { \
         self->capacity *= 2; \
-        member_t* new_data = allocator_t##_Allocate(&self->allocator, self->capacity); \
+        member_t* new_data = allocator_t##_Reallocate(&self->allocator, self->data, self->capacity); \
         if(new_data) \
         { \
+            self->data = new_data; \
             memmove(&self->data[1], &self->data[0], self->size * sizeof(member_t)); \
             self->data[0] = data; \
             ++self->size; \
@@ -170,9 +171,10 @@ int container_t##_Insert(container_t * const self, container_t##_iterator* const
     else \
     { \
         self->capacity *= 2; \
-        member_t* new_data = allocator_t##_Allocate(&self->allocator, self->capacity); \
+        member_t* new_data = allocator_t##_Reallocate(&self->allocator, self->data, self->capacity); \
         if(new_data) \
         { \
+            self->data = new_data; \
             const size_t to_move_bytes = (uint8_t*)&self->data[self->size] - (uint8_t*)iterator->value; \
             memmove(iterator->value + 1, iterator->value, to_move_bytes); \
             *iterator->value = data; \
