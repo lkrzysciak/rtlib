@@ -2,23 +2,33 @@
 #include <chrono>
 #include <list>
 #include <vector>
-#include "containers/list.h"
-#include "containers/vector.h"
+#include "for_tests/list.h"
+#include "for_tests/vector.h"
+#include "for_tests/object_pool.h"
 #include <memory_resource>
-#include "containers/typed_vector.h"
-#include "containers/typed_list.h"
-#include "memory/object_pool.h"
+#include "containers/static_vector.h"
+#include "containers/static_list.h"
+#include "memory/static_one_chunk_allocator.h"
+#include "containers/custom_allocator_vector.h"
 #include "memory/typed_pool.h"
 
 int samples[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
-typed_vector_t(TestVector, int, 20);
-typed_list_t(TestList, int, 20);
+declare_static_vector_t(TestVector, int, 20);
+define_static_vector_t(TestVector, int, 20);
+
+declare_static_list_t(TestList, int, 20);
+define_static_list_t(TestList, int, 20);
+
+declare_static_one_chunk_allocator_t(StaticOneChunkllocator, int, 20);
+define_static_one_chunk_allocator_t(StaticOneChunkllocator, int, 20);
+declare_custom_allocator_vector_t(CustomAllocatorVector, int, StaticOneChunkllocator);
+define_custom_allocator_vector_t(CustomAllocatorVector, int, StaticOneChunkllocator);
 
 void calculateRtlibStaticListBack()
 {
     TestList typed_list; 
-    TestList_Init(&typed_list);
+    TestList_Construct(&typed_list);
 
     auto start = std::chrono::high_resolution_clock::now();
     
@@ -42,7 +52,7 @@ void calculateRtlibStaticListBack()
 void calculateRtlibStaticVectorBack()
 {
     TestVector vector; 
-    TestVector_Init(&vector);
+    TestVector_Construct(&vector);
 
     auto start = std::chrono::high_resolution_clock::now();
     
@@ -61,6 +71,30 @@ void calculateRtlibStaticVectorBack()
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[RTLib][vector-typed-static][back]: " << duration.count() << std::endl;
+}
+
+void calculateRtlibStaticCustomAllocatorVectorBack()
+{
+    CustomAllocatorVector vector; 
+    CustomAllocatorVector_Construct(&vector);
+
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    for(int i=0; i<10000000; ++i)
+    {
+        for(int j=0; j<16; ++j)
+        {
+            CustomAllocatorVector_PushBack(&vector, samples[j]);
+        }
+        for(int j=0; j<16; ++j)
+        {
+            CustomAllocatorVector_PopBack(&vector);
+        }
+    }
+    auto stop = std::chrono::high_resolution_clock::now();
+    
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+    std::cout << "[RTLib][vector-typed-custom(static)][back]: " << duration.count() << std::endl;
 }
 
 void calculateSTLListBack()
@@ -199,7 +233,7 @@ void calculateMultipleDirectMemoryOperation_ForTest()
 void calculateRtlibStaticListFront()
 {
     TestList typed_list; 
-    TestList_Init(&typed_list);
+    TestList_Construct(&typed_list);
 
     
     auto start = std::chrono::high_resolution_clock::now();
@@ -224,7 +258,7 @@ void calculateRtlibStaticListFront()
 void calculateRtlibStaticVectorFront()
 {
     TestVector vector; 
-    TestVector_Init(&vector);
+    TestVector_Construct(&vector);
 
     auto start = std::chrono::high_resolution_clock::now();
     
@@ -270,7 +304,7 @@ void calculateSTLListFront()
 void calculateRtlibStaticListMiddle()
 {
     TestList typed_list; 
-    TestList_Init(&typed_list);
+    TestList_Construct(&typed_list);
 
     auto begin_it = TestList_Begin(&typed_list);
     TestList_Insert(&typed_list, &begin_it, 0);
@@ -303,7 +337,7 @@ void calculateRtlibStaticListMiddle()
 void calculateRtlibStaticVectorMiddle()
 {
     TestVector vector; 
-    TestVector_Init(&vector);
+    TestVector_Construct(&vector);
 
     auto begin_it = TestVector_Begin(&vector);
     TestVector_Insert(&vector, &begin_it, 0);
@@ -413,6 +447,7 @@ int main()
     std::cout << "Back: " << std::endl;
     calculateRtlibStaticListBack();
     calculateRtlibStaticVectorBack();
+    calculateRtlibStaticCustomAllocatorVectorBack();
     calculateSTLListBack();
     calculateSTLVectorBack();
 

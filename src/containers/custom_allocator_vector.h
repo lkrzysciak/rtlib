@@ -49,7 +49,7 @@ void container_t##_Construct(container_t* const self) \
     \
     self->capacity = 4; \
     allocator_t##_Construct(&self->allocator); \
-    self->data = (member_t*)allocator_t##_Allocate(&self->allocator, self->capacity * sizeof(member_t)); \
+    self->data = (member_t*)allocator_t##_Allocate(&self->allocator, self->capacity); \
     assert(self->data); \
     self->size = 0; \
 } \
@@ -79,7 +79,7 @@ int container_t##_PushBack(container_t * const self, member_t data) \
     assert(self); \
     assert(data); \
     \
-    if(self->size * sizeof(member_t) < self->capacity) \
+    if(self->size < self->capacity) \
     { \
         self->data[self->size] = data; \
         ++self->size; \
@@ -117,7 +117,7 @@ int container_t##_PushFront(container_t * const self, member_t data) \
 { \
     assert(self); \
     \
-    if(self->size * sizeof(member_t) < self->capacity) \
+    if(self->size < self->capacity) \
     { \
         memmove(&self->data[1], &self->data[0], self->size * sizeof(member_t)); \
         self->data[0] = data; \
