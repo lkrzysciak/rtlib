@@ -30,7 +30,7 @@ typedef unsigned int(*hash_t)(const member_t*); \
 \
 typedef struct container_t \
 { \
-    container_t##_node* nodes_table[container_capacity]; \
+    container_t##_node* nodes_table[container_capacity + 1]; \
     compare_t compare_function; \
     hash_t hash_function; \
     size_t size; \
