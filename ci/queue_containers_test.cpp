@@ -20,12 +20,12 @@ define_custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
 
 void Init(VectorTestType* const vector)
 {
-    VectorTestType_Init(vector);
+    VectorTestType_Construct(vector);
 }
 
 void Init(ListTestType* const list)
 {
-    ListTestType_Init(list);
+    ListTestType_Construct(list);
 }
 
 void Init(CustomAllocatorVector* const list)
@@ -35,12 +35,12 @@ void Init(CustomAllocatorVector* const list)
 
 void Deinit(VectorTestType* const vector)
 {
-
+    VectorTestType_Destroy(vector);
 }
 
 void Deinit(ListTestType* const list)
 {
-
+    ListTestType_Destroy(list);
 }
 
 void Deinit(CustomAllocatorVector* const list)

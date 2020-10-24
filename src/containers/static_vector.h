@@ -19,7 +19,8 @@ typedef struct container_t##_iterator \
     member_t* value; \
 } container_t##_iterator; \
 \
-void container_t##_Init(container_t* const self); \
+void container_t##_Construct(container_t* const self); \
+void container_t##_Destroy(container_t* const self); \
 size_t container_t##_Size(const container_t * const self); \
 bool container_t##_Empty(const container_t * const self); \
 int container_t##_PushBack(container_t * const self, member_t data); \
@@ -42,13 +43,18 @@ void container_t##_Iterator_Decrement(container_t##_iterator* const self); \
 container_t##_iterator container_t##_Find(container_t * const self, member_t data, bool(*fun)(const member_t*, const member_t*));
 
 #define define_static_vector_t(container_t, member_t, container_capacity) \
-void container_t##_Init(container_t* const self) \
+void container_t##_Construct(container_t* const self) \
 { \
     assert(self); \
     assert(sizeof(self->data) / sizeof(member_t) == container_capacity); \
     \
     self->size = 0; \
     self->end = self->data; \
+} \
+\
+void container_t##_Destroy(container_t* const self) \
+{ \
+\
 } \
 \
 size_t container_t##_Size(const container_t * const self) \

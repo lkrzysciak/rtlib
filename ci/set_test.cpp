@@ -33,12 +33,22 @@ unsigned int hash_function(const int* value)
 
 void Init(SetType* const set_object)
 {
-    SetType_Init(set_object, compare_set_ints);
+    SetType_Construct(set_object, compare_set_ints);
 }
 
 void Init(HashTable* const hash_table)
 {
-    HashTable_Init(hash_table, compare_set_ints, hash_function);
+    HashTable_Construct(hash_table, compare_set_ints, hash_function);
+}
+
+void Deinit(SetType* const set_object)
+{
+    SetType_Destroy(set_object);
+}
+
+void Deinit(HashTable* const hash_table)
+{
+    HashTable_Destroy(hash_table);
 }
 
 size_t Size(SetType* const set_object)

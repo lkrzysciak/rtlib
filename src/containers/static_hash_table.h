@@ -37,7 +37,8 @@ typedef struct container_t \
     container_t##_pool pool; \
 } container_t; \
 \
-void container_t##_Init(container_t* const self, compare_t compare, hash_t hash); \
+void container_t##_Construct(container_t* const self, compare_t compare, hash_t hash); \
+void container_t##_Destroy(container_t* const self); \
 size_t container_t##_Size(const container_t * const self); \
 bool container_t##_Empty(const container_t * const self); \
 int container_t##_Insert(container_t * const self, container_t##_iterator* const iterator, member_t data); \
@@ -53,7 +54,7 @@ container_t##_iterator container_t##_Find(container_t * const self, member_t dat
 
 
 #define define_static_hash_table_t(container_t, member_t, container_capacity) \
-void container_t##_Init(container_t* const self, compare_t compare, hash_t hash) \
+void container_t##_Construct(container_t* const self, compare_t compare, hash_t hash) \
 { \
     assert(self); \
     assert(compare); \
@@ -66,6 +67,8 @@ void container_t##_Init(container_t* const self, compare_t compare, hash_t hash)
     container_t##_pool_Init(&self->pool); \
     assert(container_t##_pool_Capacity(&self->pool) == container_capacity); \
 } \
+\
+void container_t##_Destroy(container_t* const self) {} \
 \
 size_t container_t##_Size(const container_t * const self) \
 { \
