@@ -1,6 +1,8 @@
 #include "gtest/gtest.h"
 #include "containers/static_vector.h"
 #include "containers/static_list.h"
+#include "containers/custom_allocator_vector.h"
+#include "memory/dynamic_allocator.h"
 #include <cstdint>
 #include <tuple>
 
@@ -10,6 +12,11 @@ declare_static_vector_t(VectorTestType, int, CONTAINER_CAPACITY);
 define_static_vector_t(VectorTestType, int, CONTAINER_CAPACITY);
 declare_static_list_t(ListTestType, int, CONTAINER_CAPACITY);
 define_static_list_t(ListTestType, int, CONTAINER_CAPACITY);
+
+declare_dynamic_allocator_t(DynamicAllocator, int);
+define_dynamic_allocator_t(DynamicAllocator, int);
+declare_custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
+define_custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
 
 void Init(VectorTestType* const vector)
 {
