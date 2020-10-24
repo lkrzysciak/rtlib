@@ -33,6 +33,21 @@ void Init(CustomAllocatorVector* const list)
     CustomAllocatorVector_Construct(list);
 }
 
+void Deinit(VectorTestType* const vector)
+{
+
+}
+
+void Deinit(ListTestType* const list)
+{
+
+}
+
+void Deinit(CustomAllocatorVector* const list)
+{
+    CustomAllocatorVector_Destroy(list);
+}
+
 size_t Size(VectorTestType* const vector)
 {
     return VectorTestType_Size(vector);
@@ -341,11 +356,35 @@ auto Find(CustomAllocatorVector* const list, int value, bool(*fun)(const int*, c
 
 template<typename T>
 struct ContainerTest : public testing::Test
-{};
+{
+    void SetUp() override 
+    {
+        Init(&container);
+    }
+
+    void TearDown() override 
+    {
+        Deinit(&container);
+    }
+
+    T container;
+};
 
 template<typename T>
 struct StaticContainerTest : public testing::Test
-{};
+{
+    void SetUp() override 
+    {
+        Init(&container);
+    }
+
+    void TearDown() override 
+    {
+        Deinit(&container);
+    }
+
+    T container;
+};
 
 using MyTypes = testing::Types<
     VectorTestType,
@@ -358,222 +397,192 @@ using StaticContainerTypes = testing::Types<
     ListTestType
         >;
 
-TYPED_TEST_CASE(ContainerTest, MyTypes);
-TYPED_TEST_CASE(StaticContainerTest, StaticContainerTypes);
-
-TYPED_TEST(ContainerTest, Init)
-{
-    TypeParam container{};
-    Init(&container);
-}
+TYPED_TEST_SUITE(ContainerTest, MyTypes);
+TYPED_TEST_SUITE(StaticContainerTest, StaticContainerTypes);
 
 TYPED_TEST(ContainerTest, IsEmptyAfterInit)
 {
-    TypeParam container{};
-    Init(&container);
-
-    ASSERT_EQ(Size(&container), 0);
-    ASSERT_TRUE(Empty(&container));
+    ASSERT_EQ(Size(&this->container), 0);
+    ASSERT_TRUE(Empty(&this->container));
 }
 
 TYPED_TEST(ContainerTest, PushBack)
 {
-    TypeParam container{};
-    Init(&container);
-
     uint32_t temp1{ 3215 };
     uint32_t temp2{ 23587 };
     uint32_t temp3{ 980 };
 
-    ASSERT_EQ(PushBack(&container, temp1), 1);
-    ASSERT_EQ(Front(&container), temp1);
-    ASSERT_EQ(Back(&container), temp1);
+    ASSERT_EQ(PushBack(&this->container, temp1), 1);
+    ASSERT_EQ(Front(&this->container), temp1);
+    ASSERT_EQ(Back(&this->container), temp1);
 
-    ASSERT_EQ(PushBack(&container, temp2), 2);
-    ASSERT_EQ(Front(&container), temp1);
-    ASSERT_EQ(Back(&container), temp2);
+    ASSERT_EQ(PushBack(&this->container, temp2), 2);
+    ASSERT_EQ(Front(&this->container), temp1);
+    ASSERT_EQ(Back(&this->container), temp2);
 
-    ASSERT_EQ(PushBack(&container, temp3), 3);
-    auto it = Begin(&container);
+    ASSERT_EQ(PushBack(&this->container, temp3), 3);
+    auto it = Begin(&this->container);
     ASSERT_EQ(IteratorValue(&it), temp1);
     IteratorInc(&it);
     ASSERT_EQ(IteratorValue(&it), temp2);
     IteratorInc(&it);
     ASSERT_EQ(IteratorValue(&it), temp3);
     
-    ASSERT_EQ(Size(&container), 3);
-    ASSERT_FALSE(Empty(&container));
+    ASSERT_EQ(Size(&this->container), 3);
+    ASSERT_FALSE(Empty(&this->container));
 }
 
 TYPED_TEST(ContainerTest, PushFront)
 {
-    TypeParam container{};
-    Init(&container);
-
     uint32_t temp1{ 3215 };
     uint32_t temp2{ 23587 };
     uint32_t temp3{ 980 };
 
-    ASSERT_EQ(PushFront(&container, temp1), 1);
-    ASSERT_EQ(Front(&container), temp1);
-    ASSERT_EQ(Back(&container), temp1);
+    ASSERT_EQ(PushFront(&this->container, temp1), 1);
+    ASSERT_EQ(Front(&this->container), temp1);
+    ASSERT_EQ(Back(&this->container), temp1);
 
-    ASSERT_EQ(PushFront(&container, temp2), 2);
-    ASSERT_EQ(Front(&container), temp2);
-    ASSERT_EQ(Back(&container), temp1);
+    ASSERT_EQ(PushFront(&this->container, temp2), 2);
+    ASSERT_EQ(Front(&this->container), temp2);
+    ASSERT_EQ(Back(&this->container), temp1);
 
-    ASSERT_EQ(PushFront(&container, temp3), 3);
-    auto it = Begin(&container);
+    ASSERT_EQ(PushFront(&this->container, temp3), 3);
+    auto it = Begin(&this->container);
     ASSERT_EQ(IteratorValue(&it), temp3);
     IteratorInc(&it);
     ASSERT_EQ(IteratorValue(&it), temp2);
     IteratorInc(&it);
     ASSERT_EQ(IteratorValue(&it), temp1);
 
-    ASSERT_EQ(Size(&container), 3);
-    ASSERT_FALSE(Empty(&container));
+    ASSERT_EQ(Size(&this->container), 3);
+    ASSERT_FALSE(Empty(&this->container));
 }
 
 TYPED_TEST(ContainerTest, Insert)
 {
-    TypeParam container{};
-    Init(&container);
-
     uint32_t temp1{ 3215 };
     uint32_t temp2{ 23587 };
     uint32_t temp3{ 980 };
 
-    auto it = Begin(&container);
-    ASSERT_EQ(Insert(&container, temp1, &it), 1);
+    auto it = Begin(&this->container);
+    ASSERT_EQ(Insert(&this->container, temp1, &it), 1);
 
-    it = Begin(&container);
+    it = Begin(&this->container);
     IteratorInc(&it);
-    ASSERT_EQ(Insert(&container, temp2, &it), 2);
+    ASSERT_EQ(Insert(&this->container, temp2, &it), 2);
     
-    it = Begin(&container);
+    it = Begin(&this->container);
     IteratorInc(&it);
-    ASSERT_EQ(Insert(&container, temp3, &it), 3);
+    ASSERT_EQ(Insert(&this->container, temp3, &it), 3);
     
-    it = Begin(&container);
+    it = Begin(&this->container);
     ASSERT_EQ(IteratorValue(&it), temp1);
     IteratorInc(&it);
     ASSERT_EQ(IteratorValue(&it), temp3);
     IteratorInc(&it);
     ASSERT_EQ(IteratorValue(&it), temp2);
 
-    ASSERT_EQ(Size(&container), 3);
-    ASSERT_FALSE(Empty(&container));
+    ASSERT_EQ(Size(&this->container), 3);
+    ASSERT_FALSE(Empty(&this->container));
 }
 
 TYPED_TEST(ContainerTest, Erase)
 {
-    TypeParam container{};
-    Init(&container);
-
     uint32_t temp1{ 3215 };
     uint32_t temp2{ 23587 };
     uint32_t temp3{ 980 };
 
-    auto it = Begin(&container);
-    ASSERT_EQ(Insert(&container, temp1, &it), 1);
-    ASSERT_EQ(Front(&container), temp1);
-    ASSERT_EQ(Back(&container), temp1);
+    auto it = Begin(&this->container);
+    ASSERT_EQ(Insert(&this->container, temp1, &it), 1);
+    ASSERT_EQ(Front(&this->container), temp1);
+    ASSERT_EQ(Back(&this->container), temp1);
 
-    it = Begin(&container);
+    it = Begin(&this->container);
     IteratorInc(&it);
-    ASSERT_EQ(Insert(&container, temp2, &it), 2);
-    ASSERT_EQ(Front(&container), temp1);
-    ASSERT_EQ(Back(&container), temp2);
+    ASSERT_EQ(Insert(&this->container, temp2, &it), 2);
+    ASSERT_EQ(Front(&this->container), temp1);
+    ASSERT_EQ(Back(&this->container), temp2);
 
-    it = Begin(&container);
+    it = Begin(&this->container);
     IteratorInc(&it);
-    ASSERT_EQ(Insert(&container, temp3, &it), 3);
-    ASSERT_EQ(Front(&container), temp1);
-    ASSERT_EQ(Back(&container), temp2);
+    ASSERT_EQ(Insert(&this->container, temp3, &it), 3);
+    ASSERT_EQ(Front(&this->container), temp1);
+    ASSERT_EQ(Back(&this->container), temp2);
     
-    it = Begin(&container);
+    it = Begin(&this->container);
     IteratorInc(&it);
-    ASSERT_EQ(Front(&container), temp1);
-    ASSERT_EQ(Back(&container), temp2);
+    ASSERT_EQ(Front(&this->container), temp1);
+    ASSERT_EQ(Back(&this->container), temp2);
 
-    it = Begin(&container);
+    it = Begin(&this->container);
     IteratorInc(&it);
-    ASSERT_EQ(Erase(&container, &it), 2);
-    ASSERT_EQ(Front(&container), temp1);
-    ASSERT_EQ(Back(&container), temp2);
+    ASSERT_EQ(Erase(&this->container, &it), 2);
+    ASSERT_EQ(Front(&this->container), temp1);
+    ASSERT_EQ(Back(&this->container), temp2);
     
-    it = Begin(&container);
+    it = Begin(&this->container);
     IteratorInc(&it);
-    ASSERT_EQ(Erase(&container, &it), 1);
-    ASSERT_EQ(Front(&container), temp1);
-    ASSERT_EQ(Back(&container), temp1);
+    ASSERT_EQ(Erase(&this->container, &it), 1);
+    ASSERT_EQ(Front(&this->container), temp1);
+    ASSERT_EQ(Back(&this->container), temp1);
 
-    it = Begin(&container);
-    ASSERT_EQ(Erase(&container, &it), 0);
+    it = Begin(&this->container);
+    ASSERT_EQ(Erase(&this->container, &it), 0);
 
-    ASSERT_EQ(Size(&container), 0);
-    ASSERT_TRUE(Empty(&container));
+    ASSERT_EQ(Size(&this->container), 0);
+    ASSERT_TRUE(Empty(&this->container));
 }
 
 TYPED_TEST(ContainerTest, PopBack)
 {
-    TypeParam container{};
-    Init(&container);
-
     uint32_t temp1{ 3215 };
     uint32_t temp2{ 23587 };
 
-    ASSERT_EQ(PushBack(&container, temp1), 1);
-    ASSERT_EQ(PushBack(&container, temp2), 2);
-    ASSERT_EQ(Front(&container), temp1);
-    ASSERT_EQ(Back(&container), temp2);
+    ASSERT_EQ(PushBack(&this->container, temp1), 1);
+    ASSERT_EQ(PushBack(&this->container, temp2), 2);
+    ASSERT_EQ(Front(&this->container), temp1);
+    ASSERT_EQ(Back(&this->container), temp2);
 
-    ASSERT_EQ(PopBack(&container), 1);
-    ASSERT_EQ(Front(&container), temp1);
-    ASSERT_EQ(Back(&container), temp1);
+    ASSERT_EQ(PopBack(&this->container), 1);
+    ASSERT_EQ(Front(&this->container), temp1);
+    ASSERT_EQ(Back(&this->container), temp1);
     
-    ASSERT_EQ(PopBack(&container), 0);
+    ASSERT_EQ(PopBack(&this->container), 0);
 
-    ASSERT_EQ(Size(&container), 0);
-    ASSERT_TRUE(Empty(&container));
+    ASSERT_EQ(Size(&this->container), 0);
+    ASSERT_TRUE(Empty(&this->container));
 }
 
 TYPED_TEST(ContainerTest, PopFront)
 {
-    TypeParam container{};
-    Init(&container);
-
     uint32_t temp1{ 3215 };
     uint32_t temp2{ 23587 };
 
-    ASSERT_EQ(PushBack(&container, temp1), 1);
-    ASSERT_EQ(PushBack(&container, temp2), 2);
-    ASSERT_EQ(Front(&container), temp1);
-    ASSERT_EQ(Back(&container), temp2);
+    ASSERT_EQ(PushBack(&this->container, temp1), 1);
+    ASSERT_EQ(PushBack(&this->container, temp2), 2);
+    ASSERT_EQ(Front(&this->container), temp1);
+    ASSERT_EQ(Back(&this->container), temp2);
 
-    ASSERT_EQ(PopFront(&container), 1);
-    ASSERT_EQ(Front(&container), temp2);
-    ASSERT_EQ(Back(&container), temp2);
+    ASSERT_EQ(PopFront(&this->container), 1);
+    ASSERT_EQ(Front(&this->container), temp2);
+    ASSERT_EQ(Back(&this->container), temp2);
     
-    ASSERT_EQ(PopFront(&container), 0);
+    ASSERT_EQ(PopFront(&this->container), 0);
 
-    ASSERT_EQ(Size(&container), 0);
-    ASSERT_TRUE(Empty(&container));
+    ASSERT_EQ(Size(&this->container), 0);
+    ASSERT_TRUE(Empty(&this->container));
 }
 
 TYPED_TEST(ContainerTest, BeginEndIterator)
 {
-    TypeParam container{};
-    Init(&container);
-
     uint32_t temp1{ 3215 };
     uint32_t temp2{ 23587 };
 
-    PushBack(&container, temp1);
-    PushBack(&container, temp2);
+    PushBack(&this->container, temp1);
+    PushBack(&this->container, temp2);
 
-    auto it_begin = Begin(&container);
-    auto it = End(&container);
+    auto it_begin = Begin(&this->container);
+    auto it = End(&this->container);
 
     IteratorDec(&it);
 
@@ -583,17 +592,14 @@ TYPED_TEST(ContainerTest, BeginEndIterator)
 
 TYPED_TEST(ContainerTest, IteratorIncrementation)
 {
-    TypeParam container{};
-    Init(&container);
-
     uint32_t temp1{ 3215 };
     uint32_t temp2{ 23587 };
 
-    PushBack(&container, temp1);
-    PushBack(&container, temp2);
+    PushBack(&this->container, temp1);
+    PushBack(&this->container, temp2);
 
-    auto it_begin = Begin(&container);
-    auto it_end = End(&container);
+    auto it_begin = Begin(&this->container);
+    auto it_end = End(&this->container);
     auto it = it_begin;
 
     ASSERT_EQ(IteratorValue(&it), temp1);
@@ -605,17 +611,14 @@ TYPED_TEST(ContainerTest, IteratorIncrementation)
 
 TYPED_TEST(ContainerTest, IteratorDecrementation)
 {
-    TypeParam container{};
-    Init(&container);
-
     uint32_t temp1{ 3215 };
     uint32_t temp2{ 23587 };
 
-    PushBack(&container, temp1);
-    PushBack(&container, temp2);
+    PushBack(&this->container, temp1);
+    PushBack(&this->container, temp2);
 
-    auto it_begin = Begin(&container);
-    auto it_end = End(&container);
+    auto it_begin = Begin(&this->container);
+    auto it_end = End(&this->container);
 
     auto it = it_end;
     IteratorDec(&it);
@@ -627,28 +630,22 @@ TYPED_TEST(ContainerTest, IteratorDecrementation)
 
 TYPED_TEST(ContainerTest, IteratorAfterInit)
 {
-    TypeParam container{};
-    Init(&container);
-
-    auto it_begin = Begin(&container);
-    auto it_end = End(&container);
+    auto it_begin = Begin(&this->container);
+    auto it_end = End(&this->container);
 
     ASSERT_TRUE(Iterator_Equal(&it_begin, &it_end));
 }
 
 TYPED_TEST(ContainerTest, IteratorValues)
 {
-    TypeParam container{};
-    Init(&container);
-
     uint32_t temp1{ 3215 };
     uint32_t temp2{ 23587 };
 
-    PushBack(&container, temp1);
-    PushBack(&container, temp2);
+    PushBack(&this->container, temp1);
+    PushBack(&this->container, temp2);
 
-    auto it_begin = Begin(&container);
-    auto it_end = End(&container);
+    auto it_begin = Begin(&this->container);
+    auto it_end = End(&this->container);
 
     auto it = it_end;
     IteratorDec(&it);
@@ -664,28 +661,25 @@ TYPED_TEST(ContainerTest, IteratorValues)
 
 TYPED_TEST(ContainerTest, IndexValues)
 {
-    TypeParam container{};
-    Init(&container);
-
     uint32_t temp1{ 3215 };
     uint32_t temp2{ 23587 };
 
-    PushBack(&container, temp1);
-    PushBack(&container, temp2);
+    PushBack(&this->container, temp1);
+    PushBack(&this->container, temp2);
 
-    ASSERT_EQ(GetValue(&container, 0), temp1);
-    ASSERT_EQ(GetValue(&container, 1), temp2);
+    ASSERT_EQ(GetValue(&this->container, 0), temp1);
+    ASSERT_EQ(GetValue(&this->container, 1), temp2);
 
     uint32_t newTemp1{ 1357 };
     uint32_t newTemp2{ 2468 };
 
-    SetValue(&container, 0, newTemp1);
-    ASSERT_EQ(GetValue(&container, 0), newTemp1);
-    ASSERT_EQ(GetValue(&container, 1), temp2);
+    SetValue(&this->container, 0, newTemp1);
+    ASSERT_EQ(GetValue(&this->container, 0), newTemp1);
+    ASSERT_EQ(GetValue(&this->container, 1), temp2);
 
-    SetValue(&container, 1, newTemp2);
-    ASSERT_EQ(GetValue(&container, 0), newTemp1);
-    ASSERT_EQ(GetValue(&container, 1), newTemp2);
+    SetValue(&this->container, 1, newTemp2);
+    ASSERT_EQ(GetValue(&this->container, 0), newTemp1);
+    ASSERT_EQ(GetValue(&this->container, 1), newTemp2);
 }
 
 bool compare_ints(const int* v1, const int* v2)
@@ -695,70 +689,58 @@ bool compare_ints(const int* v1, const int* v2)
 
 TYPED_TEST(ContainerTest, FindAllValues)
 {
-    TypeParam container{};
-    Init(&container);
-
     uint32_t temp1{ 3215 };
     uint32_t temp2{ 23587 };
     uint32_t temp3{ 582 };
 
-    PushBack(&container, temp1);
-    PushBack(&container, temp2);
-    PushBack(&container, temp3);
+    PushBack(&this->container, temp1);
+    PushBack(&this->container, temp2);
+    PushBack(&this->container, temp3);
 
-    auto end_it = End(&container);
+    auto end_it = End(&this->container);
 
-    auto it_1 = Find(&container, temp1, compare_ints);
+    auto it_1 = Find(&this->container, temp1, compare_ints);
     ASSERT_EQ(IteratorValue(&it_1), temp1);
-    auto it_2 = Find(&container, temp2, compare_ints);
+    auto it_2 = Find(&this->container, temp2, compare_ints);
     ASSERT_EQ(IteratorValue(&it_2), temp2);
-    auto it_3 = Find(&container, temp3, compare_ints);
+    auto it_3 = Find(&this->container, temp3, compare_ints);
     ASSERT_EQ(IteratorValue(&it_3), temp3);
 
-    auto it_4 = Find(&container, temp3 + 1, compare_ints);
+    auto it_4 = Find(&this->container, temp3 + 1, compare_ints);
     ASSERT_TRUE(Iterator_Equal(&it_4, &end_it));
 }
 
 TYPED_TEST(StaticContainerTest, PushBackOverLimit)
 {
-    TypeParam container{};
-    Init(&container);
-
     uint32_t temp1{ 3215 };
 
     for(int i=0; i<CONTAINER_CAPACITY; ++i)
     {
-        ASSERT_EQ(PushBack(&container, temp1), i + 1);
+        ASSERT_EQ(PushBack(&this->container, temp1), i + 1);
     }
-    ASSERT_EQ(PushBack(&container, temp1), ALLOCATION_ERROR);
+    ASSERT_EQ(PushBack(&this->container, temp1), ALLOCATION_ERROR);
 }
 
 TYPED_TEST(StaticContainerTest, PushFrontOverLimit)
 {
-    TypeParam container{};
-    Init(&container);
-
     uint32_t temp1{ 3215 };
 
     for(int i=0; i<CONTAINER_CAPACITY; ++i)
     {
-        ASSERT_EQ(PushFront(&container, temp1), i + 1);
+        ASSERT_EQ(PushFront(&this->container, temp1), i + 1);
     }
-    ASSERT_EQ(PushFront(&container, temp1), ALLOCATION_ERROR);
+    ASSERT_EQ(PushFront(&this->container, temp1), ALLOCATION_ERROR);
 }
 
 TYPED_TEST(StaticContainerTest, InsertOverLimit)
 {
-    TypeParam container{};
-    Init(&container);
-
     uint32_t temp1{ 3215 };
 
     for(int i=0; i<CONTAINER_CAPACITY; ++i)
     {
-        auto it = Begin(&container);
-        ASSERT_EQ(Insert(&container, temp1, &it), i + 1);
+        auto it = Begin(&this->container);
+        ASSERT_EQ(Insert(&this->container, temp1, &it), i + 1);
     }
-    auto it = Begin(&container);
-    ASSERT_EQ(Insert(&container, temp1, &it), ALLOCATION_ERROR);
+    auto it = Begin(&this->container);
+    ASSERT_EQ(Insert(&this->container, temp1, &it), ALLOCATION_ERROR);
 }

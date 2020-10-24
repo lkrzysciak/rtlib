@@ -48,6 +48,7 @@ void container_t##_Construct(container_t* const self) \
     assert(self); \
     \
     self->capacity = 4; \
+    allocator_t##_Construct(&self->allocator); \
     self->data = (member_t*)allocator_t##_Allocate(&self->allocator, self->capacity * sizeof(member_t)); \
     assert(self->data); \
     self->size = 0; \
@@ -56,6 +57,7 @@ void container_t##_Construct(container_t* const self) \
 void container_t##_Destroy(container_t* const self) \
 { \
     allocator_t##_Deallocate(&self->allocator, self->data); \
+    allocator_t##_Destroy(&self->allocator); \
 } \
 \
 size_t container_t##_Size(const container_t * const self) \
