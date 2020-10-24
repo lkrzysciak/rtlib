@@ -349,7 +349,8 @@ struct StaticContainerTest : public testing::Test
 
 using MyTypes = testing::Types<
     VectorTestType,
-    ListTestType
+    ListTestType,
+    CustomAllocatorVector
         >;
 
 using StaticContainerTypes = testing::Types<

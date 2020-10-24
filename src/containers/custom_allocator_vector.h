@@ -55,7 +55,7 @@ void container_t##_Construct(container_t* const self) \
 \
 void container_t##_Destroy(container_t* const self) \
 { \
-\
+    allocator_t##_Deallocate(&self->allocator, self->data); \
 } \
 \
 size_t container_t##_Size(const container_t * const self) \
@@ -87,11 +87,12 @@ int container_t##_PushBack(container_t * const self, member_t data) \
     else \
     { \
         self->capacity *= 2; \
-        member_t* new_data = allocator_t##_Allocate(&self->allocator, self->capacity); \
+        member_t* new_data = allocator_t##_Reallocate(&self->allocator, self->data, self->capacity); \
         if(new_data) \
         { \
             self->data = new_data; \
             self->data[self->size] = data; \
+            ++self->size; \
             \
             return self->size; \
         } \
