@@ -43,7 +43,7 @@ void container_t##_Iterator_Decrement(container_t##_iterator* const self); \
 container_t##_iterator container_t##_Find(container_t * const self, member_t data, bool(*fun)(const member_t*, const member_t*));
 
 #define define_custom_allocator_vector_t(container_t, member_t, allocator_t) \
-void container_t##_Init(container_t* const self) \
+void container_t##_Construct(container_t* const self) \
 { \
     assert(self); \
     \
@@ -51,6 +51,11 @@ void container_t##_Init(container_t* const self) \
     self->data = (member_t*)allocator_t##_Allocate(&self->allocator, self->capacity * sizeof(member_t)); \
     assert(self->data); \
     self->size = 0; \
+} \
+\
+void container_t##_Destroy(container_t* const self) \
+{ \
+\
 } \
 \
 size_t container_t##_Size(const container_t * const self) \

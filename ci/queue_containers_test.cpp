@@ -28,6 +28,11 @@ void Init(ListTestType* const list)
     ListTestType_Init(list);
 }
 
+void Init(CustomAllocatorVector* const list)
+{
+    CustomAllocatorVector_Construct(list);
+}
+
 size_t Size(VectorTestType* const vector)
 {
     return VectorTestType_Size(vector);
@@ -36,6 +41,11 @@ size_t Size(VectorTestType* const vector)
 size_t Size(ListTestType* const list)
 {
     return ListTestType_Size(list);
+}
+
+size_t Size(CustomAllocatorVector* const list)
+{
+    return CustomAllocatorVector_Size(list);
 }
 
 bool Empty(VectorTestType* const vector)
@@ -48,6 +58,11 @@ bool Empty(ListTestType* const list)
     return ListTestType_Empty(list);
 }
 
+bool Empty(CustomAllocatorVector* const list)
+{
+    return CustomAllocatorVector_Empty(list);
+}
+
 int PushBack(VectorTestType* const vector, int value)
 {
     return VectorTestType_PushBack(vector, value);
@@ -58,6 +73,11 @@ int PushBack(ListTestType* const list, int value)
     return ListTestType_PushBack(list, value);
 }
 
+int PushBack(CustomAllocatorVector* const list, int value)
+{
+    return CustomAllocatorVector_PushBack(list, value);
+}
+
 int PushFront(VectorTestType* const vector, int value)
 {
     return VectorTestType_PushFront(vector, value);
@@ -66,6 +86,11 @@ int PushFront(VectorTestType* const vector, int value)
 int PushFront(ListTestType* const list, int value)
 {
     return ListTestType_PushFront(list, value);
+}
+
+int PushFront(CustomAllocatorVector* const list, int value)
+{
+    return CustomAllocatorVector_PushFront(list, value);
 }
 
 template<typename iterator_t>
@@ -80,6 +105,12 @@ int Insert(ListTestType* const list, int value, iterator_t* it)
     return ListTestType_Insert(list, it, value);
 }
 
+template<typename iterator_t>
+int Insert(CustomAllocatorVector* const list, int value, iterator_t* it)
+{
+    return CustomAllocatorVector_Insert(list, it, value);
+}
+
 int PopBack(VectorTestType* const vector)
 {
     return VectorTestType_PopBack(vector);
@@ -90,6 +121,11 @@ int PopBack(ListTestType* const list)
     return ListTestType_PopBack(list);
 }
 
+int PopBack(CustomAllocatorVector* const list)
+{
+    return CustomAllocatorVector_PopBack(list);
+}
+
 int PopFront(VectorTestType* const vector)
 {
     return VectorTestType_PopFront(vector);
@@ -98,6 +134,11 @@ int PopFront(VectorTestType* const vector)
 int PopFront(ListTestType* const list)
 {
     return ListTestType_PopFront(list);
+}
+
+int PopFront(CustomAllocatorVector* const list)
+{
+    return CustomAllocatorVector_PopFront(list);
 }
 
 template<typename iterator_t>
@@ -112,6 +153,12 @@ int Erase(ListTestType* const list, iterator_t* it)
     return ListTestType_Erase(list, it);
 }
 
+template<typename iterator_t>
+int Erase(CustomAllocatorVector* const list, iterator_t* it)
+{
+    return CustomAllocatorVector_Erase(list, it);
+}
+
 int Back(VectorTestType* const vector)
 {
     return VectorTestType_Back(vector);
@@ -120,6 +167,11 @@ int Back(VectorTestType* const vector)
 int Back(ListTestType* const list)
 {
     return ListTestType_Back(list);
+}
+
+int Back(CustomAllocatorVector* const list)
+{
+    return CustomAllocatorVector_Back(list);
 }
 
 int Front(VectorTestType* const vector)
@@ -132,6 +184,11 @@ int Front(ListTestType* const list)
     return ListTestType_Front(list);
 }
 
+int Front(CustomAllocatorVector* const list)
+{
+    return CustomAllocatorVector_Front(list);
+}
+
 auto Begin(VectorTestType* const vector)
 {
     return VectorTestType_Begin(vector);
@@ -140,6 +197,11 @@ auto Begin(VectorTestType* const vector)
 auto Begin(ListTestType* const list)
 {
     return ListTestType_Begin(list);
+}
+
+auto Begin(CustomAllocatorVector* const list)
+{
+    return CustomAllocatorVector_Begin(list);
 }
 
 auto End(VectorTestType* const vector)
@@ -152,6 +214,11 @@ auto End(ListTestType* const list)
     return ListTestType_End(list);
 }
 
+auto End(CustomAllocatorVector* const list)
+{
+    return CustomAllocatorVector_End(list);
+}
+
 auto GetValue(VectorTestType* const vector, size_t index)
 {
     return VectorTestType_GetValue(vector, index);
@@ -160,6 +227,11 @@ auto GetValue(VectorTestType* const vector, size_t index)
 auto GetValue(ListTestType* const list, size_t index)
 {
     return ListTestType_GetValue(list, index);
+}
+
+auto GetValue(CustomAllocatorVector* const list, size_t index)
+{
+    return CustomAllocatorVector_GetValue(list, index);
 }
 
 void SetValue(VectorTestType* const vector, size_t index, int value)
@@ -172,6 +244,11 @@ void SetValue(ListTestType* const list, size_t index, int value)
     ListTestType_SetValue(list, index, value);
 }
 
+void SetValue(CustomAllocatorVector* const list, size_t index, int value)
+{
+    CustomAllocatorVector_SetValue(list, index, value);
+}
+
 auto IteratorValue(VectorTestType_iterator* const it)
 {
     return VectorTestType_Iterator_GetValue(it);
@@ -180,6 +257,11 @@ auto IteratorValue(VectorTestType_iterator* const it)
 auto IteratorValue(ListTestType_iterator* const it)
 {
     return ListTestType_Iterator_GetValue(it);
+}
+
+auto IteratorValue(CustomAllocatorVector_iterator* const it)
+{
+    return CustomAllocatorVector_Iterator_GetValue(it);
 }
 
 void IteratorInc(VectorTestType_iterator* const it)
@@ -192,6 +274,11 @@ void IteratorInc(ListTestType_iterator* const it)
     return ListTestType_Iterator_Increment(it);
 }
 
+void IteratorInc(CustomAllocatorVector_iterator* const it)
+{
+    return CustomAllocatorVector_Iterator_Increment(it);
+}
+
 void IteratorDec(VectorTestType_iterator* const it)
 {
     return VectorTestType_Iterator_Decrement(it);
@@ -200,6 +287,11 @@ void IteratorDec(VectorTestType_iterator* const it)
 void IteratorDec(ListTestType_iterator* const it)
 {
     return ListTestType_Iterator_Decrement(it);
+}
+
+void IteratorDec(CustomAllocatorVector_iterator* const it)
+{
+    return CustomAllocatorVector_Iterator_Decrement(it);
 }
 
 void IteratorSetValue(VectorTestType_iterator* const it, int value)
@@ -212,6 +304,11 @@ void IteratorSetValue(ListTestType_iterator* const it, int value)
     ListTestType_Iterator_SetValue(it, value);
 }
 
+void IteratorSetValue(CustomAllocatorVector_iterator* const it, int value)
+{
+    CustomAllocatorVector_Iterator_SetValue(it, value);
+}
+
 bool Iterator_Equal(VectorTestType_iterator* const first, VectorTestType_iterator* const second)
 {
     return VectorTestType_Iterator_Equal(first, second);
@@ -220,6 +317,11 @@ bool Iterator_Equal(VectorTestType_iterator* const first, VectorTestType_iterato
 bool Iterator_Equal(ListTestType_iterator* const first, ListTestType_iterator* const second)
 {
     return ListTestType_Iterator_Equal(first, second);
+}
+
+bool Iterator_Equal(CustomAllocatorVector_iterator* const first, CustomAllocatorVector_iterator* const second)
+{
+    return CustomAllocatorVector_Iterator_Equal(first, second);
 }
 
 auto Find(VectorTestType* const vector, int value, bool(*fun)(const int*, const int*))
@@ -232,6 +334,10 @@ auto Find(ListTestType* const list, int value, bool(*fun)(const int*, const int*
     return ListTestType_Find(list, value, fun);
 }
 
+auto Find(CustomAllocatorVector* const list, int value, bool(*fun)(const int*, const int*))
+{
+    return CustomAllocatorVector_Find(list, value, fun);
+}
 
 template<typename T>
 struct ContainerTest : public testing::Test
