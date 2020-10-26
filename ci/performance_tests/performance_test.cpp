@@ -9,6 +9,7 @@
 #include "containers/static_vector.h"
 #include "containers/static_list.h"
 #include "memory/static_one_chunk_allocator.h"
+#include "memory/dynamic_allocator.h"
 #include "containers/custom_allocator_vector.h"
 #include "memory/typed_pool.h"
 
@@ -20,10 +21,15 @@ define_static_vector_t(TestVector, int, 20);
 declare_static_list_t(TestList, int, 20);
 define_static_list_t(TestList, int, 20);
 
-declare_static_one_chunk_allocator_t(StaticOneChunkllocator, int, 20);
-define_static_one_chunk_allocator_t(StaticOneChunkllocator, int, 20);
+declare_static_one_chunk_allocator_t(StaticOneChunkllocator, 20 * sizeof(int));
+define_static_one_chunk_allocator_t(StaticOneChunkllocator, 20 * sizeof(int));
 declare_custom_allocator_vector_t(CustomAllocatorVector, int, StaticOneChunkllocator);
 define_custom_allocator_vector_t(CustomAllocatorVector, int, StaticOneChunkllocator);
+
+declare_dynamic_allocator_t(DynamicAllocator);
+define_dynamic_allocator_t(DynamicAllocator);
+declare_custom_allocator_vector_t(DynamicAllocatorVector, int, DynamicAllocator);
+define_custom_allocator_vector_t(DynamicAllocatorVector, int, DynamicAllocator);
 
 void calculateRtlibStaticListBack()
 {
@@ -95,6 +101,30 @@ void calculateRtlibStaticCustomAllocatorVectorBack()
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[RTLib][vector-typed-custom(static)][back]: " << duration.count() << std::endl;
+}
+
+void calculateRtlibDynamicAllocatorVectorBack()
+{
+    DynamicAllocatorVector vector; 
+    DynamicAllocatorVector_Construct(&vector);
+
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    for(int i=0; i<10000000; ++i)
+    {
+        for(int j=0; j<16; ++j)
+        {
+            DynamicAllocatorVector_PushBack(&vector, samples[j]);
+        }
+        for(int j=0; j<16; ++j)
+        {
+            DynamicAllocatorVector_PopBack(&vector);
+        }
+    }
+    auto stop = std::chrono::high_resolution_clock::now();
+    
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+    std::cout << "[RTLib][vector-typed-custom(dynamic)][back]: " << duration.count() << std::endl;
 }
 
 void calculateSTLListBack()
@@ -448,6 +478,7 @@ int main()
     calculateRtlibStaticListBack();
     calculateRtlibStaticVectorBack();
     calculateRtlibStaticCustomAllocatorVectorBack();
+    calculateRtlibDynamicAllocatorVectorBack();
     calculateSTLListBack();
     calculateSTLVectorBack();
 

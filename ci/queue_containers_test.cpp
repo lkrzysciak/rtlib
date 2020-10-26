@@ -13,8 +13,8 @@ define_static_vector_t(VectorTestType, int, CONTAINER_CAPACITY);
 declare_static_list_t(ListTestType, int, CONTAINER_CAPACITY);
 define_static_list_t(ListTestType, int, CONTAINER_CAPACITY);
 
-declare_dynamic_allocator_t(DynamicAllocator, int);
-define_dynamic_allocator_t(DynamicAllocator, int);
+declare_dynamic_allocator_t(DynamicAllocator);
+define_dynamic_allocator_t(DynamicAllocator);
 declare_custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
 define_custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
 
