@@ -31,6 +31,73 @@ unsigned int hash_function(const int* value)
     return *value;
 }
 
+#define create_wrappers_for_type(Type) \
+void Deinit(Type* const container) \
+{ \
+    Type##_Destroy(container); \
+} \
+\
+size_t Size(Type* const container) \
+{ \
+    return Type##_Size(container); \
+} \
+\
+bool Empty(Type* const container) \
+{ \
+    return Type##_Empty(container); \
+} \
+\
+int Insert(Type* const container, int value) \
+{ \
+    return Type##_Insert(container, value); \
+} \
+\
+int Erase(Type* const container, Type##_iterator* it) \
+{ \
+    return Type##_Erase(container, it); \
+} \
+\
+auto Begin(Type* const container) \
+{ \
+    return Type##_Begin(container); \
+} \
+\
+auto End(Type* const container) \
+{ \
+    return Type##_End(container); \
+} \
+\
+auto IteratorValue(Type##_iterator* const it) \
+{ \
+    return Type##_Iterator_GetValue(it); \
+} \
+\
+void IteratorInc(Type##_iterator* const it) \
+{ \
+    return Type##_Iterator_Increment(it); \
+} \
+\
+void IteratorDec(Type##_iterator* const it) \
+{ \
+    return Type##_Iterator_Decrement(it); \
+} \
+\
+void IteratorSetValue(Type##_iterator* const it, int value) \
+{ \
+    Type##_Iterator_SetValue(it, value); \
+} \
+\
+bool Iterator_Equal(Type##_iterator* const first, Type##_iterator* const second) \
+{ \
+    return Type##_Iterator_Equal(first, second); \
+} \
+\
+auto Find(Type* const container, int value) \
+{ \
+    return Type##_Find(container, value); \
+}
+
+/* Specielized init functions */
 void Init(SetType* const set_object)
 {
     SetType_Construct(set_object, compare_set_ints);
@@ -41,137 +108,9 @@ void Init(HashTable* const hash_table)
     HashTable_Construct(hash_table, compare_set_ints, hash_function);
 }
 
-void Deinit(SetType* const set_object)
-{
-    SetType_Destroy(set_object);
-}
+create_wrappers_for_type(SetType);
+create_wrappers_for_type(HashTable);
 
-void Deinit(HashTable* const hash_table)
-{
-    HashTable_Destroy(hash_table);
-}
-
-size_t Size(SetType* const set_object)
-{
-    return SetType_Size(set_object);
-}
-
-size_t Size(HashTable* const hash_table)
-{
-    return HashTable_Size(hash_table);
-}
-
-bool Empty(SetType* const set_object)
-{
-    return SetType_Empty(set_object);
-}
-
-bool Empty(HashTable* const set_object)
-{
-    return HashTable_Empty(set_object);
-}
-
-int Insert(SetType* const set_object, int value)
-{
-    return SetType_Insert(set_object, value);
-}
-
-int Insert(HashTable* const set_object, int value)
-{
-    return HashTable_Insert(set_object, value);
-}
-
-template<typename iterator_t>
-int Erase(SetType* const set_object, iterator_t* it)
-{
-    return SetType_Erase(set_object, it);
-}
-
-template<typename iterator_t>
-int Erase(HashTable* const set_object, iterator_t* it)
-{
-    return HashTable_Erase(set_object, it);
-}
-
-auto Begin(SetType* const set_object)
-{
-    return SetType_Begin(set_object);
-}
-
-auto Begin(HashTable* const set_object)
-{
-    return HashTable_Begin(set_object);
-}
-
-auto End(SetType* const set_object)
-{
-    return SetType_End(set_object);
-}
-
-auto End(HashTable* const set_object)
-{
-    return HashTable_End(set_object);
-}
-
-auto IteratorValue(SetType_iterator* const it)
-{
-    return SetType_Iterator_GetValue(it);
-}
-
-auto IteratorValue(HashTable_iterator* const it)
-{
-    return HashTable_Iterator_GetValue(it);
-}
-
-void IteratorInc(SetType_iterator* const it)
-{
-    return SetType_Iterator_Increment(it);
-}
-
-void IteratorInc(HashTable_iterator* const it)
-{
-    return HashTable_Iterator_Increment(it);
-}
-
-void IteratorDec(SetType_iterator* const it)
-{
-    return SetType_Iterator_Decrement(it);
-}
-
-void IteratorDec(HashTable_iterator* const it)
-{
-    return HashTable_Iterator_Decrement(it);
-}
-
-void IteratorSetValue(SetType_iterator* const it, int value)
-{
-    SetType_Iterator_SetValue(it, value);
-}
-
-void IteratorSetValue(HashTable_iterator* const it, int value)
-{
-    HashTable_Iterator_SetValue(it, value);
-}
-
-bool Iterator_Equal(SetType_iterator* const first, SetType_iterator* const second)
-{
-    return SetType_Iterator_Equal(first, second);
-}
-
-bool Iterator_Equal(HashTable_iterator* const first, HashTable_iterator* const second)
-{
-    return HashTable_Iterator_Equal(first, second);
-}
-
-auto Find(SetType* const vector, int value)
-{
-    return SetType_Find(vector, value);
-}
-
-auto Find(HashTable* const vector, int value)
-{
-    return HashTable_Find(vector, value);
-}
 
 template<typename T>
 struct SetTest : public testing::Test
