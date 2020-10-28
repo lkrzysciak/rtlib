@@ -2,7 +2,6 @@
 
 #include <assert.h>
 #include <stdbool.h>
-#include "../memory/typed_pool.h"
 
 #define declare_custom_allocator_list_t(container_t, member_t, allocator_t) \
 typedef struct container_t container_t; \
@@ -58,7 +57,7 @@ void container_t##_Construct(container_t* const self) \
     assert(self); \
     \
     allocator_t##_Construct(&self->allocator); \
-    self->end = allocator_t##_Allocate(&self->allocator, 1); \
+    self->end = (container_t##_node*)allocator_t##_Allocate(&self->allocator, sizeof(container_t##_node)); \
     assert(self->end); \
     self->begin = self->end; \
     self->begin->prev = NULL; \
@@ -68,7 +67,11 @@ void container_t##_Construct(container_t* const self) \
 \
 void container_t##_Destroy(container_t* const self) \
 { \
-\
+    while(container_t##_Size(self) != 0) \
+    { \
+        container_t##_PopBack(self); \
+    } \
+    allocator_t##_Deallocate(&self->allocator, self->end); \
 } \
 \
 size_t container_t##_Size(const container_t* const self) \
@@ -89,7 +92,7 @@ int container_t##_PushBack(container_t* const self, member_t value) \
 { \
     assert(self); \
     \
-    container_t##_node* node = container_t##_pool_Alloc(&self->pool); \
+    container_t##_node* node = (container_t##_node*)allocator_t##_Allocate(&self->allocator, sizeof(container_t##_node)); \
     if(node) \
     { \
         container_t##_node* old_end_node = self->end->prev; \
@@ -123,7 +126,7 @@ int container_t##_PopBack(container_t* const self) \
     container_t##_node* old_end_node = self->end->prev; \
     container_t##_node* new_end_node = old_end_node->prev; \
     \
-    container_t##_pool_Free(&self->pool, old_end_node); \
+    allocator_t##_Deallocate(&self->allocator, old_end_node); \
     \
     if(new_end_node == NULL) \
     { \
@@ -146,7 +149,7 @@ int container_t##_PushFront(container_t* const self, member_t value) \
 { \
     assert(self); \
     \
-    container_t##_node* node = container_t##_pool_Alloc(&self->pool); \
+    container_t##_node* node = (container_t##_node*)allocator_t##_Allocate(&self->allocator, sizeof(container_t##_node)); \
     if(node) \
     { \
         container_t##_node* old_begin_node = self->begin; \
@@ -173,7 +176,7 @@ int container_t##_PopFront(container_t* const self) \
     container_t##_node* old_begin_node = self->begin; \
     container_t##_node* new_begin_node = old_begin_node->next; \
     \
-    container_t##_pool_Free(&self->pool, old_begin_node); \
+    allocator_t##_Deallocate(&self->allocator, old_begin_node); \
     \
     new_begin_node->prev = NULL; \
     self->begin = new_begin_node; \
@@ -188,7 +191,7 @@ int container_t##_Insert(container_t* const self, container_t##_iterator* const 
     assert(self); \
     assert(iterator); \
    \
-    container_t##_node* node = container_t##_pool_Alloc(&self->pool); \
+    container_t##_node* node = (container_t##_node*)allocator_t##_Allocate(&self->allocator, sizeof(container_t##_node)); \
     if(node) \
     { \
         container_t##_node* next_iterator = iterator->node; \
@@ -226,7 +229,7 @@ int container_t##_Erase(container_t* const self, container_t##_iterator* const i
     container_t##_node* next_node = to_delete_node->next; \
     container_t##_node* prev_node = to_delete_node->prev; \
     \
-    container_t##_pool_Free(&self->pool, to_delete_node); \
+    allocator_t##_Deallocate(&self->allocator, to_delete_node); \
     \
     if(!prev_node) \
     { \
