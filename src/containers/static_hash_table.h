@@ -100,6 +100,7 @@ int container_t##_Insert(container_t * const self, member_t data) \
         { \
             if(self->compare_function(&data, &last_node_for_this_hash->value) == 0) \
             { \
+                container_t##_pool_Free(&self->pool, node); \
                 return ELEMENT_EXISTS; \
             } \
             before_the_last_node_for_this_hash = last_node_for_this_hash; \

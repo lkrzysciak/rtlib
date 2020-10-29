@@ -187,6 +187,7 @@ int container_t##_Insert(container_t * const self, member_t data) \
                 } \
                 else \
                 { \
+                    container_t##_pool_Free(&self->pool, node); \
                     return ELEMENT_EXISTS; \
                 } \
             } \
