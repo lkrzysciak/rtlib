@@ -130,6 +130,11 @@ void container_t##_Construct(container_t* const self, compare_t compare) \
 \
 void container_t##_Destroy(container_t* const self)  \
 { \
+    while(container_t##_Size(self) != 0) \
+    { \
+        container_t##_iterator begin = container_t##_Begin(self); \
+        container_t##_Erase(self, &begin); \
+    } \
     allocator_t##_Destroy(&self->allocator); \
 } \
 \
@@ -186,6 +191,7 @@ int container_t##_Insert(container_t * const self, member_t data) \
                 } \
                 else \
                 { \
+                    allocator_t##_Deallocate(&self->allocator, node); \
                     return ELEMENT_EXISTS; \
                 } \
             } \
