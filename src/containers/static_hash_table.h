@@ -60,10 +60,10 @@ void container_t##_Construct(container_t* const self, compare_t compare, hash_t 
     assert(compare); \
     assert(hash); \
     \
+    memset(self, 0, sizeof(*self)); \
     self->size = 0; \
     self->compare_function = compare; \
     self->hash_function = hash; \
-    memset(self->nodes_table, 0, container_capacity * sizeof(self->nodes_table[0])); \
     container_t##_pool_Init(&self->pool); \
     assert(container_t##_pool_Capacity(&self->pool) == container_capacity); \
 } \

@@ -114,11 +114,35 @@ create_wrappers_for_type(HashTable);
 
 template<typename T>
 struct SetTest : public testing::Test
-{};
+{
+    void SetUp() override 
+    {
+        Init(&container);
+    }
+
+    void TearDown() override 
+    {
+        Deinit(&container);
+    }
+
+    T container;
+};
 
 template<typename T>
 struct StaticSetTest : public testing::Test
-{};
+{
+    void SetUp() override 
+    {
+        Init(&container);
+    }
+
+    void TearDown() override 
+    {
+        Deinit(&container);
+    }
+
+    T container;
+};
 
 using MyTypes = testing::Types<
     SetType,
@@ -133,26 +157,14 @@ using StaticContainerTypes = testing::Types<
 TYPED_TEST_CASE(SetTest, MyTypes);
 TYPED_TEST_CASE(StaticSetTest, StaticContainerTypes);
 
-TYPED_TEST(SetTest, Init)
-{
-    TypeParam container{};
-    Init(&container);
-}
-
 TYPED_TEST(SetTest, IsEmptyAfterInit)
 {
-    TypeParam container{};
-    Init(&container);
-
-    ASSERT_EQ(Size(&container), 0);
-    ASSERT_TRUE(Empty(&container));
+    ASSERT_EQ(Size(&this->container), 0);
+    ASSERT_TRUE(Empty(&this->container));
 }
 
 TYPED_TEST(SetTest, InsertVerifyFromBeginToEnd)
 {
-    TypeParam container{};
-    Init(&container);
-
     int temp1{ 3215 };
     int temp2{ 23587 };
     int temp3{ 980 };
@@ -161,16 +173,16 @@ TYPED_TEST(SetTest, InsertVerifyFromBeginToEnd)
 
     std::set<int> expected_set{temp1, temp2, temp3, temp4, temp5};
 
-    ASSERT_EQ(Insert(&container, temp1), 1);
-    ASSERT_EQ(Insert(&container, temp2), 2);
-    ASSERT_EQ(Insert(&container, temp3), 3);
-    ASSERT_EQ(Insert(&container, temp4), 4);
-    ASSERT_EQ(Insert(&container, temp5), 5);
+    ASSERT_EQ(Insert(&this->container, temp1), 1);
+    ASSERT_EQ(Insert(&this->container, temp2), 2);
+    ASSERT_EQ(Insert(&this->container, temp3), 3);
+    ASSERT_EQ(Insert(&this->container, temp4), 4);
+    ASSERT_EQ(Insert(&this->container, temp5), 5);
 
     std::set<int> to_compare_set{};
 
-    auto it = Begin(&container);
-    auto end = End(&container);
+    auto it = Begin(&this->container);
+    auto end = End(&this->container);
 
     while(!Iterator_Equal(&it, &end))
     {   
@@ -178,15 +190,12 @@ TYPED_TEST(SetTest, InsertVerifyFromBeginToEnd)
         IteratorInc(&it);
     }    
     ASSERT_EQ(expected_set, to_compare_set);
-    ASSERT_EQ(Size(&container), 5);
-    ASSERT_FALSE(Empty(&container));
+    ASSERT_EQ(Size(&this->container), 5);
+    ASSERT_FALSE(Empty(&this->container));
 }
 
 TYPED_TEST(SetTest, InsertVerifyFromEndToBegin)
 {
-    TypeParam container{};
-    Init(&container);
-
     int temp1{ 3215 };
     int temp2{ 23587 };
     int temp3{ 980 };
@@ -195,16 +204,16 @@ TYPED_TEST(SetTest, InsertVerifyFromEndToBegin)
 
     std::set<int> expected_set{temp1, temp2, temp3, temp4, temp5};
 
-    ASSERT_EQ(Insert(&container, temp1), 1);
-    ASSERT_EQ(Insert(&container, temp2), 2);
-    ASSERT_EQ(Insert(&container, temp3), 3);
-    ASSERT_EQ(Insert(&container, temp4), 4);
-    ASSERT_EQ(Insert(&container, temp5), 5);
+    ASSERT_EQ(Insert(&this->container, temp1), 1);
+    ASSERT_EQ(Insert(&this->container, temp2), 2);
+    ASSERT_EQ(Insert(&this->container, temp3), 3);
+    ASSERT_EQ(Insert(&this->container, temp4), 4);
+    ASSERT_EQ(Insert(&this->container, temp5), 5);
 
     std::set<int> to_compare_set{};
 
-    auto begin = Begin(&container);
-    auto it = End(&container);
+    auto begin = Begin(&this->container);
+    auto it = End(&this->container);
 
     while(!Iterator_Equal(&it, &begin))
     {   
@@ -212,31 +221,28 @@ TYPED_TEST(SetTest, InsertVerifyFromEndToBegin)
         to_compare_set.insert(IteratorValue(&it));
     }    
     ASSERT_EQ(expected_set, to_compare_set);
-    ASSERT_EQ(Size(&container), 5);
-    ASSERT_FALSE(Empty(&container));
+    ASSERT_EQ(Size(&this->container), 5);
+    ASSERT_FALSE(Empty(&this->container));
 }
 
 TYPED_TEST(SetTest, EraseVerifyFromBeginToEnd)
 {
-    TypeParam container{};
-    Init(&container);
-
     int temp1{ 3215 };
     int temp2{ 23587 };
     int temp3{ 980 };
     int temp4{ 1024 };
     int temp5{ 5005 };
 
-    Insert(&container, temp1);
-    Insert(&container, temp2);
-    Insert(&container, temp3);
-    Insert(&container, temp4);
-    Insert(&container, temp5);
+    Insert(&this->container, temp1);
+    Insert(&this->container, temp2);
+    Insert(&this->container, temp3);
+    Insert(&this->container, temp4);
+    Insert(&this->container, temp5);
 
     std::set<int> to_compare_set{};
 
-    auto it = Begin(&container);
-    auto end = End(&container);
+    auto it = Begin(&this->container);
+    auto end = End(&this->container);
 
     /* Remove temp4 ***************************************************/
     // Get temp4 iterator
@@ -246,12 +252,12 @@ TYPED_TEST(SetTest, EraseVerifyFromBeginToEnd)
     }
 
     // Remove temp4
-    ASSERT_EQ(Erase(&container, &it), 4);
+    ASSERT_EQ(Erase(&this->container, &it), 4);
 
     std::set<int> expected_set_1{temp1, temp2, temp3, temp5};
 
-    it = Begin(&container);
-    end = End(&container);
+    it = Begin(&this->container);
+    end = End(&this->container);
     to_compare_set.clear();
     while(!Iterator_Equal(&it, &end))
     {   
@@ -259,23 +265,23 @@ TYPED_TEST(SetTest, EraseVerifyFromBeginToEnd)
         IteratorInc(&it);
     }    
     ASSERT_EQ(expected_set_1, to_compare_set);
-    ASSERT_EQ(Size(&container), 4);
+    ASSERT_EQ(Size(&this->container), 4);
 
     /* Remove temp2 ***************************************************/
-    it = Begin(&container);
-    end = End(&container);
+    it = Begin(&this->container);
+    end = End(&this->container);
 
     while(IteratorValue(&it) != temp2)
     {
         IteratorInc(&it);
     }
 
-    ASSERT_EQ(Erase(&container, &it), 3);
+    ASSERT_EQ(Erase(&this->container, &it), 3);
 
     std::set<int> expected_set_2{temp1, temp3, temp5};
 
-    it = Begin(&container);
-    end = End(&container);
+    it = Begin(&this->container);
+    end = End(&this->container);
     to_compare_set.clear();
     while(!Iterator_Equal(&it, &end))
     {   
@@ -283,23 +289,23 @@ TYPED_TEST(SetTest, EraseVerifyFromBeginToEnd)
         IteratorInc(&it);
     }    
     ASSERT_EQ(expected_set_2, to_compare_set);
-    ASSERT_EQ(Size(&container), 3);
+    ASSERT_EQ(Size(&this->container), 3);
 
     /* Remove temp1 ***************************************************/
-    it = Begin(&container);
-    end = End(&container);
+    it = Begin(&this->container);
+    end = End(&this->container);
     
     while(IteratorValue(&it) != temp1)
     {
         IteratorInc(&it);
     }
 
-    ASSERT_EQ(Erase(&container, &it), 2);
+    ASSERT_EQ(Erase(&this->container, &it), 2);
 
     std::set<int> expected_set_3{temp3, temp5};
 
-    it = Begin(&container);
-    end = End(&container);
+    it = Begin(&this->container);
+    end = End(&this->container);
     to_compare_set.clear();
     while(!Iterator_Equal(&it, &end))
     {   
@@ -307,23 +313,23 @@ TYPED_TEST(SetTest, EraseVerifyFromBeginToEnd)
         IteratorInc(&it);
     }    
     ASSERT_EQ(expected_set_3, to_compare_set);
-    ASSERT_EQ(Size(&container), 2);
+    ASSERT_EQ(Size(&this->container), 2);
 
     /* Remove temp5 ***************************************************/
-    it = Begin(&container);
-    end = End(&container);
+    it = Begin(&this->container);
+    end = End(&this->container);
     
     while(IteratorValue(&it) != temp5)
     {
         IteratorInc(&it);
     }
 
-    ASSERT_EQ(Erase(&container, &it), 1);
+    ASSERT_EQ(Erase(&this->container, &it), 1);
 
     std::set<int> expected_set_4{temp3};
 
-    it = Begin(&container);
-    end = End(&container);
+    it = Begin(&this->container);
+    end = End(&this->container);
     to_compare_set.clear();
     while(!Iterator_Equal(&it, &end))
     {   
@@ -331,23 +337,23 @@ TYPED_TEST(SetTest, EraseVerifyFromBeginToEnd)
         IteratorInc(&it);
     }    
     ASSERT_EQ(expected_set_4, to_compare_set);
-    ASSERT_EQ(Size(&container), 1);
+    ASSERT_EQ(Size(&this->container), 1);
 
     /* Remove temp3 ***************************************************/
-    it = Begin(&container);
-    end = End(&container);
+    it = Begin(&this->container);
+    end = End(&this->container);
     
     while(IteratorValue(&it) != temp3)
     {
         IteratorInc(&it);
     }
 
-    ASSERT_EQ(Erase(&container, &it), 0);
+    ASSERT_EQ(Erase(&this->container, &it), 0);
 
     std::set<int> expected_set_5{};
 
-    it = Begin(&container);
-    end = End(&container);
+    it = Begin(&this->container);
+    end = End(&this->container);
     to_compare_set.clear();
     while(!Iterator_Equal(&it, &end))
     {   
@@ -355,15 +361,15 @@ TYPED_TEST(SetTest, EraseVerifyFromBeginToEnd)
         IteratorInc(&it);
     }    
     ASSERT_EQ(expected_set_5, to_compare_set);
-    ASSERT_EQ(Size(&container), 0);
+    ASSERT_EQ(Size(&this->container), 0);
 
     /* Insert temp6 ****************************************/
     int temp6{ 4321 };
-    ASSERT_EQ(Insert(&container, temp6), 1);
+    ASSERT_EQ(Insert(&this->container, temp6), 1);
     std::set<int> expected_set_6{temp6};
 
-    it = Begin(&container);
-    end = End(&container);
+    it = Begin(&this->container);
+    end = End(&this->container);
     to_compare_set.clear();
     while(!Iterator_Equal(&it, &end))
     {   
@@ -371,30 +377,27 @@ TYPED_TEST(SetTest, EraseVerifyFromBeginToEnd)
         IteratorInc(&it);
     }    
     ASSERT_EQ(expected_set_6, to_compare_set);
-    ASSERT_EQ(Size(&container), 1);
+    ASSERT_EQ(Size(&this->container), 1);
 }
 
 TYPED_TEST(SetTest, ModifyContainerValues)
 {
-    TypeParam container{};
-    Init(&container);
-
     int temp1{ 3215 };
     int temp2{ 23587 };
     int temp3{ 980 };
     int temp4{ 1024 };
     int temp5{ 5005 };
 
-    Insert(&container, temp1);
-    Insert(&container, temp2);
-    Insert(&container, temp3);
-    Insert(&container, temp4);
-    Insert(&container, temp5);
+    Insert(&this->container, temp1);
+    Insert(&this->container, temp2);
+    Insert(&this->container, temp3);
+    Insert(&this->container, temp4);
+    Insert(&this->container, temp5);
 
     std::set<int> to_compare_set{};
 
-    auto it = Begin(&container);
-    auto end = End(&container);
+    auto it = Begin(&this->container);
+    auto end = End(&this->container);
 
     /* Change temp4 value */
     while(IteratorValue(&it) != temp4)
@@ -408,8 +411,8 @@ TYPED_TEST(SetTest, ModifyContainerValues)
 
     std::set<int> expected_set_1{temp1, temp2, temp3, temp4_1, temp5};
 
-    it = Begin(&container);
-    end = End(&container);
+    it = Begin(&this->container);
+    end = End(&this->container);
     to_compare_set.clear();
     while(!Iterator_Equal(&it, &end))
     {   
@@ -419,8 +422,8 @@ TYPED_TEST(SetTest, ModifyContainerValues)
     ASSERT_EQ(expected_set_1, to_compare_set);
 
     /* Change temp1 value */
-    it = Begin(&container);
-    end = End(&container);
+    it = Begin(&this->container);
+    end = End(&this->container);
     while(IteratorValue(&it) != temp1)
     {
         IteratorInc(&it);
@@ -432,8 +435,8 @@ TYPED_TEST(SetTest, ModifyContainerValues)
 
     std::set<int> expected_set_2{temp1_1, temp2, temp3, temp4_1, temp5};
 
-    it = Begin(&container);
-    end = End(&container);
+    it = Begin(&this->container);
+    end = End(&this->container);
     to_compare_set.clear();
     while(!Iterator_Equal(&it, &end))
     {   
@@ -445,42 +448,36 @@ TYPED_TEST(SetTest, ModifyContainerValues)
 
 TYPED_TEST(SetTest, FindExistedMember)
 {
-    TypeParam container{};
-    Init(&container);
-
     int temp1{ 3215 };
     int temp2{ 23587 };
     int temp3{ 980 };
     int temp4{ 1024 };
     int temp5{ 5005 };
 
-    Insert(&container, temp1);
-    Insert(&container, temp2);
-    Insert(&container, temp3);
-    Insert(&container, temp4);
-    Insert(&container, temp5);
+    Insert(&this->container, temp1);
+    Insert(&this->container, temp2);
+    Insert(&this->container, temp3);
+    Insert(&this->container, temp4);
+    Insert(&this->container, temp5);
 
-    auto temp1It = Find(&container, temp1);
+    auto temp1It = Find(&this->container, temp1);
     ASSERT_EQ(IteratorValue(&temp1It), temp1);
 
-    auto temp2It = Find(&container, temp2);
+    auto temp2It = Find(&this->container, temp2);
     ASSERT_EQ(IteratorValue(&temp2It), temp2);
 
-    auto temp3It = Find(&container, temp3);
+    auto temp3It = Find(&this->container, temp3);
     ASSERT_EQ(IteratorValue(&temp3It), temp3);
 
-    auto temp4It = Find(&container, temp4);
+    auto temp4It = Find(&this->container, temp4);
     ASSERT_EQ(IteratorValue(&temp4It), temp4);
 
-    auto temp5It = Find(&container, temp5);
+    auto temp5It = Find(&this->container, temp5);
     ASSERT_EQ(IteratorValue(&temp5It), temp5);
 }
 
 TYPED_TEST(SetTest, FindNonExistedMember)
 {
-    TypeParam container{};
-    Init(&container);
-
     int temp1{ 3215 };
     int temp2{ 23587 };
     int temp3{ 980 };
@@ -488,36 +485,33 @@ TYPED_TEST(SetTest, FindNonExistedMember)
     int temp5{ 5005 };
     int temp6{ 753 };
 
-    Insert(&container, temp1);
-    Insert(&container, temp2);
-    Insert(&container, temp3);
-    Insert(&container, temp4);
-    Insert(&container, temp5);
+    Insert(&this->container, temp1);
+    Insert(&this->container, temp2);
+    Insert(&this->container, temp3);
+    Insert(&this->container, temp4);
+    Insert(&this->container, temp5);
 
-    auto end = End(&container);
+    auto end = End(&this->container);
 
-    auto temp6It = Find(&container, temp6);
+    auto temp6It = Find(&this->container, temp6);
     ASSERT_TRUE(Iterator_Equal(&temp6It, &end));
 }
 
 TYPED_TEST(SetTest, IncrementAndDecrementIterator)
 {
-    TypeParam container{};
-    Init(&container);
-
     int temp1{ 3215 };
     int temp2{ 23587 };
     int temp3{ 980 };
     int temp4{ 1024 };
     int temp5{ 5005 };
 
-    Insert(&container, temp1);
-    Insert(&container, temp2);
-    Insert(&container, temp3);
-    Insert(&container, temp4);
-    Insert(&container, temp5);
+    Insert(&this->container, temp1);
+    Insert(&this->container, temp2);
+    Insert(&this->container, temp3);
+    Insert(&this->container, temp4);
+    Insert(&this->container, temp5);
 
-    auto it = Begin(&container);
+    auto it = Begin(&this->container);
 
     IteratorInc(&it);
     IteratorInc(&it);
@@ -539,25 +533,19 @@ TYPED_TEST(SetTest, IncrementAndDecrementIterator)
 
 TYPED_TEST(SetTest, AddedExistingElement)
 {
-    TypeParam container{};
-    Init(&container);
-
     int temp1{ 3215 };
 
-    ASSERT_EQ(Insert(&container, temp1), 1);
-    ASSERT_EQ(Insert(&container, temp1), ELEMENT_EXISTS);
+    ASSERT_EQ(Insert(&this->container, temp1), 1);
+    ASSERT_EQ(Insert(&this->container, temp1), ELEMENT_EXISTS);
 }
 
 TYPED_TEST(StaticSetTest, InsertOverLimit)
 {
-    TypeParam container{};
-    Init(&container);
-
     uint32_t temp1{ 3215 };
 
     for(int i=0; i<CONTAINER_CAPACITY; ++i)
     {
-        ASSERT_EQ(Insert(&container, temp1 + i), i + 1);
+        ASSERT_EQ(Insert(&this->container, temp1 + i), i + 1);
     }
-    ASSERT_EQ(Insert(&container, temp1), ALLOCATION_ERROR);
+    ASSERT_EQ(Insert(&this->container, temp1), ALLOCATION_ERROR);
 }
