@@ -2,6 +2,7 @@
 #include "containers/static_binary_tree.h"
 #include "containers/static_hash_table.h"
 #include "containers/custom_allocator_binary_tree.h"
+#include "containers/custom_allocator_hash_table.h"
 #include "memory/dynamic_allocator.h"
 #include <map>
 
@@ -16,19 +17,25 @@ declare_dynamic_allocator_t(MyDynamicAllocator);
 define_dynamic_allocator_t(MyDynamicAllocator);
 declare_custom_allocator_binary_tree_t(CustomBinaryTree, int, MyDynamicAllocator);
 define_custom_allocator_binary_tree_t(CustomBinaryTree, int, MyDynamicAllocator);
+declare_custom_allocator_hash_table_t(CustomHashTable, int, MyDynamicAllocator);
+define_custom_allocator_hash_table_t(CustomHashTable, int, MyDynamicAllocator);
 
 int compare_set_ints(const int* v1, const int* v2)
 {
+    printf("%d (%p) ---- %d (%p)\n", *v1, v1, *v2, v2);
     if(*v1 > *v2)
     {
+        printf("return 1\n");
         return 1;
     }
     else if(*v1 < *v2)
     {
+        printf("return -1\n");
         return -1;
     }
     else
     {
+        printf("return 0\n");
         return 0;
     }
 }
@@ -120,9 +127,15 @@ void Init(CustomBinaryTree* const container)
     CustomBinaryTree_Construct(container, compare_set_ints);
 }
 
+void Init(CustomHashTable* const hash_table)
+{
+    CustomHashTable_Construct(hash_table, compare_set_ints, hash_function);
+}
+
 create_wrappers_for_type(SetType);
 create_wrappers_for_type(HashTable);
 create_wrappers_for_type(CustomBinaryTree);
+create_wrappers_for_type(CustomHashTable);
 
 
 template<typename T>
@@ -160,7 +173,8 @@ struct StaticSetTest : public testing::Test
 using MyTypes = testing::Types<
     SetType,
     HashTable,
-    CustomBinaryTree
+    CustomBinaryTree,
+    CustomHashTable
         >;
 
 using StaticContainerTypes = testing::Types<
@@ -200,6 +214,7 @@ TYPED_TEST(SetTest, InsertVerifyFromBeginToEnd)
 
     while(!Iterator_Equal(&it, &end))
     {   
+        printf("it node = %p\n", it.node);
         to_compare_set.insert(IteratorValue(&it));
         IteratorInc(&it);
     }    
