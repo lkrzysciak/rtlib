@@ -1,6 +1,8 @@
 #include "gtest/gtest.h"
 #include "containers/static_binary_tree.h"
 #include "containers/static_hash_table.h"
+#include "containers/custom_allocator_binary_tree.h"
+#include "memory/dynamic_allocator.h"
 #include <map>
 
 #define CONTAINER_CAPACITY  10
@@ -9,6 +11,11 @@ declare_static_binary_tree_t(SetType, int, CONTAINER_CAPACITY);
 define_static_binary_tree_t(SetType, int, CONTAINER_CAPACITY);
 declare_static_hash_table_t(HashTable, int, CONTAINER_CAPACITY);
 define_static_hash_table_t(HashTable, int, CONTAINER_CAPACITY);
+
+declare_dynamic_allocator_t(MyDynamicAllocator);
+define_dynamic_allocator_t(MyDynamicAllocator);
+declare_custom_allocator_binary_tree_t(CustomBinaryTree, int, MyDynamicAllocator);
+define_custom_allocator_binary_tree_t(CustomBinaryTree, int, MyDynamicAllocator);
 
 int compare_set_ints(const int* v1, const int* v2)
 {
@@ -108,8 +115,14 @@ void Init(HashTable* const hash_table)
     HashTable_Construct(hash_table, compare_set_ints, hash_function);
 }
 
+void Init(CustomBinaryTree* const container)
+{
+    CustomBinaryTree_Construct(container, compare_set_ints);
+}
+
 create_wrappers_for_type(SetType);
 create_wrappers_for_type(HashTable);
+create_wrappers_for_type(CustomBinaryTree);
 
 
 template<typename T>
@@ -146,7 +159,8 @@ struct StaticSetTest : public testing::Test
 
 using MyTypes = testing::Types<
     SetType,
-    HashTable
+    HashTable,
+    CustomBinaryTree
         >;
 
 using StaticContainerTypes = testing::Types<
