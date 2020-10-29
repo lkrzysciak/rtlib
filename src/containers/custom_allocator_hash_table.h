@@ -77,6 +77,7 @@ void container_t##_Destroy(container_t* const self) \
         container_t##_iterator begin = container_t##_Begin(self); \
         container_t##_Erase(self, &begin); \
     } \
+    allocator_t##_Deallocate(&self->allocator, self->nodes_table); \
     allocator_t##_Destroy(&self->allocator); \
 } \
 \
