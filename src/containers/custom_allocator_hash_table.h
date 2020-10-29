@@ -209,7 +209,6 @@ void container_t##_Iterator_SetValue(container_t##_iterator* const self, member_
     \
     container_t##_Erase(self->container, self); \
     container_t##_Insert(self->container, value); \
-    self->node->value = value; \
 } \
 \
 bool container_t##_Iterator_Equal(const container_t##_iterator* const first, const container_t##_iterator* const second) \
