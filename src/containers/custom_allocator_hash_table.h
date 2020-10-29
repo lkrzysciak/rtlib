@@ -100,35 +100,23 @@ int container_t##_Insert(container_t * const self, member_t data) \
     \
     container_t##_node* node = (container_t##_node*)allocator_t##_Allocate(&self->allocator, sizeof(container_t##_node)); \
     memset(node, 0, sizeof(container_t##_node)); \
-    printf("node ptr = %p\n", node); \
     if(node) \
     { \
         const unsigned int hash_value = self->hash_function(&data); \
         unsigned int index = hash_value % self->nodes_table_size; \
         container_t##_node* before_the_last_node_for_this_hash = NULL; \
         container_t##_node* last_node_for_this_hash = self->nodes_table[index]; \
-        printf("%p -> %d\n", last_node_for_this_hash, index); \
         \
         while(last_node_for_this_hash) \
         { \
-            printf("value = %d (%p)\n", last_node_for_this_hash->value, &last_node_for_this_hash->value); \
             if(self->compare_function(&data, &last_node_for_this_hash->value) == 0) \
             { \
-                printf("dealloc\n"); \
                 allocator_t##_Deallocate(&self->allocator, node); \
                 return ELEMENT_EXISTS; \
             } \
-            else \
-            { \
-                printf("Gooo...\n"); \
-            } \
-            printf("in loop 1\n"); \
             before_the_last_node_for_this_hash = last_node_for_this_hash; \
             last_node_for_this_hash = last_node_for_this_hash->next; \
-            printf("last_node_for_this_hash = %p\n", last_node_for_this_hash); \
-            printf("in loop 2\n"); \
         } \
-        printf("Loop end\n"); \
         \
         if(before_the_last_node_for_this_hash) \
         { \
@@ -145,7 +133,6 @@ int container_t##_Insert(container_t * const self, member_t data) \
     { \
         return ALLOCATION_ERROR; \
     } \
-    printf("out\n"); \
     ++self->size; \
     return self->size; \
 } \
@@ -188,7 +175,6 @@ container_t##_iterator container_t##_Begin(const container_t * const self) \
         if(self->nodes_table[i]) \
         { \
             begin_node = self->nodes_table[i]; \
-            printf("begin node = %p\n", begin_node); \
             break; \
         } \
     } \
@@ -204,7 +190,6 @@ container_t##_iterator container_t##_End(const container_t * const self) \
     container_t##_iterator it = {0}; \
     container_t##_node* end_node = (container_t##_node*)self->nodes_table[self->nodes_table_size]; \
     it.node = end_node; \
-    printf("end node = %p\n", it.node); \
     it.container = (container_t*)self; \
     return it; \
 } \
@@ -251,13 +236,10 @@ void container_t##_Iterator_Increment(container_t##_iterator* const self) \
         \
         container_t##_node** ptr_to_next_node_ptr = &self->container->nodes_table[index + 1]; \
         \
-        printf("Inc init end node  = %p *%p\n", ptr_to_next_node_ptr, *ptr_to_next_node_ptr); \
         container_t##_node** ptr_to_end_node_ptr = &self->container->nodes_table[self->container->nodes_table_size]; \
-        printf("Inc fin end node  = %p *%p\n", ptr_to_end_node_ptr, *ptr_to_end_node_ptr); \
         \
         while(ptr_to_next_node_ptr != ptr_to_end_node_ptr) \
         { \
-            printf("Loop - %p *%p\n", ptr_to_next_node_ptr, *ptr_to_next_node_ptr); \
             if(*ptr_to_next_node_ptr) \
             { \
                 break; \
@@ -265,7 +247,6 @@ void container_t##_Iterator_Increment(container_t##_iterator* const self) \
             ptr_to_next_node_ptr++; \
         } \
         self->node = *ptr_to_next_node_ptr; \
-        printf("Inc end node  = %p\n", self->node); \
     } \
 } \
 \

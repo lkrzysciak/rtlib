@@ -22,20 +22,16 @@ define_custom_allocator_hash_table_t(CustomHashTable, int, MyDynamicAllocator);
 
 int compare_set_ints(const int* v1, const int* v2)
 {
-    printf("%d (%p) ---- %d (%p)\n", *v1, v1, *v2, v2);
     if(*v1 > *v2)
     {
-        printf("return 1\n");
         return 1;
     }
     else if(*v1 < *v2)
     {
-        printf("return -1\n");
         return -1;
     }
     else
     {
-        printf("return 0\n");
         return 0;
     }
 }
@@ -214,7 +210,6 @@ TYPED_TEST(SetTest, InsertVerifyFromBeginToEnd)
 
     while(!Iterator_Equal(&it, &end))
     {   
-        printf("it node = %p\n", it.node);
         to_compare_set.insert(IteratorValue(&it));
         IteratorInc(&it);
     }    
