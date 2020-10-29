@@ -551,6 +551,8 @@ TYPED_TEST(SetTest, AddedExistingElement)
 
     ASSERT_EQ(Insert(&this->container, temp1), 1);
     ASSERT_EQ(Insert(&this->container, temp1), ELEMENT_EXISTS);
+
+    ASSERT_EQ(Size(&this->container), 1);
 }
 
 TYPED_TEST(StaticSetTest, InsertOverLimit)
@@ -562,4 +564,17 @@ TYPED_TEST(StaticSetTest, InsertOverLimit)
         ASSERT_EQ(Insert(&this->container, temp1 + i), i + 1);
     }
     ASSERT_EQ(Insert(&this->container, temp1), ALLOCATION_ERROR);
+}
+
+TYPED_TEST(StaticSetTest, InsertOverLimitExistingElements)
+{
+    uint32_t temp1{ 3215 };
+
+    ASSERT_EQ(Insert(&this->container, temp1), 1);
+
+    for(int i=0; i<CONTAINER_CAPACITY; ++i)
+    {
+        ASSERT_EQ(Insert(&this->container, temp1), ELEMENT_EXISTS);
+    }
+    ASSERT_EQ(Size(&this->container), 1);
 }
