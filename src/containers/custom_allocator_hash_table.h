@@ -59,6 +59,8 @@ static bool __##container_t##_InsertNodeToHashTable(container_t* const self, con
     container_t##_node* before_the_last_node_for_this_hash = NULL; \
     container_t##_node* last_node_for_this_hash = hash_table[index]; \
     \
+    printf("Adding element on index = %d\n", index); \
+    \
     while(last_node_for_this_hash) \
     { \
         if(self->compare_function(&node->value, &last_node_for_this_hash->value) == 0) \
@@ -128,22 +130,56 @@ int container_t##_Insert(container_t * const self, member_t data) \
 { \
     assert(self); \
     \
+    printf("Insert\n"); \
     container_t##_node* node = (container_t##_node*)allocator_t##_Allocate(&self->allocator, sizeof(container_t##_node)); \
     memset(node, 0, sizeof(container_t##_node)); \
     if(node) \
     { \
         node->value = data; \
-        if(false) \
+        if(self->nodes_table_size == self->size) \
         { \
-            /* Rehash */ \
+            printf("rehash\n"); \
+            size_t new_nodes_table_size = self->nodes_table_size * 2; \
+            const size_t nodes_table_size_in_bytes = (new_nodes_table_size + 1) * sizeof(self->nodes_table[0]); \
+            container_t##_node** new_nodes_table = (container_t##_node**)allocator_t##_Allocate(&self->allocator, nodes_table_size_in_bytes); \
+            memset(new_nodes_table, 0, nodes_table_size_in_bytes); \
+            if(new_nodes_table) \
+            { \
+                container_t##_iterator end=container_t##_End(self); \
+                for(container_t##_iterator it=container_t##_Begin(self); \
+                    !container_t##_Iterator_Equal(&it, &end); \
+                    container_t##_Iterator_Increment(&it)) \
+                { \
+                    printf("%p\n", it.node); \
+                    container_t##_node* rehased_node = (container_t##_node*)allocator_t##_Allocate(&self->allocator, sizeof(container_t##_node)); \
+                    rehased_node->prev = NULL; \
+                    rehased_node->next = NULL; \
+                    rehased_node->value = it.node->value; \
+                    if(!__##container_t##_InsertNodeToHashTable(self, rehased_node, new_nodes_table, new_nodes_table_size)) \
+                    { \
+                        assert(false); /* Should never happen */ \
+                    } \
+                } \
+                printf("node table, old: %p, new: %p\n", self->nodes_table, new_nodes_table); \
+                printf("Old\n"); \
+                for(size_t i=0; i<self->nodes_table_size; ++i) { printf("%p ", self->nodes_table[i]); } \
+                printf("\n"); \
+                allocator_t##_Deallocate(&self->allocator, self->nodes_table); \
+                self->nodes_table = new_nodes_table; \
+                self->nodes_table_size = new_nodes_table_size; \
+                printf("New\n"); \
+                for(size_t i=0; i<self->nodes_table_size; ++i) { printf("%p ", self->nodes_table[i]); } \
+                printf("\n"); \
+            } \
+            else \
+            { \
+                return ALLOCATION_ERROR; \
+            } \
         } \
-        else \
+        if(!__##container_t##_InsertNodeToHashTable(self, node, self->nodes_table, self->nodes_table_size)) \
         { \
-           if(!__##container_t##_InsertNodeToHashTable(self, node, self->nodes_table, self->nodes_table_size)) \
-           { \
-                allocator_t##_Deallocate(&self->allocator, node); \
-                return ELEMENT_EXISTS; \
-           } \
+            allocator_t##_Deallocate(&self->allocator, node); \
+            return ELEMENT_EXISTS; \
         } \
     } \
     else \
@@ -185,10 +221,12 @@ container_t##_iterator container_t##_Begin(const container_t * const self) \
 { \
     assert(self); \
     \
+    printf("begin\n"); \
     container_t##_iterator it = {0}; \
     container_t##_node* begin_node = (container_t##_node*)self->nodes_table[self->nodes_table_size]; \
     for(unsigned int i=0; i<self->nodes_table_size; ++i) \
     { \
+        printf("%p\n", self->nodes_table[i]); \
         if(self->nodes_table[i]) \
         { \
             begin_node = self->nodes_table[i]; \
