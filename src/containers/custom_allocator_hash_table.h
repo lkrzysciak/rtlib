@@ -52,6 +52,35 @@ container_t##_iterator container_t##_Find(container_t * const self, member_t dat
 
 
 #define define_custom_allocator_hash_table_t(container_t, member_t, allocator_t) \
+static bool __##container_t##_InsertNodeToHashTable(container_t* const self, container_t##_node* node, container_t##_node** hash_table, size_t hash_table_size) \
+{ \
+    const unsigned int hash_value = self->hash_function(&node->value); \
+    unsigned int index = hash_value % hash_table_size; \
+    container_t##_node* before_the_last_node_for_this_hash = NULL; \
+    container_t##_node* last_node_for_this_hash = hash_table[index]; \
+    \
+    while(last_node_for_this_hash) \
+    { \
+        if(self->compare_function(&node->value, &last_node_for_this_hash->value) == 0) \
+        { \
+            return false; \
+        } \
+        before_the_last_node_for_this_hash = last_node_for_this_hash; \
+        last_node_for_this_hash = last_node_for_this_hash->next; \
+    } \
+    \
+    if(before_the_last_node_for_this_hash) \
+    { \
+        before_the_last_node_for_this_hash->next = node; \
+    } \
+    else \
+    { \
+        hash_table[index] = node; \
+    } \
+    node->prev = before_the_last_node_for_this_hash; \
+    return true; \
+} \
+\
 void container_t##_Construct(container_t* const self, compare_t compare, hash_t hash) \
 { \
     assert(self); \
@@ -103,32 +132,19 @@ int container_t##_Insert(container_t * const self, member_t data) \
     memset(node, 0, sizeof(container_t##_node)); \
     if(node) \
     { \
-        const unsigned int hash_value = self->hash_function(&data); \
-        unsigned int index = hash_value % self->nodes_table_size; \
-        container_t##_node* before_the_last_node_for_this_hash = NULL; \
-        container_t##_node* last_node_for_this_hash = self->nodes_table[index]; \
-        \
-        while(last_node_for_this_hash) \
+        node->value = data; \
+        if(false) \
         { \
-            if(self->compare_function(&data, &last_node_for_this_hash->value) == 0) \
-            { \
-                allocator_t##_Deallocate(&self->allocator, node); \
-                return ELEMENT_EXISTS; \
-            } \
-            before_the_last_node_for_this_hash = last_node_for_this_hash; \
-            last_node_for_this_hash = last_node_for_this_hash->next; \
-        } \
-        \
-        if(before_the_last_node_for_this_hash) \
-        { \
-            before_the_last_node_for_this_hash->next = node; \
+            /* Rehash */ \
         } \
         else \
         { \
-            self->nodes_table[index] = node; \
+           if(!__##container_t##_InsertNodeToHashTable(self, node, self->nodes_table, self->nodes_table_size)) \
+           { \
+                allocator_t##_Deallocate(&self->allocator, node); \
+                return ELEMENT_EXISTS; \
+           } \
         } \
-        node->prev = before_the_last_node_for_this_hash; \
-        node->value = data; \
     } \
     else \
     { \
