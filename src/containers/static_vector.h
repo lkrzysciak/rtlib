@@ -1,7 +1,8 @@
 #pragma once
 
-#include <stdlib.h>
 #include <assert.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include "error_codes.h"
@@ -161,7 +162,7 @@ int container_t##_Erase(container_t * const self, container_t##_iterator* const 
     return self->size; \
 } \
 \
-member_t container_t##_Front(container_t * const self) \
+member_t container_t##_Front(const container_t * const self) \
 { \
     assert(self); \
     assert(self->size > 0); \
@@ -169,7 +170,7 @@ member_t container_t##_Front(container_t * const self) \
     return self->data[0]; \
 } \
 \
-member_t container_t##_Back(container_t * const self) \
+member_t container_t##_Back(const container_t * const self) \
 { \
     assert(self); \
     assert(self->size > 0); \
@@ -188,17 +189,17 @@ void container_t##_SetValue(container_t * const self, size_t index, member_t val
     self->data[index] = value; \
 } \
 \
-container_t##_iterator container_t##_Begin(container_t * const self) \
+container_t##_iterator container_t##_Begin(const container_t * const self) \
 { \
     assert(self); \
     \
     container_t##_iterator it; \
-    it.value = self->data; \
+    it.value = (member_t*)self->data; \
     \
     return it; \
 } \
 \
-container_t##_iterator container_t##_End(container_t * const self) \
+container_t##_iterator container_t##_End(const container_t * const self) \
 { \
     assert(self); \
     \
