@@ -38,7 +38,7 @@ void container_t##_Construct(container_t* const self, compare_t compare); \
 void container_t##_Destroy(container_t* const self); \
 size_t container_t##_Size(const container_t * const self); \
 bool container_t##_Empty(const container_t * const self); \
-int container_t##_Insert(container_t * const self, container_t##_iterator* const iterator, member_t data); \
+int container_t##_Insert(container_t * const self, member_t data); \
 int container_t##_Erase(container_t * const self, container_t##_iterator* const iterator); \
 container_t##_iterator container_t##_Begin(const container_t * const self); \
 container_t##_iterator container_t##_End(const container_t * const self); \

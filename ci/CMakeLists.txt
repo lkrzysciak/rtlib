@@ -37,3 +37,5 @@ target_link_libraries(ut gtest gtest_main gmock gmock_main tested_utils)
 add_executable(performance_tests ${TESTED_FILES} performance_tests/performance_test.cpp)
 target_link_libraries(performance_tests tested_utils)
 
+add_executable(c_tests c_tests/main.c)
+
