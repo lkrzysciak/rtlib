@@ -22,4 +22,9 @@ jobs:
         docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD}/build rtlib-docker-image cmake ..
         docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD}/build rtlib-docker-image make ut
     - name: Run UTs
-      run: ./build/ci/ut
+      run: ./build/ci/ut --gtest_output="xml:testresults.xml"
+    - name: Publish Test Report
+      uses: mikepenz/action-junit-report@v1
+      with:
+        report_paths: '**/xml:testresults.xml'
+        github_token: ${{ secrets.GITHUB_TOKEN }}
