@@ -1,3 +1,4 @@
 FROM debian:buster-slim
 
-RUN apt install gcc g++ cmake
+RUN apt install cmake
+RUN gcc -v
