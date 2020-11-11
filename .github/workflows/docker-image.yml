@@ -19,7 +19,7 @@ jobs:
     - name: Build UTs
       run: | 
         mkdir -p -v build
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD}/build rtlib-docker-image cmake CMAKE_BUILD_TYPE=Release ..
+        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD}/build rtlib-docker-image cmake --config Release ..
         docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD}/build rtlib-docker-image make ut
     - name: Run UTs
       run: ./build/ci/ut --gtest_output="xml:testresults.xml"
