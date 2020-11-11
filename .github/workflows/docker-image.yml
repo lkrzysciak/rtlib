@@ -19,8 +19,6 @@ jobs:
     - name: Build UTs
       run: | 
         mkdir -p -v build
-        pwd
-        ls
-        cd build && ls && pwd && docker run --rm --privileged -v ${PWD}:${PWD} -w=$PWD rtlib-docker-image cmake .. && make ut
+        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD}/build rtlib-docker-image cmake .. && make ut
     - name: Run UTs
       run: ./build/ci/ut
