@@ -5,7 +5,6 @@
 #include "for_tests/list.h"
 #include "for_tests/vector.h"
 #include "for_tests/object_pool.h"
-#include <memory_resource>
 #include "containers/static_vector.h"
 #include "containers/static_list.h"
 #include "memory/static_one_chunk_allocator.h"
