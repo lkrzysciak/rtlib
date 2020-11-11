@@ -1,4 +1,4 @@
 FROM debian:buster-slim
 
-RUN apt install cmake
-RUN gcc -v
+RUN apt update
+RUN apt install -y g++ cmake
