@@ -8,6 +8,7 @@
 
 #define CONTAINER_CAPACITY  10
 
+extern "C" {
 declare_static_binary_tree_t(SetType, int, CONTAINER_CAPACITY);
 define_static_binary_tree_t(SetType, int, CONTAINER_CAPACITY);
 declare_static_hash_table_t(HashTable, int, CONTAINER_CAPACITY);
@@ -19,6 +20,7 @@ declare_custom_allocator_binary_tree_t(CustomBinaryTree, int, MyDynamicAllocator
 define_custom_allocator_binary_tree_t(CustomBinaryTree, int, MyDynamicAllocator);
 declare_custom_allocator_hash_table_t(CustomHashTable, int, MyDynamicAllocator);
 define_custom_allocator_hash_table_t(CustomHashTable, int, MyDynamicAllocator);
+}
 
 int compare_set_ints(const int* v1, const int* v2)
 {

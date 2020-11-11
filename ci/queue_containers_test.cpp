@@ -9,6 +9,7 @@
 
 #define CONTAINER_CAPACITY  5
 
+extern "C" {
 declare_static_vector_t(VectorTestType, int, CONTAINER_CAPACITY);
 define_static_vector_t(VectorTestType, int, CONTAINER_CAPACITY);
 declare_static_list_t(ListTestType, int, CONTAINER_CAPACITY);
@@ -20,6 +21,7 @@ declare_custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
 define_custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
 declare_custom_allocator_list_t(CustomAllocatorList, int, DynamicAllocator);
 define_custom_allocator_list_t(CustomAllocatorList, int, DynamicAllocator);
+}
 
 #define create_wrappers_for_type(Type) \
 void Init(Type* const container) \
