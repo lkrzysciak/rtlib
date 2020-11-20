@@ -40,6 +40,6 @@ jobs:
         python3 ci/performance_tests/convert_json_to_chart.py --json build/ci/middle.json --output reports/middle.png
     - name: Archive results
       uses: actions/upload-artifact@v2
-        with:
-          name: performance-reports
-          path: reports
+      with:
+        name: performance-reports
+        path: reports
