@@ -32,3 +32,14 @@ jobs:
       run: docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD}/build rtlib-docker-image make performance_tests
     - name: Run performance tests
       run: ./build/ci/performance_tests
+    - name: Generate performace charts
+      run: |
+        mkdir -p -v reports
+        python3 ci/performance_tests/convert_json_to_chart.py --json build/ci/back.json --output reports/back.png
+        python3 ci/performance_tests/convert_json_to_chart.py --json build/ci/front.json --output reports/front.png
+        python3 ci/performance_tests/convert_json_to_chart.py --json build/ci/middle.json --output reports/middle.png
+    - name: Archive results
+      uses: actions/upload-artifact@v2
+        with:
+          name: performance-reports
+          path: reports

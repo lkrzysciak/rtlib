@@ -2,6 +2,8 @@
 #include <chrono>
 #include <list>
 #include <vector>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 #include "for_tests/list.h"
 #include "for_tests/vector.h"
 #include "for_tests/object_pool.h"
@@ -30,7 +32,7 @@ define_dynamic_allocator_t(DynamicAllocator);
 declare_custom_allocator_vector_t(DynamicAllocatorVector, int, DynamicAllocator);
 define_custom_allocator_vector_t(DynamicAllocatorVector, int, DynamicAllocator);
 
-void calculateRtlibStaticListBack()
+unsigned int calculateRtlibStaticListBack()
 {
     TestList typed_list; 
     TestList_Construct(&typed_list);
@@ -52,9 +54,11 @@ void calculateRtlibStaticListBack()
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[RTLib][list-typed-static][back]: " << duration.count() << std::endl;
+
+    return duration.count();
 }
 
-void calculateRtlibStaticVectorBack()
+unsigned int calculateRtlibStaticVectorBack()
 {
     TestVector vector; 
     TestVector_Construct(&vector);
@@ -76,9 +80,10 @@ void calculateRtlibStaticVectorBack()
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[RTLib][vector-typed-static][back]: " << duration.count() << std::endl;
+    return duration.count();
 }
 
-void calculateRtlibStaticCustomAllocatorVectorBack()
+unsigned int calculateRtlibStaticCustomAllocatorVectorBack()
 {
     CustomAllocatorVector vector; 
     CustomAllocatorVector_Construct(&vector);
@@ -100,9 +105,10 @@ void calculateRtlibStaticCustomAllocatorVectorBack()
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[RTLib][vector-typed-custom(static)][back]: " << duration.count() << std::endl;
+    return duration.count();
 }
 
-void calculateRtlibDynamicAllocatorVectorBack()
+unsigned int calculateRtlibDynamicAllocatorVectorBack()
 {
     DynamicAllocatorVector vector; 
     DynamicAllocatorVector_Construct(&vector);
@@ -124,9 +130,10 @@ void calculateRtlibDynamicAllocatorVectorBack()
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[RTLib][vector-typed-custom(dynamic)][back]: " << duration.count() << std::endl;
+    return duration.count();
 }
 
-void calculateSTLListBack()
+unsigned int calculateSTLListBack()
 {
     std::list<int> temp_list{};
     
@@ -146,9 +153,10 @@ void calculateSTLListBack()
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[STL][list][back]: " << duration.count() << std::endl;
+    return duration.count();
 }
 
-void calculateSTLVectorBack()
+unsigned int calculateSTLVectorBack()
 {
     std::vector<int> temp_vector{};
     
@@ -168,9 +176,10 @@ void calculateSTLVectorBack()
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[STL][vector][back]: " << duration.count() << std::endl;
+    return duration.count();
 }
 
-void calculateRtlibGenericStaticListBack_ForTest()
+unsigned int calculateRtlibGenericStaticListBack_ForTest()
 {
     uint32_t buf1[10000];
     List * vector = List_Init(buf1, sizeof(buf1), sizeof(int));
@@ -192,9 +201,10 @@ void calculateRtlibGenericStaticListBack_ForTest()
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[RTLib][list-generic-static][back]: " << duration.count() << std::endl;
+    return duration.count();
 }
 
-void calculateRtlibGenericStaticVectorBack_ForTest()
+unsigned int calculateRtlibGenericStaticVectorBack_ForTest()
 {
     uint32_t buf1[10000];
     Vector * vector = Vector_Init(buf1, sizeof(buf1), sizeof(int));
@@ -216,9 +226,10 @@ void calculateRtlibGenericStaticVectorBack_ForTest()
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[RTLib][vector-generic-static][back]: " << duration.count() << std::endl;
+    return duration.count();
 }
 
-void calculateOneDirectMemoryOperation_ForTest()
+unsigned int calculateOneDirectMemoryOperation_ForTest()
 {
     int temp_buf[16]{};
 
@@ -233,9 +244,10 @@ void calculateOneDirectMemoryOperation_ForTest()
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[memory][c][once]: " << duration.count() << std::endl;
+    return duration.count();
 }
 
-void calculateMultipleDirectMemoryOperation_ForTest()
+unsigned int calculateMultipleDirectMemoryOperation_ForTest()
 {
     int temp_buf[16]{};
 
@@ -256,10 +268,11 @@ void calculateMultipleDirectMemoryOperation_ForTest()
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[memory][c][multiple]: " << duration.count() << std::endl;
+    return duration.count();
 }
 
 
-void calculateRtlibStaticListFront()
+unsigned int calculateRtlibStaticListFront()
 {
     TestList typed_list; 
     TestList_Construct(&typed_list);
@@ -282,9 +295,10 @@ void calculateRtlibStaticListFront()
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[RTLib][list-typed-static][front]: " << duration.count() << std::endl;
+    return duration.count();
 }
 
-void calculateRtlibStaticVectorFront()
+unsigned int calculateRtlibStaticVectorFront()
 {
     TestVector vector; 
     TestVector_Construct(&vector);
@@ -306,9 +320,10 @@ void calculateRtlibStaticVectorFront()
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[RTLib][vector-typed-static][front]: " << duration.count() << std::endl;
+    return duration.count();
 }
 
-void calculateSTLListFront()
+unsigned int calculateSTLListFront()
 {
     std::list<int> temp_list{};
     
@@ -328,9 +343,10 @@ void calculateSTLListFront()
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[STL][list][front]: " << duration.count() << std::endl;
+    return duration.count();
 }
 
-void calculateRtlibStaticListMiddle()
+unsigned int calculateRtlibStaticListMiddle()
 {
     TestList typed_list; 
     TestList_Construct(&typed_list);
@@ -361,9 +377,10 @@ void calculateRtlibStaticListMiddle()
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[RTLib][list-typed-static][middle]: " << duration.count() << std::endl;
+    return duration.count();
 }
 
-void calculateRtlibStaticVectorMiddle()
+unsigned int calculateRtlibStaticVectorMiddle()
 {
     TestVector vector; 
     TestVector_Construct(&vector);
@@ -394,9 +411,10 @@ void calculateRtlibStaticVectorMiddle()
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[RTLib][vector-typed-static][middle]: " << duration.count() << std::endl;
+    return duration.count();
 }
 
-void calculateSTLListMiddle()
+unsigned int calculateSTLListMiddle()
 {
     std::list<int> temp_list{};
     auto begin_it = std::begin(temp_list);
@@ -424,11 +442,12 @@ void calculateSTLListMiddle()
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[STL][list][middle]: " << duration.count() << std::endl;
+    return duration.count();
 }
 
 typed_pool_t(TestPool, int, 20);
 
-void measureGenericPool()
+unsigned int measureGenericPool()
 {
     uint32_t pool_buf[10000];
     Pool* pool = Pool_Init(pool_buf, sizeof(pool_buf), sizeof(int));
@@ -447,9 +466,10 @@ void measureGenericPool()
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[RTLib][pool-generic-static]: " << duration.count() << std::endl;
+    return duration.count();
 }
 
-void measureTypedPool()
+unsigned int measureTypedPool()
 {
     TestPool test_pool{};
     TestPool_Init(&test_pool);
@@ -468,30 +488,55 @@ void measureTypedPool()
     
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "[RTLib][pool-typed-static]: " << duration.count() << std::endl;
+    return duration.count();
+}
+
+void addRecordToTree(boost::property_tree::ptree& array, std::string container, unsigned int duration)
+{
+    boost::property_tree::ptree child;
+
+    child.put("container", container);
+    child.put("duration", duration);
+
+    array.push_back(std::make_pair("", child));
+}
+
+void generateFile(const boost::property_tree::ptree& array, std::string filename)
+{
+    boost::property_tree::ptree pt;
+
+    pt.add_child("data", array);
+
+    boost::property_tree::write_json(filename, pt);
 }
 
 int main()
 {
+    boost::property_tree::ptree backTree{};
     /* Back */
     std::cout << "Back: " << std::endl;
-    calculateRtlibStaticListBack();
-    calculateRtlibStaticVectorBack();
-    calculateRtlibStaticCustomAllocatorVectorBack();
-    calculateRtlibDynamicAllocatorVectorBack();
-    calculateSTLListBack();
-    calculateSTLVectorBack();
+    addRecordToTree(backTree, "rtlib-svector", calculateRtlibStaticVectorBack());
+    addRecordToTree(backTree, "rtlib-cvector", calculateRtlibDynamicAllocatorVectorBack());
+    addRecordToTree(backTree, "rtlib-slist", calculateRtlibStaticListBack());
+    addRecordToTree(backTree, "stl-vector", calculateSTLVectorBack());
+    addRecordToTree(backTree, "stl-list", calculateSTLListBack());
+    generateFile(backTree, "back.json");
 
     /* Front */
+    boost::property_tree::ptree frontTree{};
     std::cout << "Front: " << std::endl;
-    calculateRtlibStaticListFront();
-    calculateRtlibStaticVectorFront();
-    calculateSTLListFront();
+    addRecordToTree(frontTree, "rtlib-static-list",calculateRtlibStaticListFront());
+    addRecordToTree(frontTree, "rtlib-static-vector",calculateRtlibStaticVectorFront());
+    addRecordToTree(frontTree, "stl-list",calculateSTLListFront());
+    generateFile(backTree, "front.json");
 
     /* Middle */
+    boost::property_tree::ptree middleTree{};
     std::cout << "Middle: " << std::endl;
-    calculateRtlibStaticListMiddle();
-    calculateRtlibStaticVectorMiddle();
-    calculateSTLListMiddle();
+    addRecordToTree(middleTree, "rtlib-static-list" ,calculateRtlibStaticListMiddle());
+    addRecordToTree(middleTree, "rtlib-static-vector",calculateRtlibStaticVectorMiddle());
+    addRecordToTree(middleTree, "stl-list", calculateSTLListMiddle());
+    generateFile(middleTree, "middle.json");
 
     /* Pool */
     std::cout << "Pool: " << std::endl;
