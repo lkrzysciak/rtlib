@@ -35,6 +35,8 @@ jobs:
     - name: Generate performace charts
       run: |
         mkdir -p -v reports
+        pwd
+        ls
         docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/convert_json_to_chart.py --json build/ci/back.json --output reports/back.png
         docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/convert_json_to_chart.py --json build/ci/front.json --output reports/front.png
         docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/convert_json_to_chart.py --json build/ci/middle.json --output reports/middle.png
