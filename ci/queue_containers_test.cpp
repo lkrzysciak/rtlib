@@ -172,6 +172,22 @@ struct StaticContainerTest : public testing::Test
     T container;
 };
 
+template<typename T>
+struct CustomContainerTest : public testing::Test
+{
+    void SetUp() override 
+    {
+        Init(&container);
+    }
+
+    void TearDown() override 
+    {
+        Deinit(&container);
+    }
+
+    T container;
+};
+
 using MyTypes = testing::Types<
     VectorTestType,
     ListTestType,
@@ -184,8 +200,14 @@ using StaticContainerTypes = testing::Types<
     ListTestType
         >;
 
+using CustomContainerTypes = testing::Types<
+    CustomAllocatorVector,
+    CustomAllocatorList
+        >;
+
 TYPED_TEST_SUITE(ContainerTest, MyTypes);
 TYPED_TEST_SUITE(StaticContainerTest, StaticContainerTypes);
+TYPED_TEST_SUITE(CustomContainerTest, CustomContainerTypes);
 
 TYPED_TEST(ContainerTest, IsEmptyAfterInit)
 {
@@ -530,4 +552,15 @@ TYPED_TEST(StaticContainerTest, InsertOverLimit)
     }
     auto it = Begin(&this->container);
     ASSERT_EQ(Insert(&this->container, temp1, &it), ALLOCATION_ERROR);
+}
+
+TYPED_TEST(CustomContainerTest, AddALotOfElementsToMakeManyReallocations)
+{
+    uint32_t temp1{ 3215 };
+
+    for(int i=0; i<1000; ++i)
+    {
+        auto it = Begin(&this->container);
+        ASSERT_EQ(Insert(&this->container, temp1, &it), i + 1);
+    }
 }
