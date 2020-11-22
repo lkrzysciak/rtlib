@@ -169,14 +169,15 @@ int container_t##_Insert(container_t * const self, container_t##_iterator* const
     } \
     else \
     { \
+        const unsigned int iteratorIndex = (iterator->value - self->data) / sizeof(member_t); \
         self->capacity *= 2; \
         member_t* new_data = (member_t*)allocator_t##_Reallocate(&self->allocator, self->data, self->capacity * sizeof(member_t)); \
         if(new_data) \
         { \
             self->data = new_data; \
-            const size_t to_move_bytes = (uint8_t*)&self->data[self->size] - (uint8_t*)iterator->value; \
-            memmove(iterator->value + 1, iterator->value, to_move_bytes); \
-            *iterator->value = data; \
+            const size_t to_move_bytes = iteratorIndex * sizeof(member_t); \
+            memmove(&self->data[iteratorIndex + 1], &self->data[iteratorIndex], to_move_bytes); \
+            self->data[iteratorIndex] = data; \
             ++self->size; \
             \
             return self->size; \
