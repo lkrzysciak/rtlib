@@ -12,6 +12,7 @@
 #include "memory/static_one_chunk_allocator.h"
 #include "memory/dynamic_allocator.h"
 #include "containers/custom_allocator_vector.h"
+#include "containers/custom_allocator_list.h"
 #include "memory/typed_pool.h"
 
 declare_static_vector_t(TestVector, int, 20);
@@ -19,15 +20,12 @@ define_static_vector_t(TestVector, int, 20);
 declare_static_list_t(TestList, int, 20);
 define_static_list_t(TestList, int, 20);
 
-declare_static_one_chunk_allocator_t(StaticOneChunkllocator, 20 * sizeof(int));
-define_static_one_chunk_allocator_t(StaticOneChunkllocator, 20 * sizeof(int));
-declare_custom_allocator_vector_t(CustomAllocatorVector, int, StaticOneChunkllocator);
-define_custom_allocator_vector_t(CustomAllocatorVector, int, StaticOneChunkllocator);
-
 declare_dynamic_allocator_t(DynamicAllocator);
 define_dynamic_allocator_t(DynamicAllocator);
 declare_custom_allocator_vector_t(DynamicAllocatorVector, int, DynamicAllocator);
 define_custom_allocator_vector_t(DynamicAllocatorVector, int, DynamicAllocator);
+declare_custom_allocator_list_t(DynamicAllocatorList, int, DynamicAllocator);
+define_custom_allocator_list_t(DynamicAllocatorList, int, DynamicAllocator);
 
 
 
@@ -157,10 +155,17 @@ auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - sta
 return duration.count();
 
 
+/* Tests */
 template<int onIterationSize, int iterations>
 unsigned int calculateRtlibStaticListBack()
 {
     rtlibTest(TestList, TestList_PushBack, TestList_PopBack, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibDynamicAllocatorListBack()
+{
+    rtlibTest(DynamicAllocatorList, DynamicAllocatorList_PushBack, DynamicAllocatorList_PopBack, onIterationSize, iterations);
 }
 
 template<int onIterationSize, int iterations>
@@ -194,9 +199,21 @@ unsigned int calculateRtlibStaticListFront()
 }
 
 template<int onIterationSize, int iterations>
+unsigned int calculateRtlibDynamicAllocatorListFront()
+{
+    rtlibTest(DynamicAllocatorList, DynamicAllocatorList_PushFront, DynamicAllocatorList_PopFront, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
 unsigned int calculateRtlibStaticVectorFront()
 {
     rtlibTest(TestVector, TestVector_PushFront, TestVector_PopFront, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibDynamicAllocatorVectorFront()
+{
+    rtlibTest(DynamicAllocatorVector, DynamicAllocatorVector_PushFront, DynamicAllocatorVector_PopFront, onIterationSize, iterations);
 }
 
 template<int onIterationSize, int iterations>
@@ -212,15 +229,33 @@ unsigned int calculateRtlibStaticListMiddle()
 }
 
 template<int onIterationSize, int iterations, int position>
+unsigned int calculateRtlibCustomListMiddle()
+{
+    rtlibWithIteratorTest(DynamicAllocatorList, Insert, Erase, onIterationSize, iterations, position);
+}
+
+template<int onIterationSize, int iterations, int position>
 unsigned int calculateRtlibStaticVectorMiddle()
 {
     rtlibWithIteratorTest(TestVector, Insert, Erase, onIterationSize, iterations, position);
 }
 
 template<int onIterationSize, int iterations, int position>
+unsigned int calculateRtlibCustomVectorMiddle()
+{
+    rtlibWithIteratorTest(DynamicAllocatorVector, Insert, Erase, onIterationSize, iterations, position);
+}
+
+template<int onIterationSize, int iterations, int position>
 unsigned int calculateSTLListMiddle()
 {
     stlWithIteratorTest(std::list<int>, insert, erase, onIterationSize, iterations, position);
+}
+
+template<int onIterationSize, int iterations, int position>
+unsigned int calculateSTLVectorMiddle()
+{
+    stlWithIteratorTest(std::vector<int>, insert, erase, onIterationSize, iterations, position);
 }
 
 typed_pool_t(TestPool, int, 20);
@@ -393,6 +428,7 @@ int main()
     addRecordToTree(backTree, "rtlib-svector", calculateRtlibStaticVectorBack<16, 10000000>());
     addRecordToTree(backTree, "rtlib-cvector", calculateRtlibDynamicAllocatorVectorBack<16, 10000000>());
     addRecordToTree(backTree, "rtlib-slist", calculateRtlibStaticListBack<16, 10000000>());
+    addRecordToTree(backTree, "rtlib-clist", calculateRtlibDynamicAllocatorListBack<16, 10000000>());
     addRecordToTree(backTree, "stl-vector", calculateSTLVectorBack<16, 10000000>());
     addRecordToTree(backTree, "stl-list", calculateSTLListBack<16, 10000000>());
     generateFile(backTree, "back.json");
@@ -400,17 +436,22 @@ int main()
     /* Front */
     boost::property_tree::ptree frontTree{};
     std::cout << "Front: " << std::endl;
-    addRecordToTree(frontTree, "rtlib-slist",calculateRtlibStaticListFront<16, 10000000>());
     addRecordToTree(frontTree, "rtlib-svector",calculateRtlibStaticVectorFront<16, 10000000>());
-    addRecordToTree(frontTree, "stl-list",calculateSTLListFront<16, 10000000>());
+    addRecordToTree(frontTree, "rtlib-cvector",calculateRtlibDynamicAllocatorVectorFront<16, 10000000>());
+    addRecordToTree(frontTree, "rtlib-slist",calculateRtlibStaticListFront<16, 10000000>());
+    addRecordToTree(frontTree, "rtlib-clist",calculateRtlibDynamicAllocatorListFront<16, 10000000>());
     // STL vector has no push_front method
+    addRecordToTree(frontTree, "stl-list",calculateSTLListFront<16, 10000000>());
     generateFile(frontTree, "front.json");
 
     /* Middle */
     boost::property_tree::ptree middleTree{};
     std::cout << "Middle: " << std::endl;
-    addRecordToTree(middleTree, "rtlib-slist" ,calculateRtlibStaticListMiddle<16, 10000000, 1>());
     addRecordToTree(middleTree, "rtlib-svector",calculateRtlibStaticVectorMiddle<16, 10000000, 1>());
+    addRecordToTree(middleTree, "rtlib-cvector",calculateRtlibCustomVectorMiddle<16, 10000000, 1>());
+    addRecordToTree(middleTree, "rtlib-slist" ,calculateRtlibStaticListMiddle<16, 10000000, 1>());
+    addRecordToTree(middleTree, "rtlib-clist" ,calculateRtlibCustomListMiddle<16, 10000000, 1>());
+    addRecordToTree(middleTree, "stl-vector", calculateSTLVectorMiddle<16, 10000000, 1>());
     addRecordToTree(middleTree, "stl-list", calculateSTLListMiddle<16, 10000000, 1>());
     generateFile(middleTree, "middle.json");
 
