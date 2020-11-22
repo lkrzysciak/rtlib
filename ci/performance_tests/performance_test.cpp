@@ -14,11 +14,8 @@
 #include "containers/custom_allocator_vector.h"
 #include "memory/typed_pool.h"
 
-int samples[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-
 declare_static_vector_t(TestVector, int, 20);
 define_static_vector_t(TestVector, int, 20);
-
 declare_static_list_t(TestList, int, 20);
 define_static_list_t(TestList, int, 20);
 
@@ -32,417 +29,198 @@ define_dynamic_allocator_t(DynamicAllocator);
 declare_custom_allocator_vector_t(DynamicAllocatorVector, int, DynamicAllocator);
 define_custom_allocator_vector_t(DynamicAllocatorVector, int, DynamicAllocator);
 
+
+
+#define cCall(object, addMethod, deleteMethod, oneIterationSize, iterations) \
+for(int i=0; i<iterations; ++i) \
+{ \
+    for(int j=0; j<oneIterationSize; ++j) \
+    { \
+        addMethod(&object, j); \
+    } \
+    for(int j=0; j<oneIterationSize; ++j) \
+    { \
+        deleteMethod(&object); \
+    } \
+}
+
+#define cppCall(object, addMethod, deleteMethod, oneIterationSize, iterations) \
+for(int i=0; i<iterations; ++i) \
+{ \
+    for(int j=0; j<oneIterationSize; ++j) \
+    { \
+        object.addMethod(j); \
+    } \
+    for(int j=0; j<oneIterationSize; ++j) \
+    { \
+        object.deleteMethod(); \
+    } \
+}
+
+/* Adding to rtlib container without iterators */
+#define rtlibTest(rtlibType, addMethod, deleteMethod, oneIterationSize, iterations) \
+rtlibType rtlibObject; \
+rtlibType##_Construct(&rtlibObject); \
+\
+auto start = std::chrono::high_resolution_clock::now(); \
+\
+cCall(rtlibObject, addMethod, deleteMethod, oneIterationSize, iterations); \
+\
+auto stop = std::chrono::high_resolution_clock::now(); \
+auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
+return duration.count();
+
+
+/* Adding to stl container with iterators */
+#define rtlibWithIteratorTest(rtlibType, addMethod, deleteMethod, oneIterationSize, iterations, position) \
+rtlibType object; \
+rtlibType##_Construct(&object); \
+for(int i=0; i<position; ++i) \
+{ \
+    auto begin_it = rtlibType##_Begin(&object); \
+    rtlibType##_Insert(&object, &begin_it, 0); \
+} \
+\
+auto start = std::chrono::high_resolution_clock::now(); \
+ \
+for(int i=0; i<iterations; ++i) \
+{ \
+    for(int j=0; j<oneIterationSize; ++j) \
+    { \
+        auto it = rtlibType##_Begin(&object); \
+        for(int i=0; i<position; ++i) \
+        { \
+            rtlibType##_Iterator_Increment(&it); \
+        } \
+        rtlibType##_##addMethod(&object, &it, j); \
+    } \
+    for(int j=0; j<oneIterationSize; ++j) \
+    { \
+        auto it = rtlibType##_Begin(&object); \
+        for(int i=0; i<position; ++i) \
+        { \
+            rtlibType##_Iterator_Increment(&it); \
+        } \
+        rtlibType##_##deleteMethod(&object, &it); \
+    } \
+} \
+auto stop = std::chrono::high_resolution_clock::now(); \
+auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
+return duration.count();
+
+
+/* Adding to stl container without iterators */
+#define stlTest(stlType, addMethod, deleteMethod, oneIterationSize, iterations) \
+stlType stlObject; \
+\
+auto start = std::chrono::high_resolution_clock::now(); \
+\
+cppCall(stlObject, addMethod, deleteMethod, oneIterationSize, iterations); \
+\
+auto stop = std::chrono::high_resolution_clock::now(); \
+auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
+return duration.count();
+
+/* Adding to stl container with iterators */
+#define stlWithIteratorTest(stlType, addMethod, deleteMethod, oneIterationSize, iterations, position) \
+stlType object{}; \
+for(int i=0; i<position; ++i) \
+{ \
+    auto begin_it = std ::begin(object); \
+    object.insert(begin_it, 0); \
+} \
+auto start = std::chrono::high_resolution_clock::now(); \
+\
+for(int i=0; i<10000000; ++i) \
+{ \
+    for(int j=0; j<16; ++j) \
+    { \
+        auto begin_it = std::begin(object); \
+        for(int i=0; i<position; ++i) \
+        { \
+            begin_it++; \
+        } \
+        object.insert(begin_it, j); \
+    } \
+    for(int j=0; j<16; ++j) \
+    { \
+        auto begin_it = std::begin(object); \
+        for(int i=0; i<position; ++i) \
+        { \
+            begin_it++; \
+        } \
+        object.erase(begin_it); \
+    } \
+} \
+auto stop = std::chrono::high_resolution_clock::now(); \
+auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
+return duration.count();
+
+
+template<int onIterationSize, int iterations>
 unsigned int calculateRtlibStaticListBack()
 {
-    TestList typed_list; 
-    TestList_Construct(&typed_list);
-
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    for(int i=0; i<10000000; ++i)
-    {
-        for(int j=0; j<16; ++j)
-        {
-            TestList_PushBack(&typed_list, samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            TestList_PopBack(&typed_list);
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-    
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[RTLib][list-typed-static][back]: " << duration.count() << std::endl;
-
-    return duration.count();
+    rtlibTest(TestList, TestList_PushBack, TestList_PopBack, onIterationSize, iterations);
 }
 
+template<int onIterationSize, int iterations>
 unsigned int calculateRtlibStaticVectorBack()
 {
-    TestVector vector; 
-    TestVector_Construct(&vector);
-
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    for(int i=0; i<10000000; ++i)
-    {
-        for(int j=0; j<16; ++j)
-        {
-            TestVector_PushBack(&vector, samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            TestVector_PopBack(&vector);
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-    
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[RTLib][vector-typed-static][back]: " << duration.count() << std::endl;
-    return duration.count();
+    rtlibTest(TestVector, TestVector_PushBack, TestVector_PopBack, onIterationSize, iterations);
 }
 
-unsigned int calculateRtlibStaticCustomAllocatorVectorBack()
-{
-    CustomAllocatorVector vector; 
-    CustomAllocatorVector_Construct(&vector);
-
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    for(int i=0; i<10000000; ++i)
-    {
-        for(int j=0; j<16; ++j)
-        {
-            CustomAllocatorVector_PushBack(&vector, samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            CustomAllocatorVector_PopBack(&vector);
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-    
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[RTLib][vector-typed-custom(static)][back]: " << duration.count() << std::endl;
-    return duration.count();
-}
-
+template<int onIterationSize, int iterations>
 unsigned int calculateRtlibDynamicAllocatorVectorBack()
 {
-    DynamicAllocatorVector vector; 
-    DynamicAllocatorVector_Construct(&vector);
-
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    for(int i=0; i<10000000; ++i)
-    {
-        for(int j=0; j<16; ++j)
-        {
-            DynamicAllocatorVector_PushBack(&vector, samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            DynamicAllocatorVector_PopBack(&vector);
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-    
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[RTLib][vector-typed-custom(dynamic)][back]: " << duration.count() << std::endl;
-    return duration.count();
+    rtlibTest(DynamicAllocatorVector, DynamicAllocatorVector_PushBack, DynamicAllocatorVector_PopBack, onIterationSize, iterations);
 }
 
+template<int onIterationSize, int iterations>
 unsigned int calculateSTLListBack()
 {
-    std::list<int> temp_list{};
-    
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    for(int i=0; i<10000000; ++i) 
-    {
-        for(int j=0; j<16; ++j)
-        {
-            temp_list.push_back(samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            temp_list.pop_back();
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[STL][list][back]: " << duration.count() << std::endl;
-    return duration.count();
+    stlTest(std::list<int>, push_back, pop_back, onIterationSize, iterations);
 }
 
+template<int onIterationSize, int iterations>
 unsigned int calculateSTLVectorBack()
 {
-    std::vector<int> temp_vector{};
-    
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    for(int i=0; i<10000000; ++i) 
-    {
-        for(int j=0; j<16; ++j)
-        {
-            temp_vector.push_back(samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            temp_vector.pop_back();
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[STL][vector][back]: " << duration.count() << std::endl;
-    return duration.count();
+    stlTest(std::vector<int>, push_back, pop_back, onIterationSize, iterations);
 }
 
-unsigned int calculateRtlibGenericStaticListBack_ForTest()
-{
-    uint32_t buf1[10000];
-    List * vector = List_Init(buf1, sizeof(buf1), sizeof(int));
-
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    for(int i=0; i<10000000; ++i)
-    {
-        for(int j=0; j<16; ++j)
-        {
-            List_PushBack(vector, &samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            List_PopBack(vector);
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-    
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[RTLib][list-generic-static][back]: " << duration.count() << std::endl;
-    return duration.count();
-}
-
-unsigned int calculateRtlibGenericStaticVectorBack_ForTest()
-{
-    uint32_t buf1[10000];
-    Vector * vector = Vector_Init(buf1, sizeof(buf1), sizeof(int));
-
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    for(int i=0; i<10000000; ++i)
-    {
-        for(int j=0; j<16; ++j)
-        {
-            Vector_PushBack(vector, &samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            Vector_PopBack(vector);
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-    
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[RTLib][vector-generic-static][back]: " << duration.count() << std::endl;
-    return duration.count();
-}
-
-unsigned int calculateOneDirectMemoryOperation_ForTest()
-{
-    int temp_buf[16]{};
-
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    for(int i=0; i<10000000; ++i)
-    {
-        memcpy(temp_buf, samples, sizeof(temp_buf));
-        memset(temp_buf, 0, sizeof(temp_buf));
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-    
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[memory][c][once]: " << duration.count() << std::endl;
-    return duration.count();
-}
-
-unsigned int calculateMultipleDirectMemoryOperation_ForTest()
-{
-    int temp_buf[16]{};
-
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    for(int i=0; i<10000000; ++i)
-    {
-        for(int j=0; j<16; ++j)
-        {
-            memcpy(temp_buf, samples, sizeof(temp_buf));
-        }
-        for(int j=0; j<16; ++j)
-        {
-            memset(temp_buf, 0, sizeof(temp_buf));
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-    
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[memory][c][multiple]: " << duration.count() << std::endl;
-    return duration.count();
-}
-
-
+template<int onIterationSize, int iterations>
 unsigned int calculateRtlibStaticListFront()
 {
-    TestList typed_list; 
-    TestList_Construct(&typed_list);
-
-    
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    for(int i=0; i<10000000; ++i)
-    {
-        for(int j=0; j<16; ++j)
-        {
-            TestList_PushFront(&typed_list, samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            TestList_PopFront(&typed_list);
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-    
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[RTLib][list-typed-static][front]: " << duration.count() << std::endl;
-    return duration.count();
+    rtlibTest(TestList, TestList_PushFront, TestList_PopFront, onIterationSize, iterations);
 }
 
+template<int onIterationSize, int iterations>
 unsigned int calculateRtlibStaticVectorFront()
 {
-    TestVector vector; 
-    TestVector_Construct(&vector);
-
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    for(int i=0; i<10000000; ++i)
-    {
-        for(int j=0; j<16; ++j)
-        {
-            TestVector_PushFront(&vector, samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            TestVector_PopFront(&vector);
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-    
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[RTLib][vector-typed-static][front]: " << duration.count() << std::endl;
-    return duration.count();
+    rtlibTest(TestVector, TestVector_PushFront, TestVector_PopFront, onIterationSize, iterations);
 }
 
+template<int onIterationSize, int iterations>
 unsigned int calculateSTLListFront()
 {
-    std::list<int> temp_list{};
-    
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    for(int i=0; i<10000000; ++i) 
-    {
-        for(int j=0; j<16; ++j)
-        {
-            temp_list.push_front(samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            temp_list.pop_front();
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[STL][list][front]: " << duration.count() << std::endl;
-    return duration.count();
+    stlTest(std::list<int>, push_front, pop_front, onIterationSize, iterations);
 }
 
+template<int onIterationSize, int iterations, int position>
 unsigned int calculateRtlibStaticListMiddle()
 {
-    TestList typed_list; 
-    TestList_Construct(&typed_list);
-
-    auto begin_it = TestList_Begin(&typed_list);
-    TestList_Insert(&typed_list, &begin_it, 0);
-    begin_it = TestList_Begin(&typed_list);
-    TestList_Insert(&typed_list, &begin_it, 0);
-    
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    for(int i=0; i<10000000; ++i)
-    {
-        for(int j=0; j<16; ++j)
-        {
-            auto it = TestList_Begin(&typed_list);
-            TestList_Iterator_Increment(&it);
-            TestList_Insert(&typed_list, &it, samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            auto it = TestList_Begin(&typed_list);
-            TestList_Iterator_Increment(&it);
-            TestList_Erase(&typed_list, &it);
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-    
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[RTLib][list-typed-static][middle]: " << duration.count() << std::endl;
-    return duration.count();
+    rtlibWithIteratorTest(TestList, Insert, Erase, onIterationSize, iterations, position);
 }
 
+template<int onIterationSize, int iterations, int position>
 unsigned int calculateRtlibStaticVectorMiddle()
 {
-    TestVector vector; 
-    TestVector_Construct(&vector);
-
-    auto begin_it = TestVector_Begin(&vector);
-    TestVector_Insert(&vector, &begin_it, 0);
-    begin_it = TestVector_Begin(&vector);
-    TestVector_Insert(&vector, &begin_it, 0);
-    
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    for(int i=0; i<10000000; ++i)
-    {
-        for(int j=0; j<16; ++j)
-        {
-            auto it = TestVector_Begin(&vector);
-            TestVector_Iterator_Increment(&it);
-            TestVector_Insert(&vector, &it, samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            auto it = TestVector_Begin(&vector);
-            TestVector_Iterator_Increment(&it);
-            TestVector_Erase(&vector, &it);
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-    
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[RTLib][vector-typed-static][middle]: " << duration.count() << std::endl;
-    return duration.count();
+    rtlibWithIteratorTest(TestVector, Insert, Erase, onIterationSize, iterations, position);
 }
 
+template<int onIterationSize, int iterations, int position>
 unsigned int calculateSTLListMiddle()
 {
-    std::list<int> temp_list{};
-    auto begin_it = std::begin(temp_list);
-    temp_list.insert(begin_it, 0);
-    begin_it = std::begin(temp_list);
-    temp_list.insert(begin_it, 0);
-    
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    for(int i=0; i<10000000; ++i) 
-    {
-        for(int j=0; j<16; ++j)
-        {
-            begin_it = std::begin(temp_list);
-            begin_it++;
-            temp_list.insert(begin_it, samples[j]);
-        }
-        for(int j=0; j<16; ++j)
-        {
-            begin_it = std::begin(temp_list);
-            begin_it++;
-            temp_list.erase(begin_it);
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[STL][list][middle]: " << duration.count() << std::endl;
-    return duration.count();
+    stlWithIteratorTest(std::list<int>, insert, erase, onIterationSize, iterations, position);
 }
 
 typed_pool_t(TestPool, int, 20);
@@ -491,6 +269,101 @@ unsigned int measureTypedPool()
     return duration.count();
 }
 
+unsigned int calculateRtlibGenericStaticListBack_ForTest()
+{
+    uint32_t buf1[10000];
+    List * vector = List_Init(buf1, sizeof(buf1), sizeof(int));
+
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    for(int i=0; i<10000000; ++i)
+    {
+        for(int j=0; j<16; ++j)
+        {
+            List_PushBack(vector, &j);
+        }
+        for(int j=0; j<16; ++j)
+        {
+            List_PopBack(vector);
+        }
+    }
+    auto stop = std::chrono::high_resolution_clock::now();
+    
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+    std::cout << "[RTLib][list-generic-static][back]: " << duration.count() << std::endl;
+    return duration.count();
+}
+
+unsigned int calculateRtlibGenericStaticVectorBack_ForTest()
+{
+    uint32_t buf1[10000];
+    Vector * vector = Vector_Init(buf1, sizeof(buf1), sizeof(int));
+
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    for(int i=0; i<10000000; ++i)
+    {
+        for(int j=0; j<16; ++j)
+        {
+            Vector_PushBack(vector, &j);
+        }
+        for(int j=0; j<16; ++j)
+        {
+            Vector_PopBack(vector);
+        }
+    }
+    auto stop = std::chrono::high_resolution_clock::now();
+    
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+    std::cout << "[RTLib][vector-generic-static][back]: " << duration.count() << std::endl;
+    return duration.count();
+}
+
+unsigned int calculateOneDirectMemoryOperation_ForTest()
+{
+    int temp_buf[16]{};
+    int samples[16]{};
+
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    for(int i=0; i<10000000; ++i)
+    {
+        memcpy(temp_buf, samples, sizeof(temp_buf));
+        memset(temp_buf, 0, sizeof(temp_buf));
+    }
+    auto stop = std::chrono::high_resolution_clock::now();
+    
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+    std::cout << "[memory][c][once]: " << duration.count() << std::endl;
+    return duration.count();
+}
+
+unsigned int calculateMultipleDirectMemoryOperation_ForTest()
+{
+    int temp_buf[16]{};
+    int samples[16]{};
+
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    for(int i=0; i<10000000; ++i)
+    {
+        for(int j=0; j<16; ++j)
+        {
+            memcpy(temp_buf, samples, sizeof(temp_buf));
+        }
+        for(int j=0; j<16; ++j)
+        {
+            memset(temp_buf, 0, sizeof(temp_buf));
+        }
+    }
+    auto stop = std::chrono::high_resolution_clock::now();
+    
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+    std::cout << "[memory][c][multiple]: " << duration.count() << std::endl;
+    return duration.count();
+}
+
+
 void addRecordToTree(boost::property_tree::ptree& array, std::string container, unsigned int duration)
 {
     boost::property_tree::ptree child;
@@ -499,6 +372,8 @@ void addRecordToTree(boost::property_tree::ptree& array, std::string container, 
     child.put("duration", duration);
 
     array.push_back(std::make_pair("", child));
+
+    std::cout << container << ": " << duration << std::endl;
 }
 
 void generateFile(const boost::property_tree::ptree& array, std::string filename)
@@ -515,27 +390,28 @@ int main()
     boost::property_tree::ptree backTree{};
     /* Back */
     std::cout << "Back: " << std::endl;
-    addRecordToTree(backTree, "rtlib-svector", calculateRtlibStaticVectorBack());
-    addRecordToTree(backTree, "rtlib-cvector", calculateRtlibDynamicAllocatorVectorBack());
-    addRecordToTree(backTree, "rtlib-slist", calculateRtlibStaticListBack());
-    addRecordToTree(backTree, "stl-vector", calculateSTLVectorBack());
-    addRecordToTree(backTree, "stl-list", calculateSTLListBack());
+    addRecordToTree(backTree, "rtlib-svector", calculateRtlibStaticVectorBack<16, 10000000>());
+    addRecordToTree(backTree, "rtlib-cvector", calculateRtlibDynamicAllocatorVectorBack<16, 10000000>());
+    addRecordToTree(backTree, "rtlib-slist", calculateRtlibStaticListBack<16, 10000000>());
+    addRecordToTree(backTree, "stl-vector", calculateSTLVectorBack<16, 10000000>());
+    addRecordToTree(backTree, "stl-list", calculateSTLListBack<16, 10000000>());
     generateFile(backTree, "back.json");
 
     /* Front */
     boost::property_tree::ptree frontTree{};
     std::cout << "Front: " << std::endl;
-    addRecordToTree(frontTree, "rtlib-static-list",calculateRtlibStaticListFront());
-    addRecordToTree(frontTree, "rtlib-static-vector",calculateRtlibStaticVectorFront());
-    addRecordToTree(frontTree, "stl-list",calculateSTLListFront());
-    generateFile(backTree, "front.json");
+    addRecordToTree(frontTree, "rtlib-slist",calculateRtlibStaticListFront<16, 10000000>());
+    addRecordToTree(frontTree, "rtlib-svector",calculateRtlibStaticVectorFront<16, 10000000>());
+    addRecordToTree(frontTree, "stl-list",calculateSTLListFront<16, 10000000>());
+    // STL vector has no push_front method
+    generateFile(frontTree, "front.json");
 
     /* Middle */
     boost::property_tree::ptree middleTree{};
     std::cout << "Middle: " << std::endl;
-    addRecordToTree(middleTree, "rtlib-static-list" ,calculateRtlibStaticListMiddle());
-    addRecordToTree(middleTree, "rtlib-static-vector",calculateRtlibStaticVectorMiddle());
-    addRecordToTree(middleTree, "stl-list", calculateSTLListMiddle());
+    addRecordToTree(middleTree, "rtlib-slist" ,calculateRtlibStaticListMiddle<16, 10000000, 1>());
+    addRecordToTree(middleTree, "rtlib-svector",calculateRtlibStaticVectorMiddle<16, 10000000, 1>());
+    addRecordToTree(middleTree, "stl-list", calculateSTLListMiddle<16, 10000000, 1>());
     generateFile(middleTree, "middle.json");
 
     /* Pool */

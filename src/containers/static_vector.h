@@ -75,7 +75,6 @@ bool container_t##_Empty(const container_t * const self) \
 int container_t##_PushBack(container_t * const self, member_t data) \
 { \
     assert(self); \
-    assert(data); \
     \
     if(self->size < container_capacity) \
     { \
