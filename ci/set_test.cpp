@@ -22,7 +22,7 @@ declare_custom_allocator_hash_table_t(CustomHashTable, int, MyDynamicAllocator);
 define_custom_allocator_hash_table_t(CustomHashTable, int, MyDynamicAllocator);
 }
 
-int compare_set_ints(const int* v1, const int* v2)
+static int compare_set_ints(const int* v1, const int* v2)
 {
     if(*v1 > *v2)
     {

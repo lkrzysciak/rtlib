@@ -1,11 +1,11 @@
 #include "gtest/gtest.h"
+#include <cstdint>
+#include <tuple>
 #include "containers/static_vector.h"
 #include "containers/static_list.h"
 #include "containers/custom_allocator_vector.h"
 #include "containers/custom_allocator_list.h"
 #include "memory/dynamic_allocator.h"
-#include <cstdint>
-#include <tuple>
 
 #define CONTAINER_CAPACITY  5
 
@@ -23,10 +23,26 @@ declare_custom_allocator_list_t(CustomAllocatorList, int, DynamicAllocator);
 define_custom_allocator_list_t(CustomAllocatorList, int, DynamicAllocator);
 }
 
+static int compare_set_ints(const int* v1, const int* v2)
+{
+    if(*v1 > *v2)
+    {
+        return 1;
+    }
+    else if(*v1 < *v2)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 #define create_wrappers_for_type(Type) \
 void Init(Type* const container) \
 { \
-    Type##_Construct(container); \
+    Type##_Construct(container, compare_set_ints); \
 } \
 \
 void Deinit(Type* const container) \
@@ -128,9 +144,9 @@ bool Iterator_Equal(Type##_iterator* const first, Type##_iterator* const second)
     return Type##_Iterator_Equal(first, second); \
 } \
 \
-auto Find(Type* const container, int value, bool(*fun)(const int*, const int*)) \
+auto Find(Type* const container, int value) \
 { \
-    return Type##_Find(container, value, fun); \
+    return Type##_Find(container, value); \
 }
 
 
@@ -491,11 +507,6 @@ TYPED_TEST(ContainerTest, IndexValues)
     ASSERT_EQ(GetValue(&this->container, 1), newTemp2);
 }
 
-bool compare_ints(const int* v1, const int* v2)
-{
-    return *v1 == *v2;
-}
-
 TYPED_TEST(ContainerTest, FindAllValues)
 {
     uint32_t temp1{ 3215 };
@@ -508,14 +519,14 @@ TYPED_TEST(ContainerTest, FindAllValues)
 
     auto end_it = End(&this->container);
 
-    auto it_1 = Find(&this->container, temp1, compare_ints);
+    auto it_1 = Find(&this->container, temp1);
     ASSERT_EQ(IteratorValue(&it_1), temp1);
-    auto it_2 = Find(&this->container, temp2, compare_ints);
+    auto it_2 = Find(&this->container, temp2);
     ASSERT_EQ(IteratorValue(&it_2), temp2);
-    auto it_3 = Find(&this->container, temp3, compare_ints);
+    auto it_3 = Find(&this->container, temp3);
     ASSERT_EQ(IteratorValue(&it_3), temp3);
 
-    auto it_4 = Find(&this->container, temp3 + 1, compare_ints);
+    auto it_4 = Find(&this->container, temp3 + 1);
     ASSERT_TRUE(Iterator_Equal(&it_4, &end_it));
 }
 
