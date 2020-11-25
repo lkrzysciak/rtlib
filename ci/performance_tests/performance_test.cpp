@@ -29,6 +29,23 @@ define_custom_allocator_list_t(DynamicAllocatorList, int, DynamicAllocator);
 
 
 
+static int compare_set_ints(const int* v1, const int* v2)
+{
+    if(*v1 > *v2)
+    {
+        return 1;
+    }
+    else if(*v1 < *v2)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+
 #define cCall(object, addMethod, deleteMethod, oneIterationSize, iterations) \
 for(int i=0; i<iterations; ++i) \
 { \
@@ -58,7 +75,7 @@ for(int i=0; i<iterations; ++i) \
 /* Adding to rtlib container without iterators */
 #define rtlibTest(rtlibType, addMethod, deleteMethod, oneIterationSize, iterations) \
 rtlibType rtlibObject; \
-rtlibType##_Construct(&rtlibObject); \
+rtlibType##_Construct(&rtlibObject, compare_set_ints); \
 \
 auto start = std::chrono::high_resolution_clock::now(); \
 \
@@ -72,7 +89,7 @@ return duration.count();
 /* Adding to stl container with iterators */
 #define rtlibWithIteratorTest(rtlibType, addMethod, deleteMethod, oneIterationSize, iterations, position) \
 rtlibType object; \
-rtlibType##_Construct(&object); \
+rtlibType##_Construct(&object, compare_set_ints); \
 for(int i=0; i<position; ++i) \
 { \
     auto begin_it = rtlibType##_Begin(&object); \
