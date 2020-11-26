@@ -7,18 +7,29 @@
 #include "for_tests/list.h"
 #include "for_tests/vector.h"
 #include "for_tests/object_pool.h"
+
 #include "containers/static_vector.h"
 #include "containers/static_list.h"
-#include "memory/static_one_chunk_allocator.h"
-#include "memory/dynamic_allocator.h"
+#include "containers/static_hash_table.h"
+#include "containers/static_binary_tree.h"
+
 #include "containers/custom_allocator_vector.h"
 #include "containers/custom_allocator_list.h"
+#include "containers/custom_allocator_hash_table.h"
+#include "containers/custom_allocator_binary_tree.h"
+
+#include "memory/static_one_chunk_allocator.h"
+#include "memory/dynamic_allocator.h"
 #include "memory/typed_pool.h"
 
 declare_static_vector_t(TestVector, int, 20);
 define_static_vector_t(TestVector, int, 20);
 declare_static_list_t(TestList, int, 20);
 define_static_list_t(TestList, int, 20);
+declare_static_hash_table_t(TestHashTable, int, 20);
+define_static_hash_table_t(TestHashTable, int, 20);
+declare_static_binary_tree_t(TestBinaryTree, int, 20);
+define_static_binary_tree_t(TestBinaryTree, int, 20);
 
 declare_dynamic_allocator_t(DynamicAllocator);
 define_dynamic_allocator_t(DynamicAllocator);
@@ -26,8 +37,10 @@ declare_custom_allocator_vector_t(DynamicAllocatorVector, int, DynamicAllocator)
 define_custom_allocator_vector_t(DynamicAllocatorVector, int, DynamicAllocator);
 declare_custom_allocator_list_t(DynamicAllocatorList, int, DynamicAllocator);
 define_custom_allocator_list_t(DynamicAllocatorList, int, DynamicAllocator);
-
-
+declare_custom_allocator_hash_table_t(DynamicAllocatorHashTable, int, DynamicAllocator);
+define_custom_allocator_hash_table_t(DynamicAllocatorHashTable, int, DynamicAllocator);
+declare_custom_allocator_binary_tree_t(DynamicAllocatorBinaryTree, int, DynamicAllocator);
+define_custom_allocator_binary_tree_t(DynamicAllocatorBinaryTree, int, DynamicAllocator);
 
 static int compare_set_ints(const int* v1, const int* v2)
 {
@@ -43,6 +56,11 @@ static int compare_set_ints(const int* v1, const int* v2)
     {
         return 0;
     }
+}
+
+unsigned int hash_function(const int* value)
+{
+    return *value;
 }
 
 
@@ -80,6 +98,53 @@ rtlibType##_Construct(&rtlibObject, compare_set_ints); \
 auto start = std::chrono::high_resolution_clock::now(); \
 \
 cCall(rtlibObject, addMethod, deleteMethod, oneIterationSize, iterations); \
+\
+auto stop = std::chrono::high_resolution_clock::now(); \
+auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
+return duration.count();
+
+/* Adding to rtlib container without iterators */
+#define rtlibTestWithHash(rtlibType, addMethod, deleteMethod, oneIterationSize, iterations) \
+rtlibType rtlibObject; \
+rtlibType##_Construct(&rtlibObject, compare_set_ints, hash_function); \
+\
+auto start = std::chrono::high_resolution_clock::now(); \
+\
+for(int i=0; i<iterations; ++i) \
+{ \
+    for(int j=0; j<oneIterationSize; ++j) \
+    { \
+        addMethod(&rtlibObject, j); \
+    } \
+    for(int j=0; j<oneIterationSize; ++j) \
+    { \
+        auto it = rtlibType##_Begin(&rtlibObject); \
+        deleteMethod(&rtlibObject, &it); \
+    } \
+} \
+\
+auto stop = std::chrono::high_resolution_clock::now(); \
+auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
+return duration.count();
+
+#define rtlibTestWithTree(rtlibType, addMethod, deleteMethod, oneIterationSize, iterations) \
+rtlibType rtlibObject; \
+rtlibType##_Construct(&rtlibObject, compare_set_ints); \
+\
+auto start = std::chrono::high_resolution_clock::now(); \
+\
+for(int i=0; i<iterations; ++i) \
+{ \
+    for(int j=0; j<oneIterationSize; ++j) \
+    { \
+        addMethod(&rtlibObject, j); \
+    } \
+    for(int j=0; j<oneIterationSize; ++j) \
+    { \
+        auto it = rtlibType##_Begin(&rtlibObject); \
+        deleteMethod(&rtlibObject, &it); \
+    } \
+} \
 \
 auto stop = std::chrono::high_resolution_clock::now(); \
 auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
@@ -273,6 +338,30 @@ template<int onIterationSize, int iterations, int position>
 unsigned int calculateSTLVectorMiddle()
 {
     stlWithIteratorTest(std::vector<int>, insert, erase, onIterationSize, iterations, position);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibStaticHashTable()
+{
+    rtlibTestWithHash(TestHashTable, TestHashTable_Insert, TestHashTable_Erase, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibStaticBinaryTree()
+{
+    rtlibTestWithTree(TestBinaryTree, TestBinaryTree_Insert, TestBinaryTree_Erase, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibCustomHashTable()
+{
+    rtlibTestWithHash(DynamicAllocatorHashTable, DynamicAllocatorHashTable_Insert, DynamicAllocatorHashTable_Erase, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibCustomBinaryTree()
+{
+    rtlibTestWithTree(DynamicAllocatorBinaryTree, DynamicAllocatorBinaryTree_Insert, DynamicAllocatorBinaryTree_Erase, onIterationSize, iterations);
 }
 
 typed_pool_t(TestPool, int, 20);
@@ -471,6 +560,14 @@ int main()
     addRecordToTree(middleTree, "stl-vector", calculateSTLVectorMiddle<16, 10000000, 1>());
     addRecordToTree(middleTree, "stl-list", calculateSTLListMiddle<16, 10000000, 1>());
     generateFile(middleTree, "middle.json");
+
+    boost::property_tree::ptree noQueueTree{};
+    std::cout << "No queue container: " << std::endl;
+    addRecordToTree(middleTree, "rtlib-shashtable",calculateRtlibStaticHashTable<16, 10000000>());
+    addRecordToTree(middleTree, "rtlib-chashtable",calculateRtlibCustomHashTable<16, 10000000>());
+    addRecordToTree(middleTree, "rtlib-sbinarytree",calculateRtlibStaticBinaryTree<16, 10000000>());
+    addRecordToTree(middleTree, "rtlib-cbinarytree",calculateRtlibCustomBinaryTree<16, 10000000>());
+    generateFile(noQueueTree, "non-queue-tree.json");
 
     /* Pool */
     std::cout << "Pool: " << std::endl;

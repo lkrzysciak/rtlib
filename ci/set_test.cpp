@@ -38,7 +38,7 @@ static int compare_set_ints(const int* v1, const int* v2)
     }
 }
 
-unsigned int hash_function(const int* value)
+static unsigned int hash_function(const int* value)
 {
     return *value;
 }
