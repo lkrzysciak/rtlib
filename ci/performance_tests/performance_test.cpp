@@ -766,12 +766,12 @@ int main()
 
     boost::property_tree::ptree noQueueTree{};
     std::cout << "No queue container: " << std::endl;
-    addRecordToTree(middleTree, "rtlib-shashtable",calculateRtlibStaticHashTable<16, 10000000>());
-    addRecordToTree(middleTree, "rtlib-chashtable",calculateRtlibCustomHashTable<16, 10000000>());
-    addRecordToTree(middleTree, "rtlib-sbinarytree",calculateRtlibStaticBinaryTree<16, 10000000>());
-    addRecordToTree(middleTree, "rtlib-cbinarytree",calculateRtlibCustomBinaryTree<16, 10000000>());
-    addRecordToTree(middleTree, "stl-set",calculateStlSet<16, 10000000>());
-    addRecordToTree(middleTree, "stl-unorderedset",calculateStlUnorderedSet<16, 10000000>());
+    addRecordToTree(noQueueTree, "rtlib-shashtable",calculateRtlibStaticHashTable<16, 10000000>());
+    addRecordToTree(noQueueTree, "rtlib-chashtable",calculateRtlibCustomHashTable<16, 10000000>());
+    addRecordToTree(noQueueTree, "rtlib-sbinarytree",calculateRtlibStaticBinaryTree<16, 10000000>());
+    addRecordToTree(noQueueTree, "rtlib-cbinarytree",calculateRtlibCustomBinaryTree<16, 10000000>());
+    addRecordToTree(noQueueTree, "stl-set",calculateStlSet<16, 10000000>());
+    addRecordToTree(noQueueTree, "stl-unorderedset",calculateStlUnorderedSet<16, 10000000>());
     generateFile(noQueueTree, "non-queue-tree.json");
 
     boost::property_tree::ptree findTree{};
