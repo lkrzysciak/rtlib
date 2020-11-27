@@ -38,6 +38,7 @@ jobs:
         docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/convert_json_to_chart.py --json back.json --output reports/back.png
         docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/convert_json_to_chart.py --json front.json --output reports/front.png
         docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/convert_json_to_chart.py --json middle.json --output reports/middle.png
+        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/convert_json_to_chart.py --json non-queue-tree.json --output reports/non-queue-tree.png
     - name: Archive results
       uses: actions/upload-artifact@v2
       with:
