@@ -4,6 +4,7 @@
 #include <vector>
 #include <set>
 #include <unordered_set>
+#include <algorithm>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include "for_tests/list.h"
@@ -93,6 +94,100 @@ for(int i=0; i<iterations; ++i) \
 }
 
 /* Adding to rtlib container without iterators */
+#define rtlibFind(rtlibType, oneIterationSize, iterations) \
+rtlibType rtlibObject; \
+rtlibType##_Construct(&rtlibObject, compare_set_ints); \
+\
+for(int j=0; j<oneIterationSize; ++j) \
+{ \
+    auto it = rtlibType##_Begin(&rtlibObject); \
+    rtlibType##_Insert(&rtlibObject, &it, j); \
+} \
+\
+auto start = std::chrono::high_resolution_clock::now(); \
+\
+for(int i=0; i<iterations; ++i) \
+{ \
+    for(int j=0; j<oneIterationSize; ++j) \
+    { \
+        rtlibType##_Find(&rtlibObject, j); \
+    } \
+} \
+\
+auto stop = std::chrono::high_resolution_clock::now(); \
+auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
+return duration.count();
+
+#define rtlibBinaryTreeFind(rtlibType, oneIterationSize, iterations) \
+rtlibType rtlibObject; \
+rtlibType##_Construct(&rtlibObject, compare_set_ints); \
+\
+for(int j=0; j<oneIterationSize; ++j) \
+{ \
+    rtlibType##_Insert(&rtlibObject, j); \
+} \
+\
+auto start = std::chrono::high_resolution_clock::now(); \
+\
+for(int i=0; i<iterations; ++i) \
+{ \
+    for(int j=0; j<oneIterationSize; ++j) \
+    { \
+        rtlibType##_Find(&rtlibObject, j); \
+    } \
+} \
+\
+auto stop = std::chrono::high_resolution_clock::now(); \
+auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
+return duration.count();
+
+#define rtlibHashTableFind(rtlibType, oneIterationSize, iterations) \
+rtlibType rtlibObject; \
+rtlibType##_Construct(&rtlibObject, compare_set_ints, hash_function); \
+\
+for(int j=0; j<oneIterationSize; ++j) \
+{ \
+    rtlibType##_Insert(&rtlibObject, j); \
+} \
+\
+auto start = std::chrono::high_resolution_clock::now(); \
+\
+for(int i=0; i<iterations; ++i) \
+{ \
+    for(int j=0; j<oneIterationSize; ++j) \
+    { \
+        rtlibType##_Find(&rtlibObject, j); \
+    } \
+} \
+\
+auto stop = std::chrono::high_resolution_clock::now(); \
+auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
+return duration.count();
+
+#define stlFind(stlType, oneIterationSize, iterations) \
+stlType stlObject; \
+\
+for(int j=0; j<oneIterationSize; ++j) \
+{ \
+    auto begin_it = std::begin(stlObject); \
+    stlObject.insert(begin_it, j); \
+} \
+\
+auto start = std::chrono::high_resolution_clock::now(); \
+\
+for(int i=0; i<iterations; ++i) \
+{ \
+    for(int j=0; j<oneIterationSize; ++j) \
+    { \
+        std::find(std::begin(stlObject), std::end(stlObject), j); \
+    } \
+} \
+\
+auto stop = std::chrono::high_resolution_clock::now(); \
+auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
+return duration.count();
+
+
 #define rtlibTest(rtlibType, addMethod, deleteMethod, oneIterationSize, iterations) \
 rtlibType rtlibObject; \
 rtlibType##_Construct(&rtlibObject, compare_set_ints); \
@@ -400,6 +495,78 @@ unsigned int calculateStlUnorderedSet()
     stlNoQueueContainerTest(std::unordered_set<int>, insert, erase, onIterationSize, iterations);
 }
 
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibStaticListFind()
+{
+    rtlibFind(TestList, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibCustomListFind()
+{
+    rtlibFind(DynamicAllocatorList, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibStaticVectorFind()
+{
+    rtlibFind(TestVector, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibCustomVectorFind()
+{
+    rtlibFind(DynamicAllocatorVector, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibStaticBinaryTreeFind()
+{
+    rtlibBinaryTreeFind(TestBinaryTree, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibCustomBinaryTreeFind()
+{
+    rtlibBinaryTreeFind(DynamicAllocatorBinaryTree, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibStaticHashFind()
+{
+    rtlibHashTableFind(TestHashTable, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibCustomHashFind()
+{
+    rtlibHashTableFind(DynamicAllocatorHashTable, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateStlListFind()
+{
+    stlFind(std::list<int>, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateStlVectorFind()
+{
+    stlFind(std::vector<int>, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateStlSetFind()
+{
+    stlFind(std::set<int>, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateStlUnorderedSetFind()
+{
+    stlFind(std::unordered_set<int>, onIterationSize, iterations);
+}
+
 typed_pool_t(TestPool, int, 20);
 
 unsigned int measureGenericPool()
@@ -606,6 +773,22 @@ int main()
     addRecordToTree(middleTree, "stl-set",calculateStlSet<16, 10000000>());
     addRecordToTree(middleTree, "stl-unorderedset",calculateStlUnorderedSet<16, 10000000>());
     generateFile(noQueueTree, "non-queue-tree.json");
+
+    boost::property_tree::ptree findTree{};
+    std::cout << "Find: " << std::endl;
+    addRecordToTree(findTree, "rtlib-svector",calculateRtlibStaticVectorFind<16, 10000000>());
+    addRecordToTree(findTree, "rtlib-cvector",calculateRtlibCustomVectorFind<16, 10000000>());
+    addRecordToTree(findTree, "rtlib-slist" ,calculateRtlibStaticListFind<16, 10000000>());
+    addRecordToTree(findTree, "rtlib-clist" ,calculateRtlibCustomListFind<16, 10000000>());
+    addRecordToTree(findTree, "rtlib-shashtable",calculateRtlibStaticHashFind<16, 10000000>());
+    addRecordToTree(findTree, "rtlib-chashtable",calculateRtlibCustomHashFind<16, 10000000>());
+    addRecordToTree(findTree, "rtlib-sbinarytree",calculateRtlibStaticBinaryTreeFind<16, 10000000>());
+    addRecordToTree(findTree, "rtlib-cbinarytree",calculateRtlibCustomBinaryTreeFind<16, 10000000>());
+    addRecordToTree(findTree, "stl-vector", calculateStlVectorFind<16, 10000000>());
+    addRecordToTree(findTree, "stl-list", calculateStlListFind<16, 10000000>());
+    addRecordToTree(findTree, "stl-set",calculateStlSetFind<16, 10000000>());
+    addRecordToTree(findTree, "stl-unorderedset",calculateStlUnorderedSetFind<16, 10000000>());
+    generateFile(findTree, "find.json");
 
     /* Pool */
     std::cout << "Pool: " << std::endl;
