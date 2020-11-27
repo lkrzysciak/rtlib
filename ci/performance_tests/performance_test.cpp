@@ -2,6 +2,8 @@
 #include <chrono>
 #include <list>
 #include <vector>
+#include <set>
+#include <unordered_set>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include "for_tests/list.h"
@@ -236,6 +238,28 @@ auto stop = std::chrono::high_resolution_clock::now(); \
 auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
 return duration.count();
 
+/* Adding to stl container with iterators */
+#define stlNoQueueContainerTest(stlType, addMethod, deleteMethod, oneIterationSize, iterations) \
+stlType object{}; \
+auto start = std::chrono::high_resolution_clock::now(); \
+\
+for(int i=0; i<10000000; ++i) \
+{ \
+    for(int j=0; j<16; ++j) \
+    { \
+        object.insert(j); \
+    } \
+    for(int j=0; j<16; ++j) \
+    { \
+        auto begin_it = std::begin(object); \
+        object.erase(begin_it); \
+    } \
+} \
+auto stop = std::chrono::high_resolution_clock::now(); \
+auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
+return duration.count();
+
+
 
 /* Tests */
 template<int onIterationSize, int iterations>
@@ -362,6 +386,18 @@ template<int onIterationSize, int iterations>
 unsigned int calculateRtlibCustomBinaryTree()
 {
     rtlibTestWithTree(DynamicAllocatorBinaryTree, DynamicAllocatorBinaryTree_Insert, DynamicAllocatorBinaryTree_Erase, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateStlSet()
+{
+    stlNoQueueContainerTest(std::set<int>, insert, erase, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateStlUnorderedSet()
+{
+    stlNoQueueContainerTest(std::unordered_set<int>, insert, erase, onIterationSize, iterations);
 }
 
 typed_pool_t(TestPool, int, 20);
@@ -567,6 +603,8 @@ int main()
     addRecordToTree(middleTree, "rtlib-chashtable",calculateRtlibCustomHashTable<16, 10000000>());
     addRecordToTree(middleTree, "rtlib-sbinarytree",calculateRtlibStaticBinaryTree<16, 10000000>());
     addRecordToTree(middleTree, "rtlib-cbinarytree",calculateRtlibCustomBinaryTree<16, 10000000>());
+    addRecordToTree(middleTree, "stl-set",calculateStlSet<16, 10000000>());
+    addRecordToTree(middleTree, "stl-unorderedset",calculateStlUnorderedSet<16, 10000000>());
     generateFile(noQueueTree, "non-queue-tree.json");
 
     /* Pool */
