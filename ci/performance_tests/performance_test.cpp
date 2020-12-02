@@ -774,45 +774,37 @@ int main()
     addRecordToTree(noQueueTree, "stl-unorderedset",calculateStlUnorderedSet<16, 10000000>());
     generateFile(noQueueTree, "non-queue-tree.json");
 
-    boost::property_tree::ptree findQueue16{};
-    std::cout << "Find - queue - 16: " << std::endl;
-    addRecordToTree(findQueue16, "rtlib-svector",calculateRtlibStaticVectorFind<16, 10000000>());
-    addRecordToTree(findQueue16, "rtlib-cvector",calculateRtlibCustomVectorFind<16, 10000000>());
-    addRecordToTree(findQueue16, "rtlib-slist" ,calculateRtlibStaticListFind<16, 10000000>());
-    addRecordToTree(findQueue16, "rtlib-clist" ,calculateRtlibCustomListFind<16, 10000000>());
-    addRecordToTree(findQueue16, "stl-vector", calculateStlVectorFind<16, 10000000>());
-    addRecordToTree(findQueue16, "stl-list", calculateStlListFind<16, 10000000>());
-    generateFile(findQueue16, "find-queue-16.json");
+    boost::property_tree::ptree find16{};
+    std::cout << "Find - 16: " << std::endl;
+    addRecordToTree(find16, "rtlib-svector",calculateRtlibStaticVectorFind<16, 10000000>());
+    addRecordToTree(find16, "rtlib-cvector",calculateRtlibCustomVectorFind<16, 10000000>());
+    addRecordToTree(find16, "rtlib-slist" ,calculateRtlibStaticListFind<16, 10000000>());
+    addRecordToTree(find16, "rtlib-clist" ,calculateRtlibCustomListFind<16, 10000000>());
+    addRecordToTree(find16, "stl-vector", calculateStlVectorFind<16, 10000000>());
+    addRecordToTree(find16, "stl-list", calculateStlListFind<16, 10000000>());
+    addRecordToTree(find16, "rtlib-shashtable",calculateRtlibStaticHashFind<16, 10000000>());
+    addRecordToTree(find16, "rtlib-chashtable",calculateRtlibCustomHashFind<16, 10000000>());
+    addRecordToTree(find16, "rtlib-sbinarytree",calculateRtlibStaticBinaryTreeFind<16, 10000000>());
+    addRecordToTree(find16, "rtlib-cbinarytree",calculateRtlibCustomBinaryTreeFind<16, 10000000>());
+    addRecordToTree(find16, "stl-set",calculateStlSetFind<16, 10000000>());
+    addRecordToTree(find16, "stl-unorderedset",calculateStlUnorderedSetFind<16, 10000000>());
+    generateFile(find16, "find-16.json");
 
-    boost::property_tree::ptree findQueue1024{};
-    std::cout << "Find - queue - 1024: " << std::endl;
-    addRecordToTree(findQueue1024, "rtlib-svector",calculateRtlibStaticVectorFind<1024, 10000>());
-    addRecordToTree(findQueue1024, "rtlib-cvector",calculateRtlibCustomVectorFind<1024, 10000>());
-    addRecordToTree(findQueue1024, "rtlib-slist" ,calculateRtlibStaticListFind<1024, 10000>());
-    addRecordToTree(findQueue1024, "rtlib-clist" ,calculateRtlibCustomListFind<1024, 10000>());
-    addRecordToTree(findQueue1024, "stl-vector", calculateStlVectorFind<1024, 10000>());
-    addRecordToTree(findQueue1024, "stl-list", calculateStlListFind<1024, 10000>());
-    generateFile(findQueue1024, "find-queue-1024.json");
-
-    boost::property_tree::ptree findNonQueue16{};
-    std::cout << "Find - non-queue - 16: " << std::endl;
-    addRecordToTree(findNonQueue16, "rtlib-shashtable",calculateRtlibStaticHashFind<16, 10000000>());
-    addRecordToTree(findNonQueue16, "rtlib-chashtable",calculateRtlibCustomHashFind<16, 10000000>());
-    addRecordToTree(findNonQueue16, "rtlib-sbinarytree",calculateRtlibStaticBinaryTreeFind<16, 10000000>());
-    addRecordToTree(findNonQueue16, "rtlib-cbinarytree",calculateRtlibCustomBinaryTreeFind<16, 10000000>());
-    addRecordToTree(findNonQueue16, "stl-set",calculateStlSetFind<16, 10000000>());
-    addRecordToTree(findNonQueue16, "stl-unorderedset",calculateStlUnorderedSetFind<16, 10000000>());
-    generateFile(findNonQueue16, "find-non-queue-16.json");
-
-    boost::property_tree::ptree findNonQueue1024{};
-    std::cout << "Find - non-queue - 1024: " << std::endl;
-    addRecordToTree(findNonQueue1024, "rtlib-shashtable",calculateRtlibStaticHashFind<1024, 10000>());
-    addRecordToTree(findNonQueue1024, "rtlib-chashtable",calculateRtlibCustomHashFind<1024, 10000>());
-    addRecordToTree(findNonQueue1024, "rtlib-sbinarytree",calculateRtlibStaticBinaryTreeFind<1024, 10000>());
-    addRecordToTree(findNonQueue1024, "rtlib-cbinarytree",calculateRtlibCustomBinaryTreeFind<1024, 10000>());
-    addRecordToTree(findNonQueue1024, "stl-set",calculateStlSetFind<1024, 10000>());
-    addRecordToTree(findNonQueue1024, "stl-unorderedset",calculateStlUnorderedSetFind<1024, 10000>());
-    generateFile(findNonQueue1024, "find-non-queue-1024.json");
+    boost::property_tree::ptree find1024{};
+    std::cout << "Find - 1024: " << std::endl;
+    addRecordToTree(find1024, "rtlib-svector",calculateRtlibStaticVectorFind<1024, 10000>());
+    addRecordToTree(find1024, "rtlib-cvector",calculateRtlibCustomVectorFind<1024, 10000>());
+    addRecordToTree(find1024, "rtlib-slist" ,calculateRtlibStaticListFind<1024, 10000>());
+    addRecordToTree(find1024, "rtlib-clist" ,calculateRtlibCustomListFind<1024, 10000>());
+    addRecordToTree(find1024, "stl-vector", calculateStlVectorFind<1024, 10000>());
+    addRecordToTree(find1024, "stl-list", calculateStlListFind<1024, 10000>());
+    addRecordToTree(find1024, "rtlib-shashtable",calculateRtlibStaticHashFind<1024, 10000>());
+    addRecordToTree(find1024, "rtlib-chashtable",calculateRtlibCustomHashFind<1024, 10000>());
+    addRecordToTree(find1024, "rtlib-sbinarytree",calculateRtlibStaticBinaryTreeFind<1024, 10000>());
+    addRecordToTree(find1024, "rtlib-cbinarytree",calculateRtlibCustomBinaryTreeFind<1024, 10000>());
+    addRecordToTree(find1024, "stl-set",calculateStlSetFind<1024, 10000>());
+    addRecordToTree(find1024, "stl-unorderedset",calculateStlUnorderedSetFind<1024, 10000>());
+    generateFile(find1024, "find-1024.json");
 
     /* Pool */
     std::cout << "Pool: " << std::endl;
