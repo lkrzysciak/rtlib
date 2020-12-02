@@ -12,4 +12,6 @@ with open(args.json) as f:
     dates = [i['container'] for i in data['data']]
     values = [int(i['duration']) for i in data['data']]
     plt.bar(dates, values)
+    plt.xticks(rotation=90)
+    plt.subplots_adjust(bottom=0.30)
     plt.savefig(args.output)
