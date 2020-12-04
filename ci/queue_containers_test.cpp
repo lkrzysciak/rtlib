@@ -21,6 +21,9 @@ declare_custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
 define_custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
 declare_custom_allocator_list_t(CustomAllocatorList, int, DynamicAllocator);
 define_custom_allocator_list_t(CustomAllocatorList, int, DynamicAllocator);
+
+declare_static_vector_t(SVectorWithPointers, int*, CONTAINER_CAPACITY);
+define_static_vector_t(SVectorWithPointers, int*, CONTAINER_CAPACITY);
 }
 
 static int compare_set_ints(const int* v1, const int* v2)
@@ -39,10 +42,26 @@ static int compare_set_ints(const int* v1, const int* v2)
     }
 }
 
-#define create_wrappers_for_type(Type) \
+static int compare_set_ints_ptr(const int** v1, const int** v2)
+{
+    if(*v1 > *v2)
+    {
+        return 1;
+    }
+    else if(*v1 < *v2)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+#define create_wrappers_for_type(Type, CompareFunction, MemberType) \
 void Init(Type* const container) \
 { \
-    Type##_Construct(container, compare_set_ints); \
+    Type##_Construct(container, CompareFunction); \
 } \
 \
 void Deinit(Type* const container) \
@@ -60,17 +79,17 @@ bool Empty(Type* const container) \
     return Type##_Empty(container); \
 } \
 \
-int PushBack(Type* const container, int value) \
+int PushBack(Type* const container, MemberType value) \
 { \
     return Type##_PushBack(container, value); \
 } \
 \
-int PushFront(Type* const container, int value) \
+int PushFront(Type* const container, MemberType value) \
 { \
     return Type##_PushFront(container, value); \
 } \
 \
-int Insert(Type* const container, int value, Type##_iterator* it) \
+int Insert(Type* const container, MemberType value, Type##_iterator* it) \
 { \
     return Type##_Insert(container, it, value); \
 } \
@@ -89,12 +108,12 @@ int Erase(Type* const container, Type##_iterator* it) \
     return Type##_Erase(container, it); \
 } \
 \
-int Back(Type* const container) \
+MemberType Back(Type* const container) \
 { \
     return Type##_Back(container); \
 } \
 \
-int Front(Type* const container) \
+MemberType Front(Type* const container) \
 { \
     return Type##_Front(container); \
 } \
@@ -114,7 +133,7 @@ auto GetValue(Type* const container, size_t index) \
     return Type##_GetValue(container, index); \
 } \
 \
-void SetValue(Type* const container, size_t index, int value) \
+void SetValue(Type* const container, size_t index, MemberType value) \
 { \
     Type##_SetValue(container, index, value); \
 } \
@@ -134,7 +153,7 @@ void IteratorDec(Type##_iterator* const it) \
     return Type##_Iterator_Decrement(it); \
 } \
 \
-void IteratorSetValue(Type##_iterator* const it, int value) \
+void IteratorSetValue(Type##_iterator* const it, MemberType value) \
 { \
     Type##_Iterator_SetValue(it, value); \
 } \
@@ -144,16 +163,17 @@ bool Iterator_Equal(Type##_iterator* const first, Type##_iterator* const second)
     return Type##_Iterator_Equal(first, second); \
 } \
 \
-auto Find(Type* const container, int value) \
+auto Find(Type* const container, MemberType value) \
 { \
     return Type##_Find(container, value); \
 }
 
 
-create_wrappers_for_type(VectorTestType);
-create_wrappers_for_type(ListTestType);
-create_wrappers_for_type(CustomAllocatorVector);
-create_wrappers_for_type(CustomAllocatorList);
+create_wrappers_for_type(VectorTestType, compare_set_ints, int);
+create_wrappers_for_type(ListTestType, compare_set_ints, int);
+create_wrappers_for_type(CustomAllocatorVector, compare_set_ints, int);
+create_wrappers_for_type(CustomAllocatorList, compare_set_ints, int);
+create_wrappers_for_type(SVectorWithPointers, compare_set_ints_ptr, int*);
 
 
 template<typename T>
