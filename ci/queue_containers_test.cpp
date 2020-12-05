@@ -24,6 +24,12 @@ define_custom_allocator_list_t(CustomAllocatorList, int, DynamicAllocator);
 
 declare_static_vector_t(SVectorWithPointers, int*, CONTAINER_CAPACITY);
 define_static_vector_t(SVectorWithPointers, int*, CONTAINER_CAPACITY);
+declare_static_list_t(SListWithPointers, int*, CONTAINER_CAPACITY);
+define_static_list_t(SListWithPointers, int*, CONTAINER_CAPACITY);
+declare_custom_allocator_vector_t(CVectorWithPointers, int*, DynamicAllocator);
+define_custom_allocator_vector_t(CVectorWithPointers, int*, DynamicAllocator);
+declare_custom_allocator_list_t(CListWithPointers, int*, DynamicAllocator);
+define_custom_allocator_list_t(CListWithPointers, int*, DynamicAllocator);
 }
 
 static int compare_set_ints(const int* v1, const int* v2)
@@ -173,6 +179,8 @@ create_wrappers_for_type(VectorTestType, compare_set_ints, int);
 create_wrappers_for_type(ListTestType, compare_set_ints, int);
 create_wrappers_for_type(CustomAllocatorVector, compare_set_ints, int);
 create_wrappers_for_type(CustomAllocatorList, compare_set_ints, int);
+
+// Verifies if compiles
 create_wrappers_for_type(SVectorWithPointers, compare_set_ints_ptr, int*);
 
 
