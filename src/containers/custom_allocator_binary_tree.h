@@ -24,17 +24,17 @@ typedef struct container_t##_iterator \
     container_t##_node * prev; \
 } container_t##_iterator; \
 \
-typedef int(*compare_t)(const member_t*, const member_t*); \
+typedef int(*container_t##compare_t)(const member_t*, const member_t*); \
 \
 typedef struct container_t \
 { \
     container_t##_node* root; \
     allocator_t allocator; \
-    compare_t compare_function; \
+    container_t##compare_t compare_function; \
     size_t size; \
 } container_t; \
 \
-void container_t##_Construct(container_t* const self, compare_t compare); \
+void container_t##_Construct(container_t* const self, container_t##compare_t compare); \
 void container_t##_Destroy(container_t* const self); \
 size_t container_t##_Size(const container_t * const self); \
 bool container_t##_Empty(const container_t * const self); \
@@ -117,7 +117,7 @@ static container_t##_node* __##container_t##_GetPrevNode(container_t##_node* nod
     return node; \
 } \
 \
-void container_t##_Construct(container_t* const self, compare_t compare) \
+void container_t##_Construct(container_t* const self, container_t##compare_t compare) \
 { \
     assert(self); \
     \
@@ -170,7 +170,7 @@ int container_t##_Insert(container_t * const self, member_t data) \
             { \
                 parent_node = child_node; \
                 \
-                int compare_value = self->compare_function(&data, &child_node->value); \
+                int compare_value = self->compare_function((const member_t*)&data, (const member_t*)&child_node->value); \
                 if(compare_value < 0) \
                 { \
                     child_node = child_node->left; \
@@ -409,7 +409,7 @@ container_t##_iterator container_t##_Find(container_t * const self, member_t dat
     \
     while(node) \
     { \
-        int compare_result = self->compare_function(&data, &node->value); \
+        int compare_result = self->compare_function((const member_t*)&data, (const member_t*)&node->value); \
         if(compare_result == 0) \
         { \
             break; \

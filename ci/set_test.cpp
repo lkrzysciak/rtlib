@@ -25,6 +25,10 @@ declare_static_binary_tree_t(SSetTypeWithPointers, int*, CONTAINER_CAPACITY);
 define_static_binary_tree_t(SSetTypeWithPointers, int*, CONTAINER_CAPACITY);
 declare_static_hash_table_t(SHashTableWithPointers, int*, CONTAINER_CAPACITY);
 define_static_hash_table_t(SHashTableWithPointers, int*, CONTAINER_CAPACITY);
+declare_custom_allocator_binary_tree_t(CSetTypeWithPointers, int*, MyDynamicAllocator);
+define_custom_allocator_binary_tree_t(CSetTypeWithPointers, int*, MyDynamicAllocator);
+declare_custom_allocator_hash_table_t(CHashTableWithPointers, int*, MyDynamicAllocator);
+define_custom_allocator_hash_table_t(CHashTableWithPointers, int*, MyDynamicAllocator);
 }
 
 static int compare_set_ints(const int* v1, const int* v2)
