@@ -25,19 +25,19 @@ typedef struct container_t##_iterator \
     container_t* container; \
 } container_t##_iterator; \
 \
-typedef int(*compare_t)(const member_t*, const member_t*); \
-typedef unsigned int(*hash_t)(const member_t*); \
+typedef int(*container_t##_compare_t)(const member_t*, const member_t*); \
+typedef unsigned int(*container_t##_hash_t)(const member_t*); \
 \
 typedef struct container_t \
 { \
     container_t##_node* nodes_table[container_capacity + 1]; \
-    compare_t compare_function; \
-    hash_t hash_function; \
+    container_t##_compare_t compare_function; \
+    container_t##_hash_t hash_function; \
     size_t size; \
     container_t##_pool pool; \
 } container_t; \
 \
-void container_t##_Construct(container_t* const self, compare_t compare, hash_t hash); \
+void container_t##_Construct(container_t* const self, container_t##_compare_t compare, container_t##_hash_t hash); \
 void container_t##_Destroy(container_t* const self); \
 size_t container_t##_Size(const container_t * const self); \
 bool container_t##_Empty(const container_t * const self); \
@@ -54,7 +54,7 @@ container_t##_iterator container_t##_Find(container_t * const self, member_t dat
 
 
 #define define_static_hash_table_t(container_t, member_t, container_capacity) \
-void container_t##_Construct(container_t* const self, compare_t compare, hash_t hash) \
+void container_t##_Construct(container_t* const self, container_t##_compare_t compare, container_t##_hash_t hash) \
 { \
     assert(self); \
     assert(compare); \

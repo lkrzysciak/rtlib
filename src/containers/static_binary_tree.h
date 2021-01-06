@@ -27,17 +27,17 @@ typedef struct container_t##_iterator \
 \
 typed_pool_t(container_t##_pool, container_t##_node, container_capacity); \
 \
-typedef int(*compare_t)(const member_t*, const member_t*); \
+typedef int(*container_t##_compare_t)(const member_t*, const member_t*); \
 \
 typedef struct container_t \
 { \
     container_t##_node* root; \
     container_t##_pool pool; \
-    compare_t compare_function; \
+    container_t##_compare_t compare_function; \
     size_t size; \
 } container_t; \
 \
-void container_t##_Construct(container_t* const self, compare_t compare); \
+void container_t##_Construct(container_t* const self, container_t##_compare_t compare); \
 void container_t##_Destroy(container_t* const self); \
 size_t container_t##_Size(const container_t * const self); \
 bool container_t##_Empty(const container_t * const self); \
@@ -120,7 +120,7 @@ static container_t##_node* __##container_t##_GetPrevNode(container_t##_node* nod
     return node; \
 } \
 \
-void container_t##_Construct(container_t* const self, compare_t compare) \
+void container_t##_Construct(container_t* const self, container_t##_compare_t compare) \
 { \
     assert(self); \
     \

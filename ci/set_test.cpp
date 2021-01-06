@@ -20,6 +20,11 @@ declare_custom_allocator_binary_tree_t(CustomBinaryTree, int, MyDynamicAllocator
 define_custom_allocator_binary_tree_t(CustomBinaryTree, int, MyDynamicAllocator);
 declare_custom_allocator_hash_table_t(CustomHashTable, int, MyDynamicAllocator);
 define_custom_allocator_hash_table_t(CustomHashTable, int, MyDynamicAllocator);
+
+declare_static_binary_tree_t(SSetTypeWithPointers, int*, CONTAINER_CAPACITY);
+define_static_binary_tree_t(SSetTypeWithPointers, int*, CONTAINER_CAPACITY);
+declare_static_hash_table_t(SHashTableWithPointers, int*, CONTAINER_CAPACITY);
+define_static_hash_table_t(SHashTableWithPointers, int*, CONTAINER_CAPACITY);
 }
 
 static int compare_set_ints(const int* v1, const int* v2)
@@ -38,9 +43,30 @@ static int compare_set_ints(const int* v1, const int* v2)
     }
 }
 
+static int compare_set_ints_ptr(const int** v1, const int** v2)
+{
+    if(*v1 > *v2)
+    {
+        return 1;
+    }
+    else if(*v1 < *v2)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 static unsigned int hash_function(const int* value)
 {
     return *value;
+}
+
+static unsigned int hash_function_ptr(const int** value)
+{
+    return **value;
 }
 
 #define create_wrappers_for_type(Type) \
@@ -115,9 +141,19 @@ void Init(SetType* const set_object)
     SetType_Construct(set_object, compare_set_ints);
 }
 
+void Init(SSetTypeWithPointers* const set_object)
+{
+    SSetTypeWithPointers_Construct(set_object, compare_set_ints_ptr);
+}
+
 void Init(HashTable* const hash_table)
 {
     HashTable_Construct(hash_table, compare_set_ints, hash_function);
+}
+
+void Init(SHashTableWithPointers* const hash_table)
+{
+    SHashTableWithPointers_Construct(hash_table, compare_set_ints_ptr, hash_function_ptr);
 }
 
 void Init(CustomBinaryTree* const container)
