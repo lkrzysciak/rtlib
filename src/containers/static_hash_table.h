@@ -91,14 +91,14 @@ int container_t##_Insert(container_t * const self, member_t data) \
     container_t##_node* node = container_t##_pool_Alloc(&self->pool); \
     if(node) \
     { \
-        const unsigned int hash_value = self->hash_function(&data); \
+        const unsigned int hash_value = self->hash_function((const member_t*)&data); \
         unsigned int index = hash_value % container_capacity; \
         container_t##_node* before_the_last_node_for_this_hash = NULL; \
         container_t##_node* last_node_for_this_hash = self->nodes_table[index]; \
         \
         while(last_node_for_this_hash) \
         { \
-            if(self->compare_function(&data, &last_node_for_this_hash->value) == 0) \
+            if(self->compare_function((const member_t*)&data, (const member_t*)&last_node_for_this_hash->value) == 0) \
             { \
                 container_t##_pool_Free(&self->pool, node); \
                 return ELEMENT_EXISTS; \
@@ -138,7 +138,7 @@ int container_t##_Erase(container_t * const self, container_t##_iterator* const 
     } \
     else \
     { \
-        const unsigned int hash_value = self->hash_function(&iterator->node->value); \
+        const unsigned int hash_value = self->hash_function((const member_t*)&iterator->node->value); \
         unsigned int index = hash_value % container_capacity; \
         self->nodes_table[index] = next_node; \
     } \
@@ -187,7 +187,7 @@ member_t container_t##_Iterator_GetValue(const container_t##_iterator* const sel
 { \
     assert(self); \
     \
-    const member_t member = self->node->value; \
+    member_t member = self->node->value; \
     return member; \
 } \
 \
@@ -219,7 +219,7 @@ void container_t##_Iterator_Increment(container_t##_iterator* const self) \
     } \
     else \
     { \
-        const unsigned int hash_value = self->container->hash_function(&self->node->value); \
+        const unsigned int hash_value = self->container->hash_function((const member_t*)&self->node->value); \
         unsigned int index = hash_value % container_capacity; \
         \
         container_t##_node** ptr_to_next_node_ptr = &self->container->nodes_table[index + 1]; \
@@ -260,7 +260,7 @@ void container_t##_Iterator_Decrement(container_t##_iterator* const self) \
         } \
         else \
         { \
-            const unsigned int hash_value = self->container->hash_function(&self->node->value); \
+            const unsigned int hash_value = self->container->hash_function((const member_t*)&self->node->value); \
             index = hash_value % container_capacity; \
             \
         } \
@@ -286,12 +286,12 @@ void container_t##_Iterator_Decrement(container_t##_iterator* const self) \
 container_t##_iterator container_t##_Find(container_t * const self, member_t data) \
 { \
     container_t##_iterator it = container_t##_End(self); \
-    const unsigned int hash_value = self->hash_function(&data); \
+    const unsigned int hash_value = self->hash_function((const member_t*)&data); \
     unsigned int index = hash_value % container_capacity; \
     container_t##_node* temp_node = self->nodes_table[index]; \
     while(temp_node) \
     { \
-        const int compare_result = self->compare_function(&data,  &temp_node->value); \
+        const int compare_result = self->compare_function((const member_t*)&data,  (const member_t*)&temp_node->value); \
         if(compare_result == 0) \
         { \
             it.node = temp_node; \

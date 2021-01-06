@@ -166,7 +166,7 @@ int container_t##_Insert(container_t * const self, member_t data) \
             { \
                 parent_node = child_node; \
                 \
-                int compare_value = self->compare_function(&data, &child_node->value); \
+                int compare_value = self->compare_function((const member_t*)&data, (const member_t*)&child_node->value); \
                 if(compare_value < 0) \
                 { \
                     child_node = child_node->left; \
@@ -405,7 +405,7 @@ container_t##_iterator container_t##_Find(container_t * const self, member_t dat
     \
     while(node) \
     { \
-        int compare_result = self->compare_function(&data, &node->value); \
+        int compare_result = self->compare_function((const member_t*)&data, (const member_t*)&node->value); \
         if(compare_result == 0) \
         { \
             break; \
