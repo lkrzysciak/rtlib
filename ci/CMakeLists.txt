@@ -41,4 +41,8 @@ add_executable(c_static_vector c_tests/static_vector.c)
 add_executable(c_static_list c_tests/static_list.c)
 add_executable(c_static_binary_tree c_tests/static_binary_tree.c)
 add_executable(c_static_hash_table c_tests/static_hash_table.c)
+add_executable(c_custom_vector c_tests/custom_vector.c)
+add_executable(c_custom_list c_tests/custom_list.c)
+add_executable(c_custom_binary_tree c_tests/custom_binary_tree.c)
+add_executable(c_custom_hash_table c_tests/custom_hash_table.c)
 
