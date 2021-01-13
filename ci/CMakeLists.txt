@@ -37,5 +37,8 @@ target_link_libraries(ut gtest gtest_main gmock gmock_main tested_utils)
 add_executable(performance_tests ${TESTED_FILES} performance_tests/performance_test.cpp)
 target_link_libraries(performance_tests tested_utils)
 
-add_executable(c_tests c_tests/main.c)
+add_executable(c_static_vector c_tests/static_vector.c)
+add_executable(c_static_list c_tests/static_list.c)
+add_executable(c_static_binary_tree c_tests/static_binary_tree.c)
+add_executable(c_static_hash_table c_tests/static_hash_table.c)
 
