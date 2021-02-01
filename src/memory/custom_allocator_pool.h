@@ -10,7 +10,7 @@ typedef struct pool_t \
 void pool_t##_Construct(pool_t* const self); \
 void pool_t##_Destroy(pool_t* const self); \
 member_t* pool_t##_Allocate(pool_t* const self); \
-void pool_t##_Release(pool_t* const self, member_type* object); \
+void pool_t##_Release(pool_t* const self, member_t* object); \
 
 
 #define define_custom_allocator_pool_t(pool_t, member_t, allocator_t) \
@@ -32,7 +32,7 @@ member_t* pool_t##_Allocate(pool_t* const self) \
 { \
     assert(self); \
     \
-    return allocator_t##_Allocate(&self->allocator, sizeof(member_type)); \
+    return (member_t*)allocator_t##_Allocate(&self->allocator, sizeof(member_t)); \
 } \
 \
 void pool_t##_Release(pool_t* const self, member_t* object) \
