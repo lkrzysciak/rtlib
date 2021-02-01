@@ -1,0 +1,8 @@
+ci export-ignore
+scripts export-ignore
+.github export-ignore
+.gitignore export-ignore
+.gitattributes export-ignore
+Dockerfile export-ignore
+.clang-format export-ignore
+CMakeLists.txt export-ignore
