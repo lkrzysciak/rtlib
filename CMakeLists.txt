@@ -4,5 +4,4 @@ project(rtlib)
 
 message(STATUS "Building ${CMAKE_BUILD_TYPE} version")
 
-add_subdirectory(src)
 add_subdirectory(ci)

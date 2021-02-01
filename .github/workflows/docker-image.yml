@@ -11,10 +11,7 @@ on:
   pull_request:
     branches: 
       - 'master'
-      - 'release/**'
       - 'develop'
-      - 'feature/**'
-      - 'hotfix/**'
 
 jobs:
 

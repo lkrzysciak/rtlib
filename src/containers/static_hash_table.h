@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../memory/typed_pool.h"
+#include "../memory/static_pool.h"
 #include "error_codes.h"
 
 #define declare_static_hash_table_t(container_t, member_t, container_capacity) \
@@ -19,7 +19,7 @@ typedef struct container_t##_node \
     container_t##_node* next; \
 } container_t##_node; \
 \
-typed_pool_t(container_t##_pool, container_t##_node, container_capacity); \
+declare_static_pool_t(container_t##_pool, container_t##_node, container_capacity); \
 \
 typedef struct container_t##_iterator \
 { \
@@ -56,6 +56,9 @@ container_t##_iterator container_t##_Find(container_t * const self, member_t dat
 
 
 #define define_static_hash_table_t(container_t, member_t, container_capacity) \
+\
+define_static_pool_t(container_t##_pool, container_t##_node, container_capacity); \
+\
 void container_t##_Construct(container_t* const self, container_t##_compare_t compare, container_t##_hash_t hash) \
 { \
     assert(self); \
@@ -66,11 +69,16 @@ void container_t##_Construct(container_t* const self, container_t##_compare_t co
     self->size = 0; \
     self->compare_function = compare; \
     self->hash_function = hash; \
-    container_t##_pool_Init(&self->pool); \
+    container_t##_pool_Construct(&self->pool); \
     assert(container_t##_pool_Capacity(&self->pool) == container_capacity); \
 } \
 \
-void container_t##_Destroy(container_t* const self) {} \
+void container_t##_Destroy(container_t* const self) \
+{ \
+    assert(self); \
+    \
+    container_t##_pool_Destroy(&self->pool); \
+} \
 \
 size_t container_t##_Size(const container_t * const self) \
 { \
@@ -90,7 +98,7 @@ int container_t##_Insert(container_t * const self, member_t data) \
 { \
     assert(self); \
     \
-    container_t##_node* node = container_t##_pool_Alloc(&self->pool); \
+    container_t##_node* node = container_t##_pool_Allocate(&self->pool); \
     if(node) \
     { \
         const unsigned int hash_value = self->hash_function((const member_t*)&data); \
@@ -102,7 +110,7 @@ int container_t##_Insert(container_t * const self, member_t data) \
         { \
             if(self->compare_function((const member_t*)&data, (const member_t*)&last_node_for_this_hash->value) == 0) \
             { \
-                container_t##_pool_Free(&self->pool, node); \
+                container_t##_pool_Release(&self->pool, node); \
                 return ELEMENT_EXISTS; \
             } \
             before_the_last_node_for_this_hash = last_node_for_this_hash; \
@@ -149,7 +157,7 @@ int container_t##_Erase(container_t * const self, container_t##_iterator* const 
     { \
         next_node->prev = prev_node; \
     } \
-    container_t##_pool_Free(&self->pool, iterator->node); \
+    container_t##_pool_Release(&self->pool, iterator->node); \
     \
     --self->size; \
     return self->size; \

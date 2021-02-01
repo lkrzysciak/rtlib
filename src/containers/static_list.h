@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "error_codes.h"
-#include "../memory/typed_pool.h"
+#include "../memory/static_pool.h"
 
 #define declare_static_list_t(container_t, member_t, container_capacity) \
 typedef struct container_t container_t; \
@@ -24,7 +24,7 @@ typedef struct container_t##_iterator \
     container_t##_node * node; \
 } container_t##_iterator; \
 \
-typed_pool_t(container_t##_pool, container_t##_node, container_capacity + 1); \
+declare_static_pool_t(container_t##_pool, container_t##_node, container_capacity + 1); \
 \
 typedef struct container_t \
 { \
@@ -59,13 +59,16 @@ void container_t##_Iterator_Decrement(container_t##_iterator* const self); \
 container_t##_iterator container_t##_Find(container_t * const self, const member_t data);
 
 #define define_static_list_t(container_t, member_t, container_capacity) \
+\
+define_static_pool_t(container_t##_pool, container_t##_node, container_capacity + 1); \
+\
 void container_t##_Construct(container_t* const self, container_t##_compare_t compare_function) \
 { \
     assert(self); \
     \
-    container_t##_pool_Init(&self->pool); \
+    container_t##_pool_Construct(&self->pool); \
     assert(container_t##_pool_Capacity(&self->pool) - 1 == container_capacity); \
-    self->end = container_t##_pool_Alloc(&self->pool); \
+    self->end = container_t##_pool_Allocate(&self->pool); \
     assert(self->end); \
     self->begin = self->end; \
     self->begin->prev = NULL; \
@@ -97,7 +100,7 @@ int container_t##_PushBack(container_t* const self, member_t value) \
 { \
     assert(self); \
     \
-    container_t##_node* node = container_t##_pool_Alloc(&self->pool); \
+    container_t##_node* node = container_t##_pool_Allocate(&self->pool); \
     if(node) \
     { \
         container_t##_node* old_end_node = self->end->prev; \
@@ -131,7 +134,7 @@ int container_t##_PopBack(container_t* const self) \
     container_t##_node* old_end_node = self->end->prev; \
     container_t##_node* new_end_node = old_end_node->prev; \
     \
-    container_t##_pool_Free(&self->pool, old_end_node); \
+    container_t##_pool_Release(&self->pool, old_end_node); \
     \
     if(new_end_node == NULL) \
     { \
@@ -154,7 +157,7 @@ int container_t##_PushFront(container_t* const self, member_t value) \
 { \
     assert(self); \
     \
-    container_t##_node* node = container_t##_pool_Alloc(&self->pool); \
+    container_t##_node* node = container_t##_pool_Allocate(&self->pool); \
     if(node) \
     { \
         container_t##_node* old_begin_node = self->begin; \
@@ -181,7 +184,7 @@ int container_t##_PopFront(container_t* const self) \
     container_t##_node* old_begin_node = self->begin; \
     container_t##_node* new_begin_node = old_begin_node->next; \
     \
-    container_t##_pool_Free(&self->pool, old_begin_node); \
+    container_t##_pool_Release(&self->pool, old_begin_node); \
     \
     new_begin_node->prev = NULL; \
     self->begin = new_begin_node; \
@@ -196,7 +199,7 @@ int container_t##_Insert(container_t* const self, container_t##_iterator* const 
     assert(self); \
     assert(iterator); \
    \
-    container_t##_node* node = container_t##_pool_Alloc(&self->pool); \
+    container_t##_node* node = container_t##_pool_Allocate(&self->pool); \
     if(node) \
     { \
         container_t##_node* next_iterator = iterator->node; \
@@ -234,7 +237,7 @@ int container_t##_Erase(container_t* const self, container_t##_iterator* const i
     container_t##_node* next_node = to_delete_node->next; \
     container_t##_node* prev_node = to_delete_node->prev; \
     \
-    container_t##_pool_Free(&self->pool, to_delete_node); \
+    container_t##_pool_Release(&self->pool, to_delete_node); \
     \
     if(!prev_node) \
     { \

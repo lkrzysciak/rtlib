@@ -7,20 +7,21 @@ set (CMAKE_C_STANDARD 11)
 
 include_directories(googletest-release-1.10.0/googletest/include)
 include_directories(${CMAKE_HOME_DIRECTORY}/src)
+include_directories(.)
 
 add_subdirectory(googletest-release-1.10.0)
 
 set(TESTED_FILES
-    ../src/for_tests/list.c
-    ../src/for_tests/vector.c
-    ../src/for_tests/object_pool.c)
+    for_tests/list.c
+    for_tests/vector.c
+    for_tests/object_pool.c)
 
 set(TESTS
     list_test.cpp
     vector_test.cpp
     heap_test.cpp
     object_pool_test.cpp
-    typed_pool_test.cpp
+    pool_test.cpp
     queue_containers_test.cpp
     set_test.cpp
     )
