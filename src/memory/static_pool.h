@@ -21,6 +21,8 @@ void type_name##_Construct(type_name* const self); \
 void type_name##_Destroy(type_name* const self); \
 member_type* type_name##_Allocate(type_name* const self); \
 void type_name##_Release(type_name* const self, member_type* object); \
+\
+/* Additional method for static pool */ \
 size_t type_name##_Capacity(type_name* const self);
 
 
