@@ -1,33 +1,33 @@
 #include <assert.h>
 
-#define declare_static_pool_t(type_name, member_type, pool_capacity) \
+#define declare_static_pool_t(type_t, member_t, pool_capacity) \
 \
-typedef struct type_name##_node type_name##_node; \
+typedef struct type_t##_node type_t##_node; \
 \
-typedef struct type_name##_node \
+typedef struct type_t##_node \
 { \
-    member_type value; \
-    type_name##_node* next; \
-} type_name##_node; \
+    member_t value; \
+    type_t##_node* next; \
+} type_t##_node; \
 \
-typedef struct type_name \
+typedef struct type_t \
 { \
-    type_name##_node nodes[pool_capacity]; \
-    type_name##_node* first_free_block; \
-    type_name##_node* last_free_block; \
-} type_name; \
+    type_t##_node nodes[pool_capacity]; \
+    type_t##_node* first_free_block; \
+    type_t##_node* last_free_block; \
+} type_t; \
 \
-void type_name##_Construct(type_name* const self); \
-void type_name##_Destroy(type_name* const self); \
-member_type* type_name##_Allocate(type_name* const self); \
-void type_name##_Release(type_name* const self, member_type* object); \
+void type_t##_Construct(type_t* const self); \
+void type_t##_Destroy(type_t* const self); \
+member_t* type_t##_Allocate(type_t* const self); \
+void type_t##_Release(type_t* const self, member_t* object); \
 \
 /* Additional method for static pool */ \
-size_t type_name##_Capacity(type_name* const self);
+size_t type_t##_Capacity(type_t* const self);
 
 
-#define define_static_pool_t(type_name, member_type, pool_capacity) \
-void type_name##_Construct(type_name* const self) \
+#define define_static_pool_t(type_t, member_t, pool_capacity) \
+void type_t##_Construct(type_t* const self) \
 { \
     assert(self); \
     \
@@ -41,18 +41,18 @@ void type_name##_Construct(type_name* const self) \
     self->last_free_block->next = NULL; \
 } \
 \
-void type_name##_Destroy(type_name* const self) \
+void type_t##_Destroy(type_t* const self) \
 { \
     assert(self); \
 } \
 \
-member_type* type_name##_Allocate(type_name* const self) \
+member_t* type_t##_Allocate(type_t* const self) \
 { \
     assert(self); \
     \
     if(self->first_free_block) \
     { \
-        type_name##_node* to_return_block = self->first_free_block; \
+        type_t##_node* to_return_block = self->first_free_block; \
         self->first_free_block = self->first_free_block->next; \
         return &to_return_block->value; \
     } \
@@ -62,12 +62,12 @@ member_type* type_name##_Allocate(type_name* const self) \
     } \
 } \
 \
-void type_name##_Release(type_name* const self, member_type* object) \
+void type_t##_Release(type_t* const self, member_t* object) \
 { \
     assert(self); \
     assert(object); \
     \
-    type_name##_node* node = (type_name##_node*)object; \
+    type_t##_node* node = (type_t##_node*)object; \
     node->next = NULL; \
     self->last_free_block->next = node; \
     self->last_free_block = node; \
@@ -78,7 +78,7 @@ void type_name##_Release(type_name* const self, member_type* object) \
     } \
 } \
 \
-size_t type_name##_Capacity(type_name* const self) \
+size_t type_t##_Capacity(type_t* const self) \
 { \
     assert(self); \
     \

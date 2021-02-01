@@ -57,15 +57,6 @@ using MyTypes = testing::Types<
         >;
 TYPED_TEST_SUITE(PoolTest, MyTypes);
 
-
-
-
-// TEST(TypedPoolTest, Init)
-// {
-//     TestPoolType pool{};
-//     TestPoolType_Construct(&pool);
-// }
-
 TYPED_TEST(PoolTest, Alloc)
 {
     int* var1{Allocate(&this->pool)};
@@ -87,15 +78,33 @@ TYPED_TEST(PoolTest, Alloc)
     ASSERT_EQ(*var5, 5);    
 }
 
-TYPED_TEST(PoolTest, AllocOverBufferSize)
+TYPED_TEST(PoolTest, AllocAndRelease)
 {
     int* var1{Allocate(&this->pool)};
     int* var2{Allocate(&this->pool)};
     int* var3{Allocate(&this->pool)};
     int* var4{Allocate(&this->pool)};
     int* var5{Allocate(&this->pool)};
-    int* var6{Allocate(&this->pool)};
-    int* var7{Allocate(&this->pool)};
+
+    Release(&this->pool, var1);
+    Release(&this->pool, var2);
+    Release(&this->pool, var3);
+    Release(&this->pool, var4);
+    Release(&this->pool, var5);
+}
+
+TEST(StaticPoolTest, AllocOverBufferSize)
+{
+    StaticPoolInt pool{};
+    Init(&pool);
+
+    int* var1{Allocate(&pool)};
+    int* var2{Allocate(&pool)};
+    int* var3{Allocate(&pool)};
+    int* var4{Allocate(&pool)};
+    int* var5{Allocate(&pool)};
+    int* var6{Allocate(&pool)};
+    int* var7{Allocate(&pool)};
 
      ASSERT_NE(var1, nullptr);
      ASSERT_NE(var2, nullptr);
@@ -104,15 +113,20 @@ TYPED_TEST(PoolTest, AllocOverBufferSize)
      ASSERT_NE(var5, nullptr);
      ASSERT_EQ(var6, nullptr);
      ASSERT_EQ(var7, nullptr);
+
+     Deinit(&pool);
 }
 
-TYPED_TEST(PoolTest, AllocFreeAtBufferEnd)
+TEST(StaticPoolTest, AllocFreeAtBufferEnd)
 {
-    int* var1{Allocate(&this->pool)};
-    int* var2{Allocate(&this->pool)};
-    int* var3{Allocate(&this->pool)};
-    int* var4{Allocate(&this->pool)};
-    int* var5{Allocate(&this->pool)};
+    StaticPoolInt pool{};
+    Init(&pool);
+
+    int* var1{Allocate(&pool)};
+    int* var2{Allocate(&pool)};
+    int* var3{Allocate(&pool)};
+    int* var4{Allocate(&pool)};
+    int* var5{Allocate(&pool)};
     
     *var1 = 1;
     *var2 = 2;
@@ -120,9 +134,9 @@ TYPED_TEST(PoolTest, AllocFreeAtBufferEnd)
     *var4 = 4;
     *var5 = 5;
 
-    Release(&this->pool, var3);
-    int* var6{Allocate(&this->pool)};
-    int* var7{Allocate(&this->pool)};
+    Release(&pool, var3);
+    int* var6{Allocate(&pool)};
+    int* var7{Allocate(&pool)};
 
     *var6 = 6;
 
@@ -132,19 +146,24 @@ TYPED_TEST(PoolTest, AllocFreeAtBufferEnd)
     ASSERT_EQ(*var5, 5);
     ASSERT_EQ(*var6, 6);    
     ASSERT_EQ(var7, nullptr);    
+
+    Deinit(&pool);
 }
 
-TYPED_TEST(PoolTest, AllocFreeAtBufferBegin)
+TEST(StaticPoolTest, AllocFreeAtBufferBegin)
 {
-    int* var1{Allocate(&this->pool)};
-    Release(&this->pool, var1);
+    StaticPoolInt pool{};
+    Init(&pool);
 
-    int* var2{Allocate(&this->pool)};
-    int* var3{Allocate(&this->pool)};
-    int* var4{Allocate(&this->pool)};
-    int* var5{Allocate(&this->pool)};
-    int* var6{Allocate(&this->pool)};
-    int* var7{Allocate(&this->pool)};
+    int* var1{Allocate(&pool)};
+    Release(&pool, var1);
+
+    int* var2{Allocate(&pool)};
+    int* var3{Allocate(&pool)};
+    int* var4{Allocate(&pool)};
+    int* var5{Allocate(&pool)};
+    int* var6{Allocate(&pool)};
+    int* var7{Allocate(&pool)};
     
     *var2 = 2;
     *var3 = 3;
@@ -158,4 +177,6 @@ TYPED_TEST(PoolTest, AllocFreeAtBufferBegin)
     ASSERT_EQ(*var5, 5);
     ASSERT_EQ(*var6, 6);    
     ASSERT_EQ(var7, nullptr);    
+
+    Deinit(&pool);
 }
