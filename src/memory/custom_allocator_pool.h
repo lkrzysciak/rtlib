@@ -17,23 +17,27 @@ void pool_t##_Release(pool_t* const self, member_type* object); \
 void pool_t##_Construct(pool_t* const self) \
 { \
     assert(self); \
+    \
+    allocator_t##_Construct(&self->allocator); \
 } \
 \
 void pool_t##_Destroy(pool_t* const self) \
 { \
     assert(self); \
+    \
+    allocator_t##_Destroy(&self->allocator); \
 } \
 \
 member_t* pool_t##_Allocate(pool_t* const self) \
 { \
     assert(self); \
     \
-    return malloc(sizeof(member_type)); \
+    return allocator_t##_Allocate(&self->allocator, sizeof(member_type)); \
 } \
 \
 void pool_t##_Release(pool_t* const self, member_t* object) \
 { \
     assert(self); \
     \
-    free(object); \
+    allocator_t##_Deallocate(&self->allocator, object); \
 }

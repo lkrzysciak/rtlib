@@ -20,7 +20,7 @@ set(TESTS
     vector_test.cpp
     heap_test.cpp
     object_pool_test.cpp
-    typed_pool_test.cpp
+    pool_test.cpp
     queue_containers_test.cpp
     set_test.cpp
     )
