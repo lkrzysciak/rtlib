@@ -1,6 +1,6 @@
 #include <assert.h>
 
-#define typed_pool_t(type_name, member_type, pool_capacity) \
+#define declare_static_pool_t(type_name, member_type, pool_capacity) \
 \
 typedef struct type_name##_node type_name##_node; \
 \
@@ -17,7 +17,15 @@ typedef struct type_name \
     type_name##_node* last_free_block; \
 } type_name; \
 \
-void type_name##_Init(type_name* const self) \
+void type_name##_Construct(type_name* const self); \
+void type_name##_Destroy(type_name* const self); \
+member_type* type_name##_Allocate(type_name* const self); \
+void type_name##_Release(type_name* const self, member_type* object); \
+size_t type_name##_Capacity(type_name* const self);
+
+
+#define define_static_pool_t(type_name, member_type, pool_capacity) \
+void type_name##_Construct(type_name* const self) \
 { \
     assert(self); \
     \
@@ -31,7 +39,12 @@ void type_name##_Init(type_name* const self) \
     self->last_free_block->next = NULL; \
 } \
 \
-member_type* type_name##_Alloc(type_name* const self) \
+void type_name##_Destroy(type_name* const self) \
+{ \
+    assert(self); \
+} \
+\
+member_type* type_name##_Allocate(type_name* const self) \
 { \
     assert(self); \
     \
@@ -47,7 +60,7 @@ member_type* type_name##_Alloc(type_name* const self) \
     } \
 } \
 \
-void type_name##_Free(type_name* const self, member_type* object) \
+void type_name##_Release(type_name* const self, member_type* object) \
 { \
     assert(self); \
     assert(object); \

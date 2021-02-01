@@ -1,23 +1,24 @@
 #include "gtest/gtest.h"
-#include "memory/typed_pool.h"
+#include "memory/static_pool.h"
 
-typed_pool_t(TestPoolType, int, 5);
+declare_static_pool_t(TestPoolType, int, 5);
+define_static_pool_t(TestPoolType, int, 5);
 
 TEST(TypedPoolTest, Init)
 {
     TestPoolType pool{};
-    TestPoolType_Init(&pool);
+    TestPoolType_Construct(&pool);
 }
 
 TEST(TypedPoolTest, Alloc)
 {
     TestPoolType pool{};
-    TestPoolType_Init(&pool);
-    int* var1{TestPoolType_Alloc(&pool)};
-    int* var2{TestPoolType_Alloc(&pool)};
-    int* var3{TestPoolType_Alloc(&pool)};
-    int* var4{TestPoolType_Alloc(&pool)};
-    int* var5{TestPoolType_Alloc(&pool)};
+    TestPoolType_Construct(&pool);
+    int* var1{TestPoolType_Allocate(&pool)};
+    int* var2{TestPoolType_Allocate(&pool)};
+    int* var3{TestPoolType_Allocate(&pool)};
+    int* var4{TestPoolType_Allocate(&pool)};
+    int* var5{TestPoolType_Allocate(&pool)};
     
     *var1 = 1;
     *var2 = 2;
@@ -35,15 +36,15 @@ TEST(TypedPoolTest, Alloc)
 TEST(TypedPoolTest, AllocOverBufferSize)
 {
     TestPoolType pool{};
-    TestPoolType_Init(&pool);
+    TestPoolType_Construct(&pool);
 
-    int* var1{TestPoolType_Alloc(&pool)};
-    int* var2{TestPoolType_Alloc(&pool)};
-    int* var3{TestPoolType_Alloc(&pool)};
-    int* var4{TestPoolType_Alloc(&pool)};
-    int* var5{TestPoolType_Alloc(&pool)};
-    int* var6{TestPoolType_Alloc(&pool)};
-    int* var7{TestPoolType_Alloc(&pool)};
+    int* var1{TestPoolType_Allocate(&pool)};
+    int* var2{TestPoolType_Allocate(&pool)};
+    int* var3{TestPoolType_Allocate(&pool)};
+    int* var4{TestPoolType_Allocate(&pool)};
+    int* var5{TestPoolType_Allocate(&pool)};
+    int* var6{TestPoolType_Allocate(&pool)};
+    int* var7{TestPoolType_Allocate(&pool)};
 
      ASSERT_NE(var1, nullptr);
      ASSERT_NE(var2, nullptr);
@@ -57,12 +58,12 @@ TEST(TypedPoolTest, AllocOverBufferSize)
 TEST(TypedPoolTest, AllocFreeAtBufferEnd)
 {
     TestPoolType pool{};
-    TestPoolType_Init(&pool);
-    int* var1{TestPoolType_Alloc(&pool)};
-    int* var2{TestPoolType_Alloc(&pool)};
-    int* var3{TestPoolType_Alloc(&pool)};
-    int* var4{TestPoolType_Alloc(&pool)};
-    int* var5{TestPoolType_Alloc(&pool)};
+    TestPoolType_Construct(&pool);
+    int* var1{TestPoolType_Allocate(&pool)};
+    int* var2{TestPoolType_Allocate(&pool)};
+    int* var3{TestPoolType_Allocate(&pool)};
+    int* var4{TestPoolType_Allocate(&pool)};
+    int* var5{TestPoolType_Allocate(&pool)};
     
     *var1 = 1;
     *var2 = 2;
@@ -70,9 +71,9 @@ TEST(TypedPoolTest, AllocFreeAtBufferEnd)
     *var4 = 4;
     *var5 = 5;
 
-    TestPoolType_Free(&pool, var3);
-    int* var6{TestPoolType_Alloc(&pool)};
-    int* var7{TestPoolType_Alloc(&pool)};
+    TestPoolType_Release(&pool, var3);
+    int* var6{TestPoolType_Allocate(&pool)};
+    int* var7{TestPoolType_Allocate(&pool)};
 
     *var6 = 6;
 
@@ -87,16 +88,16 @@ TEST(TypedPoolTest, AllocFreeAtBufferEnd)
 TEST(TypedPoolTest, AllocFreeAtBufferBegin)
 {
     TestPoolType pool{};
-    TestPoolType_Init(&pool);
-    int* var1{TestPoolType_Alloc(&pool)};
-    TestPoolType_Free(&pool, var1);
+    TestPoolType_Construct(&pool);
+    int* var1{TestPoolType_Allocate(&pool)};
+    TestPoolType_Release(&pool, var1);
 
-    int* var2{TestPoolType_Alloc(&pool)};
-    int* var3{TestPoolType_Alloc(&pool)};
-    int* var4{TestPoolType_Alloc(&pool)};
-    int* var5{TestPoolType_Alloc(&pool)};
-    int* var6{TestPoolType_Alloc(&pool)};
-    int* var7{TestPoolType_Alloc(&pool)};
+    int* var2{TestPoolType_Allocate(&pool)};
+    int* var3{TestPoolType_Allocate(&pool)};
+    int* var4{TestPoolType_Allocate(&pool)};
+    int* var5{TestPoolType_Allocate(&pool)};
+    int* var6{TestPoolType_Allocate(&pool)};
+    int* var7{TestPoolType_Allocate(&pool)};
     
     *var2 = 2;
     *var3 = 3;

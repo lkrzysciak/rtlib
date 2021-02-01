@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../memory/typed_pool.h"
+#include "../memory/static_pool.h"
 #include "error_codes.h"
 
 #define declare_static_binary_tree_t(container_t, member_t, container_capacity) \
@@ -26,7 +26,7 @@ typedef struct container_t##_iterator \
     container_t##_node * prev; \
 } container_t##_iterator; \
 \
-typed_pool_t(container_t##_pool, container_t##_node, container_capacity); \
+declare_static_pool_t(container_t##_pool, container_t##_node, container_capacity); \
 \
 typedef int(*container_t##_compare_t)(const member_t*, const member_t*); \
 \
@@ -55,6 +55,9 @@ container_t##_iterator container_t##_Find(container_t * const self, member_t dat
 
 
 #define define_static_binary_tree_t(container_t, member_t, container_capacity) \
+\
+define_static_pool_t(container_t##_pool, container_t##_node, container_capacity); \
+\
 static container_t##_node* __##container_t##_GetNextNode(container_t##_node* node) \
 { \
     if(!node) \
@@ -128,12 +131,17 @@ void container_t##_Construct(container_t* const self, container_t##_compare_t co
     self->size = 0; \
     self->root = NULL; \
     self->compare_function = compare; \
-    container_t##_pool_Init(&self->pool); \
+    container_t##_pool_Construct(&self->pool); \
     assert(container_t##_pool_Capacity(&self->pool) == container_capacity); \
 \
 } \
 \
-void container_t##_Destroy(container_t* const self) {} \
+void container_t##_Destroy(container_t* const self) \
+{ \
+    assert(self); \
+    \
+    container_t##_pool_Destroy(&self->pool); \
+} \
 \
 size_t container_t##_Size(const container_t * const self) \
 { \
@@ -153,7 +161,7 @@ int container_t##_Insert(container_t * const self, member_t data) \
 { \
     assert(self); \
     \
-    container_t##_node* node = container_t##_pool_Alloc(&self->pool); \
+    container_t##_node* node = container_t##_pool_Allocate(&self->pool); \
     if(node) \
     { \
         node->value = data; \
@@ -188,7 +196,7 @@ int container_t##_Insert(container_t * const self, member_t data) \
                 } \
                 else \
                 { \
-                    container_t##_pool_Free(&self->pool, node); \
+                    container_t##_pool_Release(&self->pool, node); \
                     return ELEMENT_EXISTS; \
                 } \
             } \
@@ -290,7 +298,7 @@ int container_t##_Erase(container_t * const self, container_t##_iterator* const 
         } \
     } \
     \
-    container_t##_pool_Free(&self->pool, to_delete_node); \
+    container_t##_pool_Release(&self->pool, to_delete_node); \
     \
     --self->size; \
     return self->size; \
