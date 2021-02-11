@@ -25,6 +25,9 @@
         member_t * value;                                                                                       \
     } container_t##_Iterator;                                                                                   \
                                                                                                                 \
+    /* Deprecated - needed to keep compability with version 1 API */                                            \
+    typedef container_t##_Iterator container_t##_iterator;                                                      \
+                                                                                                                \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function);           \
     void container_t##_Destroy(container_t * const self);                                                       \
     size_t container_t##_Size(const container_t * const self);                                                  \

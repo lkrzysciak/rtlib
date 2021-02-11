@@ -23,6 +23,9 @@
         container_t##_node * node;                                                                              \
     } container_t##_Iterator;                                                                                   \
                                                                                                                 \
+    /* Deprecated - needed to keep compability with version 1 API */                                            \
+    typedef container_t##_Iterator container_t##_iterator;                                                      \
+                                                                                                                \
     typedef struct container_t                                                                                  \
     {                                                                                                           \
         container_t##_node * begin;                                                                             \

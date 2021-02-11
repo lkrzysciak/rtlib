@@ -24,6 +24,9 @@
         container_t##_node * node;                                                                              \
     } container_t##_Iterator;                                                                                   \
                                                                                                                 \
+    /* Deprecated - needed to keep compability with version 1 API */                                            \
+    typedef container_t##_Iterator container_t##_iterator;                                                      \
+                                                                                                                \
     declare_static_pool_t(container_t##_pool, container_t##_node, container_capacity + 1);                      \
                                                                                                                 \
     typedef struct container_t                                                                                  \

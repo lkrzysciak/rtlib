@@ -25,6 +25,9 @@
         container_t##_node * prev;                                                              \
     } container_t##_Iterator;                                                                   \
                                                                                                 \
+    /* Deprecated - needed to keep compability with version 1 API */                            \
+    typedef container_t##_Iterator container_t##_iterator;                                      \
+                                                                                                \
     typedef int (*container_t##compare_t)(const member_t *, const member_t *);                  \
                                                                                                 \
     typedef struct container_t                                                                  \
