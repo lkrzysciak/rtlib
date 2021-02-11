@@ -7,32 +7,33 @@
 #include "containers/custom_allocator_list.h"
 #include "memory/dynamic_allocator.h"
 
-#define CONTAINER_CAPACITY  5
+#define CONTAINER_CAPACITY 5
 
-extern "C" {
-declare_static_vector_t(VectorTestType, int, CONTAINER_CAPACITY);
-define_static_vector_t(VectorTestType, int, CONTAINER_CAPACITY);
-declare_static_list_t(ListTestType, int, CONTAINER_CAPACITY);
-define_static_list_t(ListTestType, int, CONTAINER_CAPACITY);
+extern "C"
+{
+    declare_static_vector_t(VectorTestType, int, CONTAINER_CAPACITY);
+    define_static_vector_t(VectorTestType, int, CONTAINER_CAPACITY);
+    declare_static_list_t(ListTestType, int, CONTAINER_CAPACITY);
+    define_static_list_t(ListTestType, int, CONTAINER_CAPACITY);
 
-declare_dynamic_allocator_t(DynamicAllocator);
-define_dynamic_allocator_t(DynamicAllocator);
-declare_custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
-define_custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
-declare_custom_allocator_list_t(CustomAllocatorList, int, DynamicAllocator);
-define_custom_allocator_list_t(CustomAllocatorList, int, DynamicAllocator);
+    declare_dynamic_allocator_t(DynamicAllocator);
+    define_dynamic_allocator_t(DynamicAllocator);
+    declare_custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
+    define_custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
+    declare_custom_allocator_list_t(CustomAllocatorList, int, DynamicAllocator);
+    define_custom_allocator_list_t(CustomAllocatorList, int, DynamicAllocator);
 
-declare_static_vector_t(SVectorWithPointers, int*, CONTAINER_CAPACITY);
-define_static_vector_t(SVectorWithPointers, int*, CONTAINER_CAPACITY);
-declare_static_list_t(SListWithPointers, int*, CONTAINER_CAPACITY);
-define_static_list_t(SListWithPointers, int*, CONTAINER_CAPACITY);
-declare_custom_allocator_vector_t(CVectorWithPointers, int*, DynamicAllocator);
-define_custom_allocator_vector_t(CVectorWithPointers, int*, DynamicAllocator);
-declare_custom_allocator_list_t(CListWithPointers, int*, DynamicAllocator);
-define_custom_allocator_list_t(CListWithPointers, int*, DynamicAllocator);
+    declare_static_vector_t(SVectorWithPointers, int *, CONTAINER_CAPACITY);
+    define_static_vector_t(SVectorWithPointers, int *, CONTAINER_CAPACITY);
+    declare_static_list_t(SListWithPointers, int *, CONTAINER_CAPACITY);
+    define_static_list_t(SListWithPointers, int *, CONTAINER_CAPACITY);
+    declare_custom_allocator_vector_t(CVectorWithPointers, int *, DynamicAllocator);
+    define_custom_allocator_vector_t(CVectorWithPointers, int *, DynamicAllocator);
+    declare_custom_allocator_list_t(CListWithPointers, int *, DynamicAllocator);
+    define_custom_allocator_list_t(CListWithPointers, int *, DynamicAllocator);
 }
 
-static int compare_set_ints(const int* v1, const int* v2)
+static int compare_set_ints(const int * v1, const int * v2)
 {
     if(*v1 > *v2)
     {
@@ -48,7 +49,7 @@ static int compare_set_ints(const int* v1, const int* v2)
     }
 }
 
-static int compare_set_ints_ptr(const int** v1, const int** v2)
+static int compare_set_ints_ptr(const int ** v1, const int ** v2)
 {
     if(*v1 > *v2)
     {
@@ -64,116 +65,58 @@ static int compare_set_ints_ptr(const int** v1, const int** v2)
     }
 }
 
-#define create_wrappers_for_type(Type, CompareFunction, MemberType) \
-void Init(Type* const container) \
-{ \
-    Type##_Construct(container, CompareFunction); \
-} \
-\
-void Deinit(Type* const container) \
-{ \
-    Type##_Destroy(container); \
-} \
-\
-size_t Size(Type* const container) \
-{ \
-    return Type##_Size(container); \
-} \
-\
-bool Empty(Type* const container) \
-{ \
-    return Type##_Empty(container); \
-} \
-\
-int PushBack(Type* const container, MemberType value) \
-{ \
-    return Type##_PushBack(container, value); \
-} \
-\
-int PushFront(Type* const container, MemberType value) \
-{ \
-    return Type##_PushFront(container, value); \
-} \
-\
-int Insert(Type* const container, MemberType value, Type##_iterator* it) \
-{ \
-    return Type##_Insert(container, it, value); \
-} \
-int PopBack(Type* const container) \
-{ \
-    return Type##_PopBack(container); \
-} \
-\
-int PopFront(Type* const container) \
-{ \
-    return Type##_PopFront(container); \
-} \
-\
-int Erase(Type* const container, Type##_iterator* it) \
-{ \
-    return Type##_Erase(container, it); \
-} \
-\
-MemberType Back(Type* const container) \
-{ \
-    return Type##_Back(container); \
-} \
-\
-MemberType Front(Type* const container) \
-{ \
-    return Type##_Front(container); \
-} \
-\
-auto Begin(Type* const container) \
-{ \
-    return Type##_Begin(container); \
-} \
-\
-auto End(Type* const container) \
-{ \
-    return Type##_End(container); \
-} \
-\
-auto GetValue(Type* const container, size_t index) \
-{ \
-    return Type##_GetValue(container, index); \
-} \
-\
-void SetValue(Type* const container, size_t index, MemberType value) \
-{ \
-    Type##_SetValue(container, index, value); \
-} \
-\
-auto IteratorValue(Type##_iterator* const it) \
-{ \
-    return Type##_Iterator_GetValue(it); \
-} \
-\
-void IteratorInc(Type##_iterator* const it) \
-{ \
-    return Type##_Iterator_Increment(it); \
-} \
-\
-void IteratorDec(Type##_iterator* const it) \
-{ \
-    return Type##_Iterator_Decrement(it); \
-} \
-\
-void IteratorSetValue(Type##_iterator* const it, MemberType value) \
-{ \
-    Type##_Iterator_SetValue(it, value); \
-} \
-\
-bool Iterator_Equal(Type##_iterator* const first, Type##_iterator* const second) \
-{ \
-    return Type##_Iterator_Equal(first, second); \
-} \
-\
-auto Find(Type* const container, MemberType value) \
-{ \
-    return Type##_Find(container, value); \
-}
-
+#define create_wrappers_for_type(Type, CompareFunction, MemberType)                                              \
+    void Init(Type * const container) { Type##_Construct(container, CompareFunction); }                          \
+                                                                                                                 \
+    void Deinit(Type * const container) { Type##_Destroy(container); }                                           \
+                                                                                                                 \
+    size_t Size(Type * const container) { return Type##_Size(container); }                                       \
+                                                                                                                 \
+    bool Empty(Type * const container) { return Type##_Empty(container); }                                       \
+                                                                                                                 \
+    int PushBack(Type * const container, MemberType value) { return Type##_PushBack(container, value); }         \
+                                                                                                                 \
+    int PushFront(Type * const container, MemberType value) { return Type##_PushFront(container, value); }       \
+                                                                                                                 \
+    int Insert(Type * const container, MemberType value, Type##_Iterator * it)                                   \
+    {                                                                                                            \
+        return Type##_Insert(container, it, value);                                                              \
+    }                                                                                                            \
+    int PopBack(Type * const container) { return Type##_PopBack(container); }                                    \
+                                                                                                                 \
+    int PopFront(Type * const container) { return Type##_PopFront(container); }                                  \
+                                                                                                                 \
+    int Erase(Type * const container, Type##_Iterator * it) { return Type##_Erase(container, it); }              \
+                                                                                                                 \
+    MemberType Back(Type * const container) { return Type##_Back(container); }                                   \
+                                                                                                                 \
+    MemberType Front(Type * const container) { return Type##_Front(container); }                                 \
+                                                                                                                 \
+    auto Begin(Type * const container) { return Type##_Begin(container); }                                       \
+                                                                                                                 \
+    auto End(Type * const container) { return Type##_End(container); }                                           \
+                                                                                                                 \
+    auto GetValue(Type * const container, size_t index) { return Type##_GetValue(container, index); }            \
+                                                                                                                 \
+    void SetValue(Type * const container, size_t index, MemberType value)                                        \
+    {                                                                                                            \
+        Type##_SetValue(container, index, value);                                                                \
+    }                                                                                                            \
+                                                                                                                 \
+    auto IteratorValue(Type##_Iterator * const it) { return Type##_Iterator_GetValue(it); }                      \
+                                                                                                                 \
+    void IteratorInc(Type##_Iterator * const it) { return Type##_Iterator_Increment(it); }                       \
+                                                                                                                 \
+    void IteratorDec(Type##_Iterator * const it) { return Type##_Iterator_Decrement(it); }                       \
+                                                                                                                 \
+    void IteratorSetValue(Type##_Iterator * const it, MemberType value) { Type##_Iterator_SetValue(it, value); } \
+                                                                                                                 \
+    bool Iterator_Equal(Type##_Iterator * const first, Type##_Iterator * const second)                           \
+    {                                                                                                            \
+        return Type##_Iterator_Equal(first, second);                                                             \
+    }                                                                                                            \
+                                                                                                                 \
+    auto Find(Type * const container, MemberType value) { return Type##_Find(container, value); }
 
 create_wrappers_for_type(VectorTestType, compare_set_ints, int);
 create_wrappers_for_type(ListTestType, compare_set_ints, int);
@@ -181,21 +124,14 @@ create_wrappers_for_type(CustomAllocatorVector, compare_set_ints, int);
 create_wrappers_for_type(CustomAllocatorList, compare_set_ints, int);
 
 // Verifies if compiles
-create_wrappers_for_type(SVectorWithPointers, compare_set_ints_ptr, int*);
-
+create_wrappers_for_type(SVectorWithPointers, compare_set_ints_ptr, int *);
 
 template<typename T>
 struct ContainerTest : public testing::Test
 {
-    void SetUp() override 
-    {
-        Init(&container);
-    }
+    void SetUp() override { Init(&container); }
 
-    void TearDown() override 
-    {
-        Deinit(&container);
-    }
+    void TearDown() override { Deinit(&container); }
 
     T container;
 };
@@ -203,15 +139,9 @@ struct ContainerTest : public testing::Test
 template<typename T>
 struct StaticContainerTest : public testing::Test
 {
-    void SetUp() override 
-    {
-        Init(&container);
-    }
+    void SetUp() override { Init(&container); }
 
-    void TearDown() override 
-    {
-        Deinit(&container);
-    }
+    void TearDown() override { Deinit(&container); }
 
     T container;
 };
@@ -219,35 +149,18 @@ struct StaticContainerTest : public testing::Test
 template<typename T>
 struct CustomContainerTest : public testing::Test
 {
-    void SetUp() override 
-    {
-        Init(&container);
-    }
+    void SetUp() override { Init(&container); }
 
-    void TearDown() override 
-    {
-        Deinit(&container);
-    }
+    void TearDown() override { Deinit(&container); }
 
     T container;
 };
 
-using MyTypes = testing::Types<
-    VectorTestType,
-    ListTestType,
-    CustomAllocatorVector,
-    CustomAllocatorList
-        >;
+using MyTypes = testing::Types<VectorTestType, ListTestType, CustomAllocatorVector, CustomAllocatorList>;
 
-using StaticContainerTypes = testing::Types<
-    VectorTestType,
-    ListTestType
-        >;
+using StaticContainerTypes = testing::Types<VectorTestType, ListTestType>;
 
-using CustomContainerTypes = testing::Types<
-    CustomAllocatorVector,
-    CustomAllocatorList
-        >;
+using CustomContainerTypes = testing::Types<CustomAllocatorVector, CustomAllocatorList>;
 
 TYPED_TEST_SUITE(ContainerTest, MyTypes);
 TYPED_TEST_SUITE(StaticContainerTest, StaticContainerTypes);
@@ -280,7 +193,7 @@ TYPED_TEST(ContainerTest, PushBack)
     ASSERT_EQ(IteratorValue(&it), temp2);
     IteratorInc(&it);
     ASSERT_EQ(IteratorValue(&it), temp3);
-    
+
     ASSERT_EQ(Size(&this->container), 3);
     ASSERT_FALSE(Empty(&this->container));
 }
@@ -323,11 +236,11 @@ TYPED_TEST(ContainerTest, Insert)
     it = Begin(&this->container);
     IteratorInc(&it);
     ASSERT_EQ(Insert(&this->container, temp2, &it), 2);
-    
+
     it = Begin(&this->container);
     IteratorInc(&it);
     ASSERT_EQ(Insert(&this->container, temp3, &it), 3);
-    
+
     it = Begin(&this->container);
     ASSERT_EQ(IteratorValue(&it), temp1);
     IteratorInc(&it);
@@ -361,7 +274,7 @@ TYPED_TEST(ContainerTest, Erase)
     ASSERT_EQ(Insert(&this->container, temp3, &it), 3);
     ASSERT_EQ(Front(&this->container), temp1);
     ASSERT_EQ(Back(&this->container), temp2);
-    
+
     it = Begin(&this->container);
     IteratorInc(&it);
     ASSERT_EQ(Front(&this->container), temp1);
@@ -372,7 +285,7 @@ TYPED_TEST(ContainerTest, Erase)
     ASSERT_EQ(Erase(&this->container, &it), 2);
     ASSERT_EQ(Front(&this->container), temp1);
     ASSERT_EQ(Back(&this->container), temp2);
-    
+
     it = Begin(&this->container);
     IteratorInc(&it);
     ASSERT_EQ(Erase(&this->container, &it), 1);
@@ -399,7 +312,7 @@ TYPED_TEST(ContainerTest, PopBack)
     ASSERT_EQ(PopBack(&this->container), 1);
     ASSERT_EQ(Front(&this->container), temp1);
     ASSERT_EQ(Back(&this->container), temp1);
-    
+
     ASSERT_EQ(PopBack(&this->container), 0);
 
     ASSERT_EQ(Size(&this->container), 0);
@@ -419,7 +332,7 @@ TYPED_TEST(ContainerTest, PopFront)
     ASSERT_EQ(PopFront(&this->container), 1);
     ASSERT_EQ(Front(&this->container), temp2);
     ASSERT_EQ(Back(&this->container), temp2);
-    
+
     ASSERT_EQ(PopFront(&this->container), 0);
 
     ASSERT_EQ(Size(&this->container), 0);
@@ -435,7 +348,7 @@ TYPED_TEST(ContainerTest, BeginEndIterator)
     PushBack(&this->container, temp2);
 
     auto it_begin = Begin(&this->container);
-    auto it = End(&this->container);
+    auto it       = End(&this->container);
 
     IteratorDec(&it);
 
@@ -452,8 +365,8 @@ TYPED_TEST(ContainerTest, IteratorIncrementation)
     PushBack(&this->container, temp2);
 
     auto it_begin = Begin(&this->container);
-    auto it_end = End(&this->container);
-    auto it = it_begin;
+    auto it_end   = End(&this->container);
+    auto it       = it_begin;
 
     ASSERT_EQ(IteratorValue(&it), temp1);
     IteratorInc(&it);
@@ -471,7 +384,7 @@ TYPED_TEST(ContainerTest, IteratorDecrementation)
     PushBack(&this->container, temp2);
 
     auto it_begin = Begin(&this->container);
-    auto it_end = End(&this->container);
+    auto it_end   = End(&this->container);
 
     auto it = it_end;
     IteratorDec(&it);
@@ -484,7 +397,7 @@ TYPED_TEST(ContainerTest, IteratorDecrementation)
 TYPED_TEST(ContainerTest, IteratorAfterInit)
 {
     auto it_begin = Begin(&this->container);
-    auto it_end = End(&this->container);
+    auto it_end   = End(&this->container);
 
     ASSERT_TRUE(Iterator_Equal(&it_begin, &it_end));
 }
@@ -498,7 +411,7 @@ TYPED_TEST(ContainerTest, IteratorValues)
     PushBack(&this->container, temp2);
 
     auto it_begin = Begin(&this->container);
-    auto it_end = End(&this->container);
+    auto it_end   = End(&this->container);
 
     auto it = it_end;
     IteratorDec(&it);
@@ -562,7 +475,7 @@ TYPED_TEST(StaticContainerTest, PushBackOverLimit)
 {
     uint32_t temp1{ 3215 };
 
-    for(int i=0; i<CONTAINER_CAPACITY; ++i)
+    for(int i = 0; i < CONTAINER_CAPACITY; ++i)
     {
         ASSERT_EQ(PushBack(&this->container, temp1), i + 1);
     }
@@ -573,7 +486,7 @@ TYPED_TEST(StaticContainerTest, PushFrontOverLimit)
 {
     uint32_t temp1{ 3215 };
 
-    for(int i=0; i<CONTAINER_CAPACITY; ++i)
+    for(int i = 0; i < CONTAINER_CAPACITY; ++i)
     {
         ASSERT_EQ(PushFront(&this->container, temp1), i + 1);
     }
@@ -584,7 +497,7 @@ TYPED_TEST(StaticContainerTest, InsertOverLimit)
 {
     uint32_t temp1{ 3215 };
 
-    for(int i=0; i<CONTAINER_CAPACITY; ++i)
+    for(int i = 0; i < CONTAINER_CAPACITY; ++i)
     {
         auto it = Begin(&this->container);
         ASSERT_EQ(Insert(&this->container, temp1, &it), i + 1);
@@ -597,7 +510,7 @@ TYPED_TEST(CustomContainerTest, AddALotOfElementsToMakeManyReallocations)
 {
     uint32_t temp1{ 3215 };
 
-    for(int i=0; i<1000; ++i)
+    for(int i = 0; i < 1000; ++i)
     {
         auto it = Begin(&this->container);
         ASSERT_EQ(Insert(&this->container, temp1, &it), i + 1);
