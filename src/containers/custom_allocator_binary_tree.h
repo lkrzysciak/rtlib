@@ -5,54 +5,56 @@
 #include <stdlib.h>
 #include "error_codes.h"
 
-#define declare_custom_allocator_binary_tree_t(container_t, member_t, allocator_t)              \
-    typedef struct container_t container_t;                                                     \
-    typedef struct container_t##_Iterator container_t##_Iterator;                               \
-    typedef struct container_t##_node container_t##_node;                                       \
-                                                                                                \
-    typedef struct container_t##_node                                                           \
-    {                                                                                           \
-        container_t##_node * right;                                                             \
-        container_t##_node * left;                                                              \
-        container_t##_node * parent;                                                            \
-        member_t value;                                                                         \
-    } container_t##_node;                                                                       \
-                                                                                                \
-    typedef struct container_t##_Iterator                                                       \
-    {                                                                                           \
-        container_t##_node * node;                                                              \
-        container_t##_node * next;                                                              \
-        container_t##_node * prev;                                                              \
-    } container_t##_Iterator;                                                                   \
-                                                                                                \
-    /* Deprecated - needed to keep compability with version 1 API */                            \
-    typedef container_t##_Iterator container_t##_iterator;                                      \
-                                                                                                \
-    typedef int (*container_t##compare_t)(const member_t *, const member_t *);                  \
-                                                                                                \
-    typedef struct container_t                                                                  \
-    {                                                                                           \
-        container_t##_node * root;                                                              \
-        allocator_t allocator;                                                                  \
-        container_t##compare_t compare_function;                                                \
-        size_t size;                                                                            \
-    } container_t;                                                                              \
-                                                                                                \
-    void container_t##_Construct(container_t * const self, container_t##compare_t compare);     \
-    void container_t##_Destroy(container_t * const self);                                       \
-    size_t container_t##_Size(const container_t * const self);                                  \
-    bool container_t##_Empty(const container_t * const self);                                   \
-    int container_t##_Insert(container_t * const self, member_t data);                          \
-    int container_t##_Erase(container_t * const self, container_t##_Iterator * const iterator); \
-    container_t##_Iterator container_t##_Begin(const container_t * const self);                 \
-    container_t##_Iterator container_t##_End(const container_t * const self);                   \
-    member_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self);        \
-    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, member_t value);  \
-    bool container_t##_Iterator_Equal(const container_t##_Iterator * const first,               \
-                                      const container_t##_Iterator * const second);             \
-    void container_t##_Iterator_Increment(container_t##_Iterator * const self);                 \
-    void container_t##_Iterator_Decrement(container_t##_Iterator * const self);                 \
-    container_t##_Iterator container_t##_Find(container_t * const self, member_t data);
+#define declare_custom_allocator_binary_tree_t(container_t, member_t, allocator_t)                 \
+    typedef struct container_t container_t;                                                        \
+    typedef struct container_t##_Iterator container_t##_Iterator;                                  \
+    typedef struct container_t##_node container_t##_node;                                          \
+                                                                                                   \
+    typedef struct container_t##_node                                                              \
+    {                                                                                              \
+        container_t##_node * right;                                                                \
+        container_t##_node * left;                                                                 \
+        container_t##_node * parent;                                                               \
+        member_t value;                                                                            \
+    } container_t##_node;                                                                          \
+                                                                                                   \
+    typedef struct container_t##_Iterator                                                          \
+    {                                                                                              \
+        container_t##_node * node;                                                                 \
+        container_t##_node * next;                                                                 \
+        container_t##_node * prev;                                                                 \
+    } container_t##_Iterator;                                                                      \
+                                                                                                   \
+    /* Deprecated - needed to keep compability with version 1 API */                               \
+    typedef container_t##_Iterator container_t##_iterator;                                         \
+                                                                                                   \
+    typedef int (*container_t##_compare_t)(const member_t *, const member_t *);                    \
+                                                                                                   \
+    typedef struct container_t                                                                     \
+    {                                                                                              \
+        container_t##_node * root;                                                                 \
+        allocator_t allocator;                                                                     \
+        container_t##_compare_t compare_function;                                                  \
+        size_t size;                                                                               \
+    } container_t;                                                                                 \
+                                                                                                   \
+    void container_t##_Construct(container_t * const self, container_t##_compare_t compare);       \
+    void container_t##_Destroy(container_t * const self);                                          \
+    size_t container_t##_Size(const container_t * const self);                                     \
+    bool container_t##_Empty(const container_t * const self);                                      \
+    int container_t##_Insert(container_t * const self, member_t data);                             \
+    int container_t##_Erase(container_t * const self, container_t##_Iterator * const iterator);    \
+    container_t##_Iterator container_t##_Begin(const container_t * const self);                    \
+    container_t##_Iterator container_t##_End(const container_t * const self);                      \
+    member_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self);           \
+    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, member_t value);     \
+    bool container_t##_Iterator_Equal(const container_t##_Iterator * const first,                  \
+                                      const container_t##_Iterator * const second);                \
+    void container_t##_Iterator_Increment(container_t##_Iterator * const self);                    \
+    void container_t##_Iterator_Decrement(container_t##_Iterator * const self);                    \
+    container_t##_Iterator container_t##_Find(container_t * const self, member_t data);            \
+    container_t##_Iterator container_t##_CustomFind(container_t * const self, const member_t data, \
+                                                    container_t##_compare_t compare_function);
 
 #define define_custom_allocator_binary_tree_t(container_t, member_t, allocator_t)                                 \
     static container_t##_node * __##container_t##_GetNextNode(container_t##_node * node)                          \
@@ -121,7 +123,7 @@
         return node;                                                                                              \
     }                                                                                                             \
                                                                                                                   \
-    void container_t##_Construct(container_t * const self, container_t##compare_t compare)                        \
+    void container_t##_Construct(container_t * const self, container_t##_compare_t compare)                       \
     {                                                                                                             \
         assert(self);                                                                                             \
                                                                                                                   \
@@ -431,5 +433,25 @@
         }                                                                                                         \
         it.node = node;                                                                                           \
         it.next = __##container_t##_GetNextNode(node);                                                            \
+        return it;                                                                                                \
+    }                                                                                                             \
+                                                                                                                  \
+    container_t##_Iterator container_t##_CustomFind(container_t * const self, const member_t data,                \
+                                                    container_t##_compare_t compare_function)                     \
+    {                                                                                                             \
+        assert(self);                                                                                             \
+        assert(compare_function);                                                                                 \
+                                                                                                                  \
+        container_t##_Iterator end = container_t##_End(self);                                                     \
+        container_t##_Iterator it  = container_t##_Begin(self);                                                   \
+        for(; !container_t##_Iterator_Equal(&it, &end); container_t##_Iterator_Increment(&it))                    \
+                                                                                                                  \
+        {                                                                                                         \
+            const member_t it_value = container_t##_Iterator_GetValue(&it);                                       \
+            if(compare_function(&data, &it_value) == 0)                                                           \
+            {                                                                                                     \
+                break;                                                                                            \
+            }                                                                                                     \
+        }                                                                                                         \
         return it;                                                                                                \
     }

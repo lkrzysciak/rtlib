@@ -65,6 +65,23 @@ static int compare_set_ints_ptr(const int ** v1, const int ** v2)
     }
 }
 
+static int compare_custom_ints(const int * v1, const int * v2)
+{
+    /* We are looking for x+1 value - for test only */
+    if(*v1 > (*v2 + 1))
+    {
+        return 1;
+    }
+    else if(*v1 < (*v2 + 1))
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 #define create_wrappers_for_type(Type, CompareFunction, MemberType)                                              \
     void Init(Type * const container) { Type##_Construct(container, CompareFunction); }                          \
                                                                                                                  \
@@ -116,7 +133,12 @@ static int compare_set_ints_ptr(const int ** v1, const int ** v2)
         return Type##_Iterator_Equal(first, second);                                                             \
     }                                                                                                            \
                                                                                                                  \
-    auto Find(Type * const container, MemberType value) { return Type##_Find(container, value); }
+    auto Find(Type * const container, MemberType value) { return Type##_Find(container, value); }                \
+                                                                                                                 \
+    auto CustomFind(Type * const container, MemberType value, Type##_compare_t custom_comparator)                \
+    {                                                                                                            \
+        return Type##_CustomFind(container, value, custom_comparator);                                           \
+    }
 
 create_wrappers_for_type(VectorTestType, compare_set_ints, int);
 create_wrappers_for_type(ListTestType, compare_set_ints, int);
@@ -469,6 +491,33 @@ TYPED_TEST(ContainerTest, FindAllValues)
 
     auto it_4 = Find(&this->container, temp3 + 1);
     ASSERT_TRUE(Iterator_Equal(&it_4, &end_it));
+}
+
+TYPED_TEST(ContainerTest, CustomFinder)
+{
+    uint32_t temp1{ 3215 };
+    uint32_t temp2{ 23587 };
+    uint32_t temp3{ 582 };
+
+    PushBack(&this->container, temp1);
+    PushBack(&this->container, temp2);
+    PushBack(&this->container, temp3);
+
+    auto end_it = End(&this->container);
+
+    auto it_1 = CustomFind(&this->container, temp1 + 1, compare_custom_ints);
+    ASSERT_EQ(IteratorValue(&it_1), temp1);
+    auto it_2 = CustomFind(&this->container, temp2 + 1, compare_custom_ints);
+    ASSERT_EQ(IteratorValue(&it_2), temp2);
+    auto it_3 = CustomFind(&this->container, temp3 + 1, compare_custom_ints);
+    ASSERT_EQ(IteratorValue(&it_3), temp3);
+
+    auto it_4 = CustomFind(&this->container, temp1, compare_custom_ints);
+    ASSERT_TRUE(Iterator_Equal(&it_4, &end_it));
+    auto it_5 = CustomFind(&this->container, temp2, compare_custom_ints);
+    ASSERT_TRUE(Iterator_Equal(&it_5, &end_it));
+    auto it_6 = CustomFind(&this->container, temp3, compare_custom_ints);
+    ASSERT_TRUE(Iterator_Equal(&it_6, &end_it));
 }
 
 TYPED_TEST(StaticContainerTest, PushBackOverLimit)

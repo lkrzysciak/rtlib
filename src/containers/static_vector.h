@@ -49,13 +49,16 @@
                                       const container_t##_Iterator * const second);                             \
     void container_t##_Iterator_Increment(container_t##_Iterator * const self);                                 \
     void container_t##_Iterator_Decrement(container_t##_Iterator * const self);                                 \
-    container_t##_Iterator container_t##_Find(container_t * const self, const member_t data);
+    container_t##_Iterator container_t##_Find(container_t * const self, const member_t data);                   \
+    container_t##_Iterator container_t##_CustomFind(container_t * const self, const member_t data,              \
+                                                    container_t##_compare_t compare_function);
 
 #define define_static_vector_t(container_t, member_t, container_capacity)                                              \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function)                   \
     {                                                                                                                  \
         assert(self);                                                                                                  \
         assert(sizeof(self->data) / sizeof(member_t) == container_capacity);                                           \
+        assert(compare_function);                                                                                      \
                                                                                                                        \
         self->size             = 0;                                                                                    \
         self->end              = self->data;                                                                           \
@@ -257,6 +260,26 @@
         {                                                                                                              \
             const member_t it_value = container_t##_Iterator_GetValue(&it);                                            \
             if(self->compare_function(&data, &it_value) == 0)                                                          \
+            {                                                                                                          \
+                break;                                                                                                 \
+            }                                                                                                          \
+        }                                                                                                              \
+        return it;                                                                                                     \
+    }                                                                                                                  \
+                                                                                                                       \
+    container_t##_Iterator container_t##_CustomFind(container_t * const self, const member_t data,                     \
+                                                    container_t##_compare_t compare_function)                          \
+    {                                                                                                                  \
+        assert(self);                                                                                                  \
+        assert(compare_function);                                                                                      \
+                                                                                                                       \
+        container_t##_Iterator end = container_t##_End(self);                                                          \
+        container_t##_Iterator it  = container_t##_Begin(self);                                                        \
+        for(; !container_t##_Iterator_Equal(&it, &end); container_t##_Iterator_Increment(&it))                         \
+                                                                                                                       \
+        {                                                                                                              \
+            const member_t it_value = container_t##_Iterator_GetValue(&it);                                            \
+            if(compare_function(&data, &it_value) == 0)                                                                \
             {                                                                                                          \
                 break;                                                                                                 \
             }                                                                                                          \

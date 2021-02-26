@@ -7,57 +7,59 @@
 #include "../memory/static_pool.h"
 #include "error_codes.h"
 
-#define declare_static_hash_table_t(container_t, member_t, container_capacity)                  \
-    typedef struct container_t container_t;                                                     \
-    typedef struct container_t##_Iterator container_t##_Iterator;                               \
-    typedef struct container_t##_node container_t##_node;                                       \
-                                                                                                \
-    typedef struct container_t##_node                                                           \
-    {                                                                                           \
-        member_t value;                                                                         \
-        container_t##_node * prev;                                                              \
-        container_t##_node * next;                                                              \
-    } container_t##_node;                                                                       \
-                                                                                                \
-    declare_static_pool_t(container_t##_pool, container_t##_node, container_capacity);          \
-                                                                                                \
-    typedef struct container_t##_Iterator                                                       \
-    {                                                                                           \
-        container_t##_node * node;                                                              \
-        container_t * container;                                                                \
-    } container_t##_Iterator;                                                                   \
-                                                                                                \
-    /* Deprecated - needed to keep compability with version 1 API */                            \
-    typedef container_t##_Iterator container_t##_iterator;                                      \
-                                                                                                \
-    typedef int (*container_t##_compare_t)(const member_t *, const member_t *);                 \
-    typedef unsigned int (*container_t##_hash_t)(const member_t *);                             \
-                                                                                                \
-    typedef struct container_t                                                                  \
-    {                                                                                           \
-        container_t##_node * nodes_table[container_capacity + 1];                               \
-        container_t##_compare_t compare_function;                                               \
-        container_t##_hash_t hash_function;                                                     \
-        size_t size;                                                                            \
-        container_t##_pool pool;                                                                \
-    } container_t;                                                                              \
-                                                                                                \
-    void container_t##_Construct(container_t * const self, container_t##_compare_t compare,     \
-                                 container_t##_hash_t hash);                                    \
-    void container_t##_Destroy(container_t * const self);                                       \
-    size_t container_t##_Size(const container_t * const self);                                  \
-    bool container_t##_Empty(const container_t * const self);                                   \
-    int container_t##_Insert(container_t * const self, member_t data);                          \
-    int container_t##_Erase(container_t * const self, container_t##_Iterator * const iterator); \
-    container_t##_Iterator container_t##_Begin(const container_t * const self);                 \
-    container_t##_Iterator container_t##_End(const container_t * const self);                   \
-    member_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self);        \
-    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, member_t value);  \
-    bool container_t##_Iterator_Equal(const container_t##_Iterator * const first,               \
-                                      const container_t##_Iterator * const second);             \
-    void container_t##_Iterator_Increment(container_t##_Iterator * const self);                 \
-    void container_t##_Iterator_Decrement(container_t##_Iterator * const self);                 \
-    container_t##_Iterator container_t##_Find(container_t * const self, member_t data);
+#define declare_static_hash_table_t(container_t, member_t, container_capacity)                     \
+    typedef struct container_t container_t;                                                        \
+    typedef struct container_t##_Iterator container_t##_Iterator;                                  \
+    typedef struct container_t##_node container_t##_node;                                          \
+                                                                                                   \
+    typedef struct container_t##_node                                                              \
+    {                                                                                              \
+        member_t value;                                                                            \
+        container_t##_node * prev;                                                                 \
+        container_t##_node * next;                                                                 \
+    } container_t##_node;                                                                          \
+                                                                                                   \
+    declare_static_pool_t(container_t##_pool, container_t##_node, container_capacity);             \
+                                                                                                   \
+    typedef struct container_t##_Iterator                                                          \
+    {                                                                                              \
+        container_t##_node * node;                                                                 \
+        container_t * container;                                                                   \
+    } container_t##_Iterator;                                                                      \
+                                                                                                   \
+    /* Deprecated - needed to keep compability with version 1 API */                               \
+    typedef container_t##_Iterator container_t##_iterator;                                         \
+                                                                                                   \
+    typedef int (*container_t##_compare_t)(const member_t *, const member_t *);                    \
+    typedef unsigned int (*container_t##_hash_t)(const member_t *);                                \
+                                                                                                   \
+    typedef struct container_t                                                                     \
+    {                                                                                              \
+        container_t##_node * nodes_table[container_capacity + 1];                                  \
+        container_t##_compare_t compare_function;                                                  \
+        container_t##_hash_t hash_function;                                                        \
+        size_t size;                                                                               \
+        container_t##_pool pool;                                                                   \
+    } container_t;                                                                                 \
+                                                                                                   \
+    void container_t##_Construct(container_t * const self, container_t##_compare_t compare,        \
+                                 container_t##_hash_t hash);                                       \
+    void container_t##_Destroy(container_t * const self);                                          \
+    size_t container_t##_Size(const container_t * const self);                                     \
+    bool container_t##_Empty(const container_t * const self);                                      \
+    int container_t##_Insert(container_t * const self, member_t data);                             \
+    int container_t##_Erase(container_t * const self, container_t##_Iterator * const iterator);    \
+    container_t##_Iterator container_t##_Begin(const container_t * const self);                    \
+    container_t##_Iterator container_t##_End(const container_t * const self);                      \
+    member_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self);           \
+    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, member_t value);     \
+    bool container_t##_Iterator_Equal(const container_t##_Iterator * const first,                  \
+                                      const container_t##_Iterator * const second);                \
+    void container_t##_Iterator_Increment(container_t##_Iterator * const self);                    \
+    void container_t##_Iterator_Decrement(container_t##_Iterator * const self);                    \
+    container_t##_Iterator container_t##_Find(container_t * const self, member_t data);            \
+    container_t##_Iterator container_t##_CustomFind(container_t * const self, const member_t data, \
+                                                    container_t##_compare_t compare_function);
 
 #define define_static_hash_table_t(container_t, member_t, container_capacity)                                          \
                                                                                                                        \
@@ -316,5 +318,25 @@
             temp_node = temp_node->next;                                                                               \
         }                                                                                                              \
         it.container = (container_t *)self;                                                                            \
+        return it;                                                                                                     \
+    }                                                                                                                  \
+                                                                                                                       \
+    container_t##_Iterator container_t##_CustomFind(container_t * const self, const member_t data,                     \
+                                                    container_t##_compare_t compare_function)                          \
+    {                                                                                                                  \
+        assert(self);                                                                                                  \
+        assert(compare_function);                                                                                      \
+                                                                                                                       \
+        container_t##_Iterator end = container_t##_End(self);                                                          \
+        container_t##_Iterator it  = container_t##_Begin(self);                                                        \
+        for(; !container_t##_Iterator_Equal(&it, &end); container_t##_Iterator_Increment(&it))                         \
+                                                                                                                       \
+        {                                                                                                              \
+            const member_t it_value = container_t##_Iterator_GetValue(&it);                                            \
+            if(compare_function(&data, &it_value) == 0)                                                                \
+            {                                                                                                          \
+                break;                                                                                                 \
+            }                                                                                                          \
+        }                                                                                                              \
         return it;                                                                                                     \
     }
