@@ -64,6 +64,23 @@ static int compare_set_ints_ptr(const int ** v1, const int ** v2)
     }
 }
 
+static int compare_custom_ints(const int * v1, const int * v2)
+{
+    /* We are looking for x+1 value - for test only */
+    if(*v1 > (*v2 + 1))
+    {
+        return 1;
+    }
+    else if(*v1 < (*v2 + 1))
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 static unsigned int hash_function(const int * value)
 {
     return *value;
@@ -102,7 +119,12 @@ static unsigned int hash_function_ptr(const int ** value)
         return Type##_Iterator_Equal(first, second);                                                      \
     }                                                                                                     \
                                                                                                           \
-    auto Find(Type * const container, int value) { return Type##_Find(container, value); }
+    auto Find(Type * const container, int value) { return Type##_Find(container, value); }                \
+                                                                                                          \
+    auto CustomFind(Type * const container, int value, Type##_compare_t custom_comparator)                \
+    {                                                                                                     \
+        return Type##_CustomFind(container, value, custom_comparator);                                    \
+    }
 
 /* Specielized init functions */
 void Init(SetType * const set_object)
@@ -505,6 +527,33 @@ TYPED_TEST(SetTest, FindNonExistedMember)
 
     auto temp6It = Find(&this->container, temp6);
     ASSERT_TRUE(Iterator_Equal(&temp6It, &end));
+}
+
+TYPED_TEST(SetTest, CustomFinder)
+{
+    uint32_t temp1{ 3215 };
+    uint32_t temp2{ 23587 };
+    uint32_t temp3{ 582 };
+
+    Insert(&this->container, temp1);
+    Insert(&this->container, temp2);
+    Insert(&this->container, temp3);
+
+    auto end_it = End(&this->container);
+
+    auto it_1 = CustomFind(&this->container, temp1 + 1, compare_custom_ints);
+    ASSERT_EQ(IteratorValue(&it_1), temp1);
+    auto it_2 = CustomFind(&this->container, temp2 + 1, compare_custom_ints);
+    ASSERT_EQ(IteratorValue(&it_2), temp2);
+    auto it_3 = CustomFind(&this->container, temp3 + 1, compare_custom_ints);
+    ASSERT_EQ(IteratorValue(&it_3), temp3);
+
+    auto it_4 = CustomFind(&this->container, temp1, compare_custom_ints);
+    ASSERT_TRUE(Iterator_Equal(&it_4, &end_it));
+    auto it_5 = CustomFind(&this->container, temp2, compare_custom_ints);
+    ASSERT_TRUE(Iterator_Equal(&it_5, &end_it));
+    auto it_6 = CustomFind(&this->container, temp3, compare_custom_ints);
+    ASSERT_TRUE(Iterator_Equal(&it_6, &end_it));
 }
 
 TYPED_TEST(SetTest, IncrementAndDecrementIterator)
