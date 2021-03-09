@@ -5,6 +5,8 @@
 #include "containers/static_list.h"
 #include "containers/custom_allocator_vector.h"
 #include "containers/custom_allocator_list.h"
+#include "containers/dynamic_vector.h"
+#include "containers/dynamic_list.h"
 #include "memory/dynamic_allocator.h"
 
 #define CONTAINER_CAPACITY 5
@@ -31,6 +33,11 @@ extern "C"
     define_custom_allocator_vector_t(CVectorWithPointers, int *, DynamicAllocator);
     declare_custom_allocator_list_t(CListWithPointers, int *, DynamicAllocator);
     define_custom_allocator_list_t(CListWithPointers, int *, DynamicAllocator);
+
+    declare_dynamic_vector_t(DynamicVector, int);
+    define_dynamic_vector_t(DynamicVector, int);
+    declare_dynamic_list_t(DynamicList, int);
+    define_dynamic_list_t(DynamicList, int);
 }
 
 static int compare_set_ints(const int * v1, const int * v2)
@@ -144,6 +151,8 @@ create_wrappers_for_type(VectorTestType, compare_set_ints, int);
 create_wrappers_for_type(ListTestType, compare_set_ints, int);
 create_wrappers_for_type(CustomAllocatorVector, compare_set_ints, int);
 create_wrappers_for_type(CustomAllocatorList, compare_set_ints, int);
+create_wrappers_for_type(DynamicVector, compare_set_ints, int);
+create_wrappers_for_type(DynamicList, compare_set_ints, int);
 
 // Verifies if compiles
 create_wrappers_for_type(SVectorWithPointers, compare_set_ints_ptr, int *);
@@ -178,7 +187,8 @@ struct CustomContainerTest : public testing::Test
     T container;
 };
 
-using MyTypes = testing::Types<VectorTestType, ListTestType, CustomAllocatorVector, CustomAllocatorList>;
+using MyTypes = testing::Types<VectorTestType, ListTestType, CustomAllocatorVector, CustomAllocatorList, DynamicVector,
+                               DynamicList>;
 
 using StaticContainerTypes = testing::Types<VectorTestType, ListTestType>;
 
