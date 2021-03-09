@@ -7,6 +7,9 @@
 #include "containers/dynamic_hash_table.h"
 #include "memory/dynamic_allocator.h"
 #include <map>
+#include <set>
+#include <list>
+#include <numeric>
 
 #define CONTAINER_CAPACITY 100
 
@@ -617,6 +620,28 @@ TYPED_TEST(SetTest, AddedExistingElement)
     ASSERT_EQ(Insert(&this->container, temp1), ELEMENT_EXISTS);
 
     ASSERT_EQ(Size(&this->container), 1);
+}
+
+TYPED_TEST(SetTest, Permutations)
+{
+    std::vector<int> testPermutation{
+        10,   20,  50,  1,   158, 78,  254, -8,  8756, 51,  4,    5,    1024, 85,    697,
+        4587, 123, 258, 741, 963, 951, 843, 628, 762,  384, 6969, 5454, 8514, 74569, 8546
+    };
+
+    for(size_t idx = 0; idx < testPermutation.size(); ++idx)
+    {
+        ASSERT_EQ((idx + 1), Insert(&this->container, testPermutation[idx]));
+    }
+
+    std::set<int> expectedSet{ testPermutation.begin(), testPermutation.end() };
+    std::set<int> receivedSet{};
+    auto endIt = End(&this->container);
+    for(auto it = Begin(&this->container); !Iterator_Equal(&it, &endIt); IteratorInc(&it))
+    {
+        receivedSet.insert(IteratorValue(&it));
+    }
+    ASSERT_EQ(expectedSet, receivedSet);
 }
 
 TYPED_TEST(StaticSetTest, InsertOverLimit)

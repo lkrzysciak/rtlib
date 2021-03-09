@@ -530,6 +530,29 @@ TYPED_TEST(ContainerTest, CustomFinder)
     ASSERT_TRUE(Iterator_Equal(&it_6, &end_it));
 }
 
+TYPED_TEST(ContainerTest, Permutations)
+{
+    std::vector<int> testPermutation{
+        10,   20,  50,  1,   158, 78,  254, -8,  8756, 51,  4,    5,    1024, 85,    697,
+        4587, 123, 258, 741, 963, 951, 843, 628, 762,  384, 6969, 5454, 8514, 74569, 8546
+    };
+
+    for(size_t idx = 0; idx < testPermutation.size(); ++idx)
+    {
+        auto it = Begin(&this->container);
+        ASSERT_EQ((idx + 1), Insert(&this->container, testPermutation[idx], &it));
+    }
+
+    std::set<int> expectedSet{ testPermutation.begin(), testPermutation.end() };
+    std::set<int> receivedSet{};
+    auto endIt = End(&this->container);
+    for(auto it = Begin(&this->container); !Iterator_Equal(&it, &endIt); IteratorInc(&it))
+    {
+        receivedSet.insert(IteratorValue(&it));
+    }
+    ASSERT_EQ(expectedSet, receivedSet);
+}
+
 TYPED_TEST(StaticContainerTest, PushBackOverLimit)
 {
     uint32_t temp1{ 3215 };
