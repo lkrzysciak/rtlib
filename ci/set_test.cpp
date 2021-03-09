@@ -3,10 +3,15 @@
 #include "containers/static_hash_table.h"
 #include "containers/custom_allocator_binary_tree.h"
 #include "containers/custom_allocator_hash_table.h"
+#include "containers/dynamic_binary_tree.h"
+#include "containers/dynamic_hash_table.h"
 #include "memory/dynamic_allocator.h"
 #include <map>
+#include <set>
+#include <list>
+#include <numeric>
 
-#define CONTAINER_CAPACITY 10
+#define CONTAINER_CAPACITY 100
 
 extern "C"
 {
@@ -30,6 +35,11 @@ extern "C"
     define_custom_allocator_binary_tree_t(CSetTypeWithPointers, int *, MyDynamicAllocator);
     declare_custom_allocator_hash_table_t(CHashTableWithPointers, int *, MyDynamicAllocator);
     define_custom_allocator_hash_table_t(CHashTableWithPointers, int *, MyDynamicAllocator);
+
+    declare_dynamic_binary_tree_t(DynamicBinaryTree, int);
+    define_dynamic_binary_tree_t(DynamicBinaryTree, int);
+    declare_dynamic_hash_table_t(DynamicHashTable, int);
+    define_dynamic_hash_table_t(DynamicHashTable, int);
 }
 
 static int compare_set_ints(const int * v1, const int * v2)
@@ -157,10 +167,22 @@ void Init(CustomHashTable * const hash_table)
     CustomHashTable_Construct(hash_table, compare_set_ints, hash_function);
 }
 
+void Init(DynamicBinaryTree * const container)
+{
+    DynamicBinaryTree_Construct(container, compare_set_ints);
+}
+
+void Init(DynamicHashTable * const hash_table)
+{
+    DynamicHashTable_Construct(hash_table, compare_set_ints, hash_function);
+}
+
 create_wrappers_for_type(SetType);
 create_wrappers_for_type(HashTable);
 create_wrappers_for_type(CustomBinaryTree);
 create_wrappers_for_type(CustomHashTable);
+create_wrappers_for_type(DynamicBinaryTree);
+create_wrappers_for_type(DynamicHashTable);
 
 template<typename T>
 struct SetTest : public testing::Test
@@ -182,7 +204,8 @@ struct StaticSetTest : public testing::Test
     T container;
 };
 
-using MyTypes = testing::Types<SetType, HashTable, CustomBinaryTree, CustomHashTable>;
+using MyTypes =
+    testing::Types<SetType, HashTable, CustomBinaryTree, CustomHashTable, DynamicBinaryTree, DynamicHashTable>;
 
 using StaticContainerTypes = testing::Types<SetType, HashTable>;
 
@@ -597,6 +620,28 @@ TYPED_TEST(SetTest, AddedExistingElement)
     ASSERT_EQ(Insert(&this->container, temp1), ELEMENT_EXISTS);
 
     ASSERT_EQ(Size(&this->container), 1);
+}
+
+TYPED_TEST(SetTest, Permutations)
+{
+    std::vector<int> testPermutation{
+        10,   20,  50,  1,   158, 78,  254, -8,  8756, 51,  4,    5,    1024, 85,    697,
+        4587, 123, 258, 741, 963, 951, 843, 628, 762,  384, 6969, 5454, 8514, 74569, 8546
+    };
+
+    for(size_t idx = 0; idx < testPermutation.size(); ++idx)
+    {
+        ASSERT_EQ((idx + 1), Insert(&this->container, testPermutation[idx]));
+    }
+
+    std::set<int> expectedSet{ testPermutation.begin(), testPermutation.end() };
+    std::set<int> receivedSet{};
+    auto endIt = End(&this->container);
+    for(auto it = Begin(&this->container); !Iterator_Equal(&it, &endIt); IteratorInc(&it))
+    {
+        receivedSet.insert(IteratorValue(&it));
+    }
+    ASSERT_EQ(expectedSet, receivedSet);
 }
 
 TYPED_TEST(StaticSetTest, InsertOverLimit)

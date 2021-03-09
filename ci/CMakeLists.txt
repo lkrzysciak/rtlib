@@ -17,10 +17,6 @@ set(TESTED_FILES
     for_tests/object_pool.c)
 
 set(TESTS
-    list_test.cpp
-    vector_test.cpp
-    heap_test.cpp
-    object_pool_test.cpp
     pool_test.cpp
     queue_containers_test.cpp
     set_test.cpp
@@ -46,4 +42,8 @@ add_executable(c_custom_vector c_tests/custom_vector.c)
 add_executable(c_custom_list c_tests/custom_list.c)
 add_executable(c_custom_binary_tree c_tests/custom_binary_tree.c)
 add_executable(c_custom_hash_table c_tests/custom_hash_table.c)
+add_executable(c_dynamic_vector c_tests/dynamic_vector.c)
+add_executable(c_dynamic_list c_tests/dynamic_list.c)
+add_executable(c_dynamic_binary_tree c_tests/dynamic_binary_tree.c)
+add_executable(c_dynamic_hash_table c_tests/dynamic_hash_table.c)
 
