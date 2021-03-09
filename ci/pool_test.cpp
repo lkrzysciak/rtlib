@@ -40,7 +40,7 @@ struct PoolTest : public testing::Test
 using MyTypes = testing::Types<StaticPoolInt, CustomAllocatorPoolInt>;
 TYPED_TEST_SUITE(PoolTest, MyTypes);
 
-TYPED_TEST(PoolTest, Alloc)
+TYPED_TEST(PoolTest, AllocAndRelease)
 {
     int * var1{ Allocate(&this->pool) };
     int * var2{ Allocate(&this->pool) };
@@ -59,15 +59,6 @@ TYPED_TEST(PoolTest, Alloc)
     ASSERT_EQ(*var3, 3);
     ASSERT_EQ(*var4, 4);
     ASSERT_EQ(*var5, 5);
-}
-
-TYPED_TEST(PoolTest, AllocAndRelease)
-{
-    int * var1{ Allocate(&this->pool) };
-    int * var2{ Allocate(&this->pool) };
-    int * var3{ Allocate(&this->pool) };
-    int * var4{ Allocate(&this->pool) };
-    int * var5{ Allocate(&this->pool) };
 
     Release(&this->pool, var1);
     Release(&this->pool, var2);

@@ -191,7 +191,7 @@
             if(new_data)                                                                                               \
             {                                                                                                          \
                 self->data                 = new_data;                                                                 \
-                const size_t to_move_bytes = iteratorIndex * sizeof(member_t);                                         \
+                const size_t to_move_bytes = (self->size - iteratorIndex) * sizeof(member_t);                          \
                 memmove(&self->data[iteratorIndex + 1], &self->data[iteratorIndex], to_move_bytes);                    \
                 self->data[iteratorIndex] = data;                                                                      \
                 ++self->size;                                                                                          \
