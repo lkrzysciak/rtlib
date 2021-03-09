@@ -8,7 +8,7 @@
 #include "memory/dynamic_allocator.h"
 #include <map>
 
-#define CONTAINER_CAPACITY 10
+#define CONTAINER_CAPACITY 100
 
 extern "C"
 {

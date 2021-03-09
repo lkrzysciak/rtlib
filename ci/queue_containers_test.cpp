@@ -9,7 +9,7 @@
 #include "containers/dynamic_list.h"
 #include "memory/dynamic_allocator.h"
 
-#define CONTAINER_CAPACITY 5
+#define CONTAINER_CAPACITY 100
 
 extern "C"
 {
