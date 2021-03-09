@@ -17,10 +17,6 @@ set(TESTED_FILES
     for_tests/object_pool.c)
 
 set(TESTS
-    list_test.cpp
-    vector_test.cpp
-    heap_test.cpp
-    object_pool_test.cpp
     pool_test.cpp
     queue_containers_test.cpp
     set_test.cpp
