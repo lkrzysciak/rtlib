@@ -44,6 +44,21 @@ Example:
 declare_custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
 define_custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
 ```
+
+## Create dynamic rtlib container
+
+```
+declare_dynamic_<template_type>_t(<new_type_name>, <member_type>);
+define_dynamic_<template_type>_t(<new_type_name>, <member_type>);
+```
+
+Example:
+
+```
+declare_dynamic_vector_t(VectorTestType, int);
+define_dynamic_vector_t(VectorTestType, int);
+```
+
 ## Typical work flow is:
 
 1. Create new type
