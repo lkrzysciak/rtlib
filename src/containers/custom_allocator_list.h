@@ -11,29 +11,29 @@
     typedef struct container_t##_node container_t##_node;                                                       \
     typedef int (*container_t##_compare_t)(const member_t *, const member_t *);                                 \
                                                                                                                 \
-    typedef struct container_t##_node                                                                           \
+    struct container_t##_node                                                                                   \
     {                                                                                                           \
         container_t##_node * prev;                                                                              \
         container_t##_node * next;                                                                              \
         member_t value;                                                                                         \
-    } container_t##_node;                                                                                       \
+    };                                                                                                          \
                                                                                                                 \
-    typedef struct container_t##_Iterator                                                                       \
+    struct container_t##_Iterator                                                                               \
     {                                                                                                           \
         container_t##_node * node;                                                                              \
-    } container_t##_Iterator;                                                                                   \
+    };                                                                                                          \
                                                                                                                 \
     /* Deprecated - needed to keep compability with version 1 API */                                            \
     typedef container_t##_Iterator container_t##_iterator;                                                      \
                                                                                                                 \
-    typedef struct container_t                                                                                  \
+    struct container_t                                                                                          \
     {                                                                                                           \
         container_t##_node * begin;                                                                             \
         container_t##_node * end;                                                                               \
         allocator_t allocator;                                                                                  \
         size_t size;                                                                                            \
         container_t##_compare_t compare_function;                                                               \
-    } container_t;                                                                                              \
+    };                                                                                                          \
                                                                                                                 \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function);           \
     void container_t##_Destroy(container_t * const self);                                                       \

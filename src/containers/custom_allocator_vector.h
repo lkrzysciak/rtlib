@@ -11,19 +11,19 @@
                                                                                                                 \
     typedef int (*container_t##_compare_t)(const member_t *, const member_t *);                                 \
                                                                                                                 \
-    typedef struct container_t                                                                                  \
+    struct container_t                                                                                          \
     {                                                                                                           \
         size_t size;                                                                                            \
         size_t capacity;                                                                                        \
         member_t * data;                                                                                        \
         allocator_t allocator;                                                                                  \
         container_t##_compare_t compare_function;                                                               \
-    } container_t;                                                                                              \
+    };                                                                                                          \
                                                                                                                 \
-    typedef struct container_t##_Iterator                                                                       \
+    struct container_t##_Iterator                                                                               \
     {                                                                                                           \
         member_t * value;                                                                                       \
-    } container_t##_Iterator;                                                                                   \
+    };                                                                                                          \
                                                                                                                 \
     /* Deprecated - needed to keep compability with version 1 API */                                            \
     typedef container_t##_Iterator container_t##_iterator;                                                      \
