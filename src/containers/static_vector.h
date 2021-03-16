@@ -8,7 +8,8 @@
 #include "error_codes.h"
 
 #define declare_static_vector_t(container_t, member_t, container_capacity)                                      \
-                                                                                                                \
+    typedef struct container_t container_t;                                                                     \
+    typedef struct container_t##_Iterator container_t##_Iterator;                                               \
     typedef int (*container_t##_compare_t)(const member_t *, const member_t *);                                 \
                                                                                                                 \
     struct container_t                                                                                          \

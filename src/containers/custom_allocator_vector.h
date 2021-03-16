@@ -8,7 +8,8 @@
 #include "error_codes.h"
 
 #define declare_custom_allocator_vector_t(container_t, member_t, allocator_t)                                   \
-                                                                                                                \
+    typedef struct container_t container_t;                                                                     \
+    typedef struct container_t##_Iterator container_t##_Iterator;                                               \
     typedef int (*container_t##_compare_t)(const member_t *, const member_t *);                                 \
                                                                                                                 \
     struct container_t                                                                                          \
