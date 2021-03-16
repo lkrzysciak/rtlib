@@ -4,11 +4,11 @@
                                                                    \
     typedef struct type_t##_node type_t##_node;                    \
                                                                    \
-    typedef struct type_t##_node                                   \
+    struct type_t##_node                                           \
     {                                                              \
         member_t value;                                            \
         type_t##_node * next;                                      \
-    } type_t##_node;                                               \
+    };                                                             \
                                                                    \
     typedef struct type_t                                          \
     {                                                              \

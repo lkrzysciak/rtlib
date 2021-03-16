@@ -12,20 +12,20 @@
     typedef struct container_t##_Iterator container_t##_Iterator;                                  \
     typedef struct container_t##_node container_t##_node;                                          \
                                                                                                    \
-    typedef struct container_t##_node                                                              \
+    struct container_t##_node                                                                      \
     {                                                                                              \
         member_t value;                                                                            \
         container_t##_node * prev;                                                                 \
         container_t##_node * next;                                                                 \
-    } container_t##_node;                                                                          \
+    };                                                                                             \
                                                                                                    \
     declare_static_pool_t(container_t##_pool, container_t##_node, container_capacity);             \
                                                                                                    \
-    typedef struct container_t##_Iterator                                                          \
+    struct container_t##_Iterator                                                                  \
     {                                                                                              \
         container_t##_node * node;                                                                 \
         container_t * container;                                                                   \
-    } container_t##_Iterator;                                                                      \
+    };                                                                                             \
                                                                                                    \
     /* Deprecated - needed to keep compability with version 1 API */                               \
     typedef container_t##_Iterator container_t##_iterator;                                         \
@@ -33,14 +33,14 @@
     typedef int (*container_t##_compare_t)(const member_t *, const member_t *);                    \
     typedef unsigned int (*container_t##_hash_t)(const member_t *);                                \
                                                                                                    \
-    typedef struct container_t                                                                     \
+    struct container_t                                                                             \
     {                                                                                              \
         container_t##_node * nodes_table[container_capacity + 1];                                  \
         container_t##_compare_t compare_function;                                                  \
         container_t##_hash_t hash_function;                                                        \
         size_t size;                                                                               \
         container_t##_pool pool;                                                                   \
-    } container_t;                                                                                 \
+    };                                                                                             \
                                                                                                    \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare,        \
                                  container_t##_hash_t hash);                                       \
