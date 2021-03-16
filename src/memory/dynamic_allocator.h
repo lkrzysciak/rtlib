@@ -6,6 +6,7 @@
                                                                                                \
     typedef struct container_t                                                                 \
     {                                                                                          \
+        char stub; /* Empty structs are not allowed in C */                                    \
     } container_t;                                                                             \
                                                                                                \
     void container_t##_Construct(container_t * const self);                                    \
