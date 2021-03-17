@@ -338,5 +338,10 @@
     void container_t##_Clear(container_t * const self)                                                                 \
     {                                                                                                                  \
         assert(self);                                                                                                  \
-        /* todo */                                                                                                     \
+                                                                                                                       \
+        while(container_t##_Size(self) != 0)                                                                           \
+        {                                                                                                              \
+            container_t##_Iterator begin = container_t##_Begin(self);                                                  \
+            container_t##_Erase(self, &begin);                                                                         \
+        }                                                                                                              \
     }
