@@ -177,7 +177,9 @@ static int compare_struct_type(const StructType * v1, const StructType * v2)
     auto CustomFind(Type * const container, MemberType value, Type##_compare_t custom_comparator)                \
     {                                                                                                            \
         return Type##_CustomFind(container, value, custom_comparator);                                           \
-    }
+    }                                                                                                            \
+                                                                                                                 \
+    void Clear(Type * const container) { Type##_Clear(container); }
 
 create_wrappers_for_type(VectorTestType, compare_set_ints, int);
 create_wrappers_for_type(ListTestType, compare_set_ints, int);

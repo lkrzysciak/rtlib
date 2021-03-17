@@ -59,7 +59,8 @@
     void container_t##_Iterator_Decrement(container_t##_Iterator * const self);                                 \
     container_t##_Iterator container_t##_Find(container_t * const self, const member_t data);                   \
     container_t##_Iterator container_t##_CustomFind(container_t * const self, const member_t data,              \
-                                                    container_t##_compare_t compare_function);
+                                                    container_t##_compare_t compare_function);                  \
+    void container_t##_Clear(container_t * const self);
 
 #define define_custom_allocator_list_t(container_t, member_t, allocator_t)                                      \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function)            \
@@ -388,4 +389,10 @@
             }                                                                                                   \
         }                                                                                                       \
         return it;                                                                                              \
+    }                                                                                                           \
+                                                                                                                \
+    void container_t##_Clear(container_t * const self)                                                          \
+    {                                                                                                           \
+        assert(self);                                                                                           \
+        /* todo */                                                                                              \
     }

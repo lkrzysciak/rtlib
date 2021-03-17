@@ -172,7 +172,9 @@ static unsigned int hash_function_struct_type(const StructType * value)
     auto CustomFind(Type * const container, MemberType value, Type##_compare_t custom_comparator)                \
     {                                                                                                            \
         return Type##_CustomFind(container, value, custom_comparator);                                           \
-    }
+    }                                                                                                            \
+                                                                                                                 \
+    void Clear(Type * const container) { Type##_Clear(container); }
 
 /* Specialized init functions */
 void Init(SetType * const set_object)
