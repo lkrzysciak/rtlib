@@ -38,6 +38,23 @@ extern "C"
     define_dynamic_vector_t(DynamicVector, int);
     declare_dynamic_list_t(DynamicList, int);
     define_dynamic_list_t(DynamicList, int);
+
+    typedef struct
+    {
+        double doubleVar;
+        int intVar;
+        bool boolVar;
+        uint64_t id;
+    } StructType;
+
+    declare_static_vector_t(StructTypeStaticVector, StructType, CONTAINER_CAPACITY);
+    define_static_vector_t(StructTypeStaticVector, StructType, CONTAINER_CAPACITY);
+    declare_static_list_t(StructTypeStaticList, StructType, CONTAINER_CAPACITY);
+    define_static_list_t(StructTypeStaticList, StructType, CONTAINER_CAPACITY);
+    declare_dynamic_vector_t(StructTypeDynamicVector, StructType);
+    define_dynamic_vector_t(StructTypeDynamicVector, StructType);
+    declare_dynamic_list_t(StructTypeDynamicList, StructType);
+    define_dynamic_list_t(StructTypeDynamicList, StructType);
 }
 
 static int compare_set_ints(const int * v1, const int * v2)
@@ -89,8 +106,23 @@ static int compare_custom_ints(const int * v1, const int * v2)
     }
 }
 
+static int compare_struct_type(const StructType * v1, const StructType * v2)
+{
+    if(v1->id > v2->id)
+    {
+        return 1;
+    }
+    else if(v1->id < v2->id)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 #define create_wrappers_for_type(Type, CompareFunction, MemberType)                                              \
-    void Init(Type * const container) { Type##_Construct(container, CompareFunction); }                          \
                                                                                                                  \
     void Deinit(Type * const container) { Type##_Destroy(container); }                                           \
                                                                                                                  \
@@ -145,7 +177,9 @@ static int compare_custom_ints(const int * v1, const int * v2)
     auto CustomFind(Type * const container, MemberType value, Type##_compare_t custom_comparator)                \
     {                                                                                                            \
         return Type##_CustomFind(container, value, custom_comparator);                                           \
-    }
+    }                                                                                                            \
+                                                                                                                 \
+    void Clear(Type * const container) { Type##_Clear(container); }
 
 create_wrappers_for_type(VectorTestType, compare_set_ints, int);
 create_wrappers_for_type(ListTestType, compare_set_ints, int);
@@ -154,8 +188,68 @@ create_wrappers_for_type(CustomAllocatorList, compare_set_ints, int);
 create_wrappers_for_type(DynamicVector, compare_set_ints, int);
 create_wrappers_for_type(DynamicList, compare_set_ints, int);
 
+void Init(VectorTestType * const container)
+{
+    VectorTestType_Construct(container, compare_set_ints);
+}
+
+void Init(ListTestType * const container)
+{
+    ListTestType_Construct(container, compare_set_ints);
+}
+
+void Init(CustomAllocatorVector * const container)
+{
+    CustomAllocatorVector_Construct(container, compare_set_ints);
+}
+
+void Init(CustomAllocatorList * const container)
+{
+    CustomAllocatorList_Construct(container, compare_set_ints);
+}
+
+void Init(DynamicVector * const container)
+{
+    DynamicVector_Construct(container, compare_set_ints);
+}
+
+void Init(DynamicList * const container)
+{
+    DynamicList_Construct(container, compare_set_ints);
+}
+
 // Verifies if compiles
 create_wrappers_for_type(SVectorWithPointers, compare_set_ints_ptr, int *);
+
+void Init(SVectorWithPointers * const container)
+{
+    SVectorWithPointers_Construct(container, compare_set_ints_ptr);
+}
+
+create_wrappers_for_type(StructTypeStaticVector, compare_struct_type, StructType);
+create_wrappers_for_type(StructTypeStaticList, compare_struct_type, StructType);
+create_wrappers_for_type(StructTypeDynamicVector, compare_struct_type, StructType);
+create_wrappers_for_type(StructTypeDynamicList, compare_struct_type, StructType);
+
+void Init(StructTypeStaticVector * const container)
+{
+    StructTypeStaticVector_Construct(container, compare_struct_type);
+}
+
+void Init(StructTypeStaticList * const container)
+{
+    StructTypeStaticList_Construct(container, compare_struct_type);
+}
+
+void Init(StructTypeDynamicVector * const container)
+{
+    StructTypeDynamicVector_Construct(container, compare_struct_type);
+}
+
+void Init(StructTypeDynamicList * const container)
+{
+    StructTypeDynamicList_Construct(container, compare_struct_type);
+}
 
 template<typename T>
 struct ContainerTest : public testing::Test
@@ -187,6 +281,16 @@ struct CustomContainerTest : public testing::Test
     T container;
 };
 
+template<typename T>
+struct StructTypeTest : public testing::Test
+{
+    void SetUp() override { Init(&container); }
+
+    void TearDown() override { Deinit(&container); }
+
+    T container;
+};
+
 using MyTypes = testing::Types<VectorTestType, ListTestType, CustomAllocatorVector, CustomAllocatorList, DynamicVector,
                                DynamicList>;
 
@@ -194,9 +298,13 @@ using StaticContainerTypes = testing::Types<VectorTestType, ListTestType>;
 
 using CustomContainerTypes = testing::Types<CustomAllocatorVector, CustomAllocatorList>;
 
+using StructContainerTypes =
+    testing::Types<StructTypeStaticVector, StructTypeStaticList, StructTypeDynamicVector, StructTypeDynamicList>;
+
 TYPED_TEST_SUITE(ContainerTest, MyTypes);
 TYPED_TEST_SUITE(StaticContainerTest, StaticContainerTypes);
 TYPED_TEST_SUITE(CustomContainerTest, CustomContainerTypes);
+TYPED_TEST_SUITE(StructTypeTest, StructContainerTypes);
 
 TYPED_TEST(ContainerTest, IsEmptyAfterInit)
 {
@@ -553,6 +661,22 @@ TYPED_TEST(ContainerTest, Permutations)
     ASSERT_EQ(expectedSet, receivedSet);
 }
 
+TYPED_TEST(ContainerTest, Clear)
+{
+    uint32_t temp1{ 3215 };
+    uint32_t temp2{ 23587 };
+    uint32_t temp3{ 980 };
+
+    PushBack(&this->container, temp1);
+    PushBack(&this->container, temp2);
+    PushBack(&this->container, temp3);
+    ASSERT_EQ(Size(&this->container), 3);
+
+    Clear(&this->container);
+
+    ASSERT_EQ(Size(&this->container), 0);
+}
+
 TYPED_TEST(StaticContainerTest, PushBackOverLimit)
 {
     uint32_t temp1{ 3215 };
@@ -597,4 +721,78 @@ TYPED_TEST(CustomContainerTest, AddALotOfElementsToMakeManyReallocations)
         auto it = Begin(&this->container);
         ASSERT_EQ(Insert(&this->container, temp1, &it), i + 1);
     }
+}
+
+TYPED_TEST(StructTypeTest, StructMembersPushBack)
+{
+    StructType var1 = { .doubleVar = 159.753, .intVar = 0x12345678, .boolVar = true, .id = 0x1 };
+    StructType var2 = { .doubleVar = 0.569, .intVar = 0x1, .boolVar = false, .id = 0xffffffffffffffff };
+
+    ASSERT_EQ(PushBack(&this->container, var1), 1);
+    ASSERT_EQ(PushBack(&this->container, var2), 2);
+
+    auto it = Begin(&this->container);
+
+    auto receivedVar1 = IteratorValue(&it);
+    ASSERT_DOUBLE_EQ(var1.doubleVar, receivedVar1.doubleVar);
+    ASSERT_EQ(var1.intVar, receivedVar1.intVar);
+    ASSERT_EQ(var1.boolVar, receivedVar1.boolVar);
+    ASSERT_EQ(var1.id, receivedVar1.id);
+
+    IteratorInc(&it);
+    auto receivedVar2 = IteratorValue(&it);
+    ASSERT_DOUBLE_EQ(var2.doubleVar, receivedVar2.doubleVar);
+    ASSERT_EQ(var2.intVar, receivedVar2.intVar);
+    ASSERT_EQ(var2.boolVar, receivedVar2.boolVar);
+    ASSERT_EQ(var2.id, receivedVar2.id);
+}
+
+TYPED_TEST(StructTypeTest, StructMembersPushFront)
+{
+    StructType var1 = { .doubleVar = 159.753, .intVar = 0x12345678, .boolVar = true, .id = 0x1 };
+    StructType var2 = { .doubleVar = 0.569, .intVar = 0x1, .boolVar = false, .id = 0xffffffffffffffff };
+
+    ASSERT_EQ(PushFront(&this->container, var1), 1);
+    ASSERT_EQ(PushFront(&this->container, var2), 2);
+
+    auto it = Begin(&this->container);
+
+    auto receivedVar2 = IteratorValue(&it);
+    ASSERT_DOUBLE_EQ(var2.doubleVar, receivedVar2.doubleVar);
+    ASSERT_EQ(var2.intVar, receivedVar2.intVar);
+    ASSERT_EQ(var2.boolVar, receivedVar2.boolVar);
+    ASSERT_EQ(var2.id, receivedVar2.id);
+
+    IteratorInc(&it);
+    auto receivedVar1 = IteratorValue(&it);
+    ASSERT_DOUBLE_EQ(var1.doubleVar, receivedVar1.doubleVar);
+    ASSERT_EQ(var1.intVar, receivedVar1.intVar);
+    ASSERT_EQ(var1.boolVar, receivedVar1.boolVar);
+    ASSERT_EQ(var1.id, receivedVar1.id);
+}
+
+TYPED_TEST(StructTypeTest, StructMembersInsert)
+{
+    StructType var1 = { .doubleVar = 159.753, .intVar = 0x12345678, .boolVar = true, .id = 0x1 };
+    StructType var2 = { .doubleVar = 0.569, .intVar = 0x1, .boolVar = false, .id = 0xffffffffffffffff };
+
+    auto begin = Begin(&this->container);
+    ASSERT_EQ(Insert(&this->container, var1, &begin), 1);
+    begin = Begin(&this->container);
+    ASSERT_EQ(Insert(&this->container, var2, &begin), 2);
+
+    auto it = Begin(&this->container);
+
+    auto receivedVar2 = IteratorValue(&it);
+    ASSERT_DOUBLE_EQ(var2.doubleVar, receivedVar2.doubleVar);
+    ASSERT_EQ(var2.intVar, receivedVar2.intVar);
+    ASSERT_EQ(var2.boolVar, receivedVar2.boolVar);
+    ASSERT_EQ(var2.id, receivedVar2.id);
+
+    IteratorInc(&it);
+    auto receivedVar1 = IteratorValue(&it);
+    ASSERT_DOUBLE_EQ(var1.doubleVar, receivedVar1.doubleVar);
+    ASSERT_EQ(var1.intVar, receivedVar1.intVar);
+    ASSERT_EQ(var1.boolVar, receivedVar1.boolVar);
+    ASSERT_EQ(var1.id, receivedVar1.id);
 }
