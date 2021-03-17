@@ -661,6 +661,22 @@ TYPED_TEST(ContainerTest, Permutations)
     ASSERT_EQ(expectedSet, receivedSet);
 }
 
+TYPED_TEST(ContainerTest, Clear)
+{
+    uint32_t temp1{ 3215 };
+    uint32_t temp2{ 23587 };
+    uint32_t temp3{ 980 };
+
+    PushBack(&this->container, temp1);
+    PushBack(&this->container, temp2);
+    PushBack(&this->container, temp3);
+    ASSERT_EQ(Size(&this->container), 3);
+
+    Clear(&this->container);
+
+    ASSERT_EQ(Size(&this->container), 0);
+}
+
 TYPED_TEST(StaticContainerTest, PushBackOverLimit)
 {
     uint32_t temp1{ 3215 };
