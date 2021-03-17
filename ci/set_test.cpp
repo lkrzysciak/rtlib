@@ -40,6 +40,23 @@ extern "C"
     define_dynamic_binary_tree_t(DynamicBinaryTree, int);
     declare_dynamic_hash_table_t(DynamicHashTable, int);
     define_dynamic_hash_table_t(DynamicHashTable, int);
+
+    typedef struct
+    {
+        double doubleVar;
+        int intVar;
+        bool boolVar;
+        uint64_t id;
+    } StructType;
+
+    declare_static_binary_tree_t(StructTypeStaticBinaryTree, StructType, CONTAINER_CAPACITY);
+    define_static_binary_tree_t(StructTypeStaticBinaryTree, StructType, CONTAINER_CAPACITY);
+    declare_static_hash_table_t(StructTypeStaticHashTable, StructType, CONTAINER_CAPACITY);
+    define_static_hash_table_t(StructTypeStaticHashTable, StructType, CONTAINER_CAPACITY);
+    declare_dynamic_binary_tree_t(StructTypeDynamicBinaryTree, StructType);
+    define_dynamic_binary_tree_t(StructTypeDynamicBinaryTree, StructType);
+    declare_dynamic_hash_table_t(StructTypeDynamicHashTable, StructType);
+    define_dynamic_hash_table_t(StructTypeDynamicHashTable, StructType);
 }
 
 static int compare_set_ints(const int * v1, const int * v2)
@@ -91,6 +108,22 @@ static int compare_custom_ints(const int * v1, const int * v2)
     }
 }
 
+static int compare_struct_type(const StructType * v1, const StructType * v2)
+{
+    if(v1->id > v2->id)
+    {
+        return 1;
+    }
+    else if(v1->id < v2->id)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 static unsigned int hash_function(const int * value)
 {
     return *value;
@@ -101,42 +134,47 @@ static unsigned int hash_function_ptr(const int ** value)
     return **value;
 }
 
-#define create_wrappers_for_type(Type)                                                                    \
-    void Deinit(Type * const container) { Type##_Destroy(container); }                                    \
-                                                                                                          \
-    size_t Size(Type * const container) { return Type##_Size(container); }                                \
-                                                                                                          \
-    bool Empty(Type * const container) { return Type##_Empty(container); }                                \
-                                                                                                          \
-    int Insert(Type * const container, int value) { return Type##_Insert(container, value); }             \
-                                                                                                          \
-    int Erase(Type * const container, Type##_Iterator * it) { return Type##_Erase(container, it); }       \
-                                                                                                          \
-    auto Begin(Type * const container) { return Type##_Begin(container); }                                \
-                                                                                                          \
-    auto End(Type * const container) { return Type##_End(container); }                                    \
-                                                                                                          \
-    auto IteratorValue(Type##_Iterator * const it) { return Type##_Iterator_GetValue(it); }               \
-                                                                                                          \
-    void IteratorInc(Type##_Iterator * const it) { return Type##_Iterator_Increment(it); }                \
-                                                                                                          \
-    void IteratorDec(Type##_Iterator * const it) { return Type##_Iterator_Decrement(it); }                \
-                                                                                                          \
-    void IteratorSetValue(Type##_Iterator * const it, int value) { Type##_Iterator_SetValue(it, value); } \
-                                                                                                          \
-    bool Iterator_Equal(Type##_Iterator * const first, Type##_Iterator * const second)                    \
-    {                                                                                                     \
-        return Type##_Iterator_Equal(first, second);                                                      \
-    }                                                                                                     \
-                                                                                                          \
-    auto Find(Type * const container, int value) { return Type##_Find(container, value); }                \
-                                                                                                          \
-    auto CustomFind(Type * const container, int value, Type##_compare_t custom_comparator)                \
-    {                                                                                                     \
-        return Type##_CustomFind(container, value, custom_comparator);                                    \
+static unsigned int hash_function_struct_type(const StructType * value)
+{
+    return value->id;
+}
+
+#define create_wrappers_for_type(Type, MemberType)                                                               \
+    void Deinit(Type * const container) { Type##_Destroy(container); }                                           \
+                                                                                                                 \
+    size_t Size(Type * const container) { return Type##_Size(container); }                                       \
+                                                                                                                 \
+    bool Empty(Type * const container) { return Type##_Empty(container); }                                       \
+                                                                                                                 \
+    int Insert(Type * const container, MemberType value) { return Type##_Insert(container, value); }             \
+                                                                                                                 \
+    int Erase(Type * const container, Type##_Iterator * it) { return Type##_Erase(container, it); }              \
+                                                                                                                 \
+    auto Begin(Type * const container) { return Type##_Begin(container); }                                       \
+                                                                                                                 \
+    auto End(Type * const container) { return Type##_End(container); }                                           \
+                                                                                                                 \
+    auto IteratorValue(Type##_Iterator * const it) { return Type##_Iterator_GetValue(it); }                      \
+                                                                                                                 \
+    void IteratorInc(Type##_Iterator * const it) { return Type##_Iterator_Increment(it); }                       \
+                                                                                                                 \
+    void IteratorDec(Type##_Iterator * const it) { return Type##_Iterator_Decrement(it); }                       \
+                                                                                                                 \
+    void IteratorSetValue(Type##_Iterator * const it, MemberType value) { Type##_Iterator_SetValue(it, value); } \
+                                                                                                                 \
+    bool Iterator_Equal(Type##_Iterator * const first, Type##_Iterator * const second)                           \
+    {                                                                                                            \
+        return Type##_Iterator_Equal(first, second);                                                             \
+    }                                                                                                            \
+                                                                                                                 \
+    auto Find(Type * const container, MemberType value) { return Type##_Find(container, value); }                \
+                                                                                                                 \
+    auto CustomFind(Type * const container, MemberType value, Type##_compare_t custom_comparator)                \
+    {                                                                                                            \
+        return Type##_CustomFind(container, value, custom_comparator);                                           \
     }
 
-/* Specielized init functions */
+/* Specialized init functions */
 void Init(SetType * const set_object)
 {
     SetType_Construct(set_object, compare_set_ints);
@@ -177,12 +215,37 @@ void Init(DynamicHashTable * const hash_table)
     DynamicHashTable_Construct(hash_table, compare_set_ints, hash_function);
 }
 
-create_wrappers_for_type(SetType);
-create_wrappers_for_type(HashTable);
-create_wrappers_for_type(CustomBinaryTree);
-create_wrappers_for_type(CustomHashTable);
-create_wrappers_for_type(DynamicBinaryTree);
-create_wrappers_for_type(DynamicHashTable);
+create_wrappers_for_type(SetType, int);
+create_wrappers_for_type(HashTable, int);
+create_wrappers_for_type(CustomBinaryTree, int);
+create_wrappers_for_type(CustomHashTable, int);
+create_wrappers_for_type(DynamicBinaryTree, int);
+create_wrappers_for_type(DynamicHashTable, int);
+
+create_wrappers_for_type(StructTypeStaticBinaryTree, StructType);
+create_wrappers_for_type(StructTypeStaticHashTable, StructType);
+create_wrappers_for_type(StructTypeDynamicBinaryTree, StructType);
+create_wrappers_for_type(StructTypeDynamicHashTable, StructType);
+
+void Init(StructTypeStaticBinaryTree * const container)
+{
+    StructTypeStaticBinaryTree_Construct(container, compare_struct_type);
+}
+
+void Init(StructTypeStaticHashTable * const container)
+{
+    StructTypeStaticHashTable_Construct(container, compare_struct_type, hash_function_struct_type);
+}
+
+void Init(StructTypeDynamicBinaryTree * const container)
+{
+    StructTypeDynamicBinaryTree_Construct(container, compare_struct_type);
+}
+
+void Init(StructTypeDynamicHashTable * const container)
+{
+    StructTypeDynamicHashTable_Construct(container, compare_struct_type, hash_function_struct_type);
+}
 
 template<typename T>
 struct SetTest : public testing::Test
@@ -204,13 +267,27 @@ struct StaticSetTest : public testing::Test
     T container;
 };
 
+template<typename T>
+struct SetStructTypeTest : public testing::Test
+{
+    void SetUp() override { Init(&container); }
+
+    void TearDown() override { Deinit(&container); }
+
+    T container;
+};
+
 using MyTypes =
     testing::Types<SetType, HashTable, CustomBinaryTree, CustomHashTable, DynamicBinaryTree, DynamicHashTable>;
 
 using StaticContainerTypes = testing::Types<SetType, HashTable>;
 
+using StructContainerTypes = testing::Types<StructTypeStaticBinaryTree, StructTypeStaticHashTable,
+                                            StructTypeDynamicBinaryTree, StructTypeDynamicHashTable>;
+
 TYPED_TEST_CASE(SetTest, MyTypes);
 TYPED_TEST_CASE(StaticSetTest, StaticContainerTypes);
+TYPED_TEST_CASE(SetStructTypeTest, StructContainerTypes);
 
 TYPED_TEST(SetTest, IsEmptyAfterInit)
 {
@@ -666,4 +743,29 @@ TYPED_TEST(StaticSetTest, InsertOverLimitExistingElements)
         ASSERT_EQ(Insert(&this->container, temp1), ELEMENT_EXISTS);
     }
     ASSERT_EQ(Size(&this->container), 1);
+}
+
+TYPED_TEST(SetStructTypeTest, StructMembersInsert)
+{
+    StructType var1 = { .doubleVar = 159.753, .intVar = 0x12345678, .boolVar = true, .id = 0x1 };
+    StructType var2 = { .doubleVar = 0.569, .intVar = 0x1, .boolVar = false, .id = 0xffffffffffffffff };
+
+    ASSERT_EQ(Insert(&this->container, var1), 1);
+    ASSERT_EQ(Insert(&this->container, var2), 2);
+
+    // Set test do have random queue of elements. (We know the internal implementation so we know order)
+    auto it           = Begin(&this->container);
+    auto receivedVar1 = IteratorValue(&it);
+    ASSERT_DOUBLE_EQ(var1.doubleVar, receivedVar1.doubleVar);
+    ASSERT_EQ(var1.intVar, receivedVar1.intVar);
+    ASSERT_EQ(var1.boolVar, receivedVar1.boolVar);
+    ASSERT_EQ(var1.id, receivedVar1.id);
+
+    IteratorInc(&it);
+
+    auto receivedVar2 = IteratorValue(&it);
+    ASSERT_DOUBLE_EQ(var2.doubleVar, receivedVar2.doubleVar);
+    ASSERT_EQ(var2.intVar, receivedVar2.intVar);
+    ASSERT_EQ(var2.boolVar, receivedVar2.boolVar);
+    ASSERT_EQ(var2.id, receivedVar2.id);
 }
