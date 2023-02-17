@@ -1,11 +1,11 @@
-#include "containers/static_vector.h"
+#include "rtlib/vector.h"
 
 /* Verify if compiles */
 
-declare_static_vector_t(TestUnit, int, 20);
-define_static_vector_t(TestUnit, int, 20);
+vector_t(TestUnit, int);
+static_vector_t(TestUnit, int, 20);
 
-static int compare_set_ints(const int* v1, const int* v2)
+static int compare_set_ints(const int * v1, const int * v2)
 {
     if(*v1 > *v2)
     {

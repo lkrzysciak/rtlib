@@ -1,9 +1,9 @@
-#include "containers/dynamic_vector.h"
+#include "rtlib/vector.h"
 
 /* Verify if compiles */
 
-declare_dynamic_vector_t(TestUnit, int);
-define_dynamic_vector_t(TestUnit, int);
+vector_t(TestUnit, int);
+dynamic_vector_t(TestUnit, int);
 
 static int compare_set_ints(const int * v1, const int * v2)
 {

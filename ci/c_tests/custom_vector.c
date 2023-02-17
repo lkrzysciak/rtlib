@@ -1,14 +1,14 @@
-#include "memory/dynamic_allocator.h"
-#include "containers/custom_allocator_vector.h"
+#include "rtlib/memory.h"
+#include "rtlib/vector.h"
 
 /* Verify if compiles */
-declare_dynamic_allocator_t(DynamicAllocator);
-define_dynamic_allocator_t(DynamicAllocator);
+memory_t(DynamicAllocator);
+dynamic_memory_t(DynamicAllocator);
 
-declare_custom_allocator_vector_t(TestUnit, int, DynamicAllocator);
-define_custom_allocator_vector_t(TestUnit, int, DynamicAllocator);
+vector_t(TestUnit, int);
+custom_allocator_vector_t(TestUnit, int, DynamicAllocator);
 
-static int compare_set_ints(const int* v1, const int* v2)
+static int compare_set_ints(const int * v1, const int * v2)
 {
     if(*v1 > *v2)
     {

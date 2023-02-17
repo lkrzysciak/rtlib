@@ -11,38 +11,33 @@
 #include "for_tests/vector.h"
 #include "for_tests/object_pool.h"
 
-#include "containers/static_vector.h"
-#include "containers/static_list.h"
-#include "containers/static_hash_table.h"
-#include "containers/static_binary_tree.h"
+#include "rtlib/vector.h"
+#include "rtlib/list.h"
+#include "rtlib/hash_table.h"
+#include "rtlib/binary_tree.h"
+#include "rtlib/pool.h"
 
-#include "containers/custom_allocator_vector.h"
-#include "containers/custom_allocator_list.h"
-#include "containers/custom_allocator_hash_table.h"
-#include "containers/custom_allocator_binary_tree.h"
+#include "rtlib/memory.h"
 
-#include "memory/dynamic_allocator.h"
-#include "memory/static_pool.h"
+vector_t(TestVector, int);
+static_vector_t(TestVector, int, 2000);
+list_t(TestList, int);
+static_list_t(TestList, int, 2000);
+hash_table_t(TestHashTable, int);
+static_hash_table_t(TestHashTable, int, 2000);
+binary_tree_t(TestBinaryTree, int);
+static_binary_tree_t(TestBinaryTree, int, 2000);
 
-declare_static_vector_t(TestVector, int, 2000);
-define_static_vector_t(TestVector, int, 2000);
-declare_static_list_t(TestList, int, 2000);
-define_static_list_t(TestList, int, 2000);
-declare_static_hash_table_t(TestHashTable, int, 2000);
-define_static_hash_table_t(TestHashTable, int, 2000);
-declare_static_binary_tree_t(TestBinaryTree, int, 2000);
-define_static_binary_tree_t(TestBinaryTree, int, 2000);
-
-declare_dynamic_allocator_t(DynamicAllocator);
-define_dynamic_allocator_t(DynamicAllocator);
-declare_custom_allocator_vector_t(DynamicAllocatorVector, int, DynamicAllocator);
-define_custom_allocator_vector_t(DynamicAllocatorVector, int, DynamicAllocator);
-declare_custom_allocator_list_t(DynamicAllocatorList, int, DynamicAllocator);
-define_custom_allocator_list_t(DynamicAllocatorList, int, DynamicAllocator);
-declare_custom_allocator_hash_table_t(DynamicAllocatorHashTable, int, DynamicAllocator);
-define_custom_allocator_hash_table_t(DynamicAllocatorHashTable, int, DynamicAllocator);
-declare_custom_allocator_binary_tree_t(DynamicAllocatorBinaryTree, int, DynamicAllocator);
-define_custom_allocator_binary_tree_t(DynamicAllocatorBinaryTree, int, DynamicAllocator);
+memory_t(DynamicAllocator);
+dynamic_memory_t(DynamicAllocator);
+vector_t(DynamicAllocatorVector, int);
+custom_allocator_vector_t(DynamicAllocatorVector, int, DynamicAllocator);
+list_t(DynamicAllocatorList, int);
+custom_allocator_list_t(DynamicAllocatorList, int, DynamicAllocator);
+hash_table_t(DynamicAllocatorHashTable, int);
+custom_allocator_hash_table_t(DynamicAllocatorHashTable, int, DynamicAllocator);
+binary_tree_t(DynamicAllocatorBinaryTree, int);
+custom_allocator_binary_tree_t(DynamicAllocatorBinaryTree, int, DynamicAllocator);
 
 static int compare_set_ints(const int * v1, const int * v2)
 {
@@ -566,8 +561,8 @@ unsigned int calculateStlUnorderedSetFind()
     stlFind(std::unordered_set<int>, onIterationSize, iterations);
 }
 
-declare_static_pool_t(TestPool, int, 20);
-define_static_pool_t(TestPool, int, 20);
+pool_t(TestPool, int);
+static_pool_t(TestPool, int, 20);
 
 unsigned int measureGenericPool()
 {

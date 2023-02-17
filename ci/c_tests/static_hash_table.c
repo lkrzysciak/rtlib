@@ -1,11 +1,11 @@
-#include "containers/static_hash_table.h"
+#include "rtlib/hash_table.h"
 
 /* Verify if compiles */
 
-declare_static_hash_table_t(TestUnit, int, 20);
-define_static_hash_table_t(TestUnit, int, 20);
+hash_table_t(TestUnit, int);
+static_hash_table_t(TestUnit, int, 20);
 
-static int compare_set_ints(const int* v1, const int* v2)
+static int compare_set_ints(const int * v1, const int * v2)
 {
     if(*v1 > *v2)
     {
@@ -21,7 +21,7 @@ static int compare_set_ints(const int* v1, const int* v2)
     }
 }
 
-static unsigned int hash_function(const int* value)
+static unsigned int hash_function(const int * value)
 {
     return *value;
 }

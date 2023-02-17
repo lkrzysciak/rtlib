@@ -2,27 +2,38 @@
 
 extern "C"
 {
-#include "memory/dynamic_allocator.h"
-#include "memory/custom_allocator_pool.h"
-#include "memory/static_pool.h"
+#include "rtlib/memory.h"
+#include "rtlib/pool.h"
 
-    declare_static_pool_t(StaticPoolInt, int, 5);
-    define_static_pool_t(StaticPoolInt, int, 5);
+    pool_t(StaticPoolInt, int);
+    static_pool_t(StaticPoolInt, int, 5);
 
-    declare_dynamic_allocator_t(PoolDynamicAllocator);
-    define_dynamic_allocator_t(PoolDynamicAllocator);
-    declare_custom_allocator_pool_t(CustomAllocatorPoolInt, int, PoolDynamicAllocator);
-    define_custom_allocator_pool_t(CustomAllocatorPoolInt, int, PoolDynamicAllocator);
+    memory_t(PoolDynamicAllocator);
+    dynamic_memory_t(PoolDynamicAllocator);
+    pool_t(CustomAllocatorPoolInt, int);
+    custom_allocator_pool_t(CustomAllocatorPoolInt, int, PoolDynamicAllocator);
 }
 
-#define create_wrappers_for_type(Type, MemberType)                                       \
-    void Init(Type * const container) { Type##_Construct(container); }                   \
-                                                                                         \
-    void Deinit(Type * const container) { Type##_Destroy(container); }                   \
-                                                                                         \
-    MemberType * Allocate(Type * const container) { return Type##_Allocate(container); } \
-                                                                                         \
-    void Release(Type * const container, MemberType * object) { Type##_Release(container, object); }
+#define create_wrappers_for_type(Type, MemberType)            \
+    void Init(Type * const container)                         \
+    {                                                         \
+        Type##_Construct(container);                          \
+    }                                                         \
+                                                              \
+    void Deinit(Type * const container)                       \
+    {                                                         \
+        Type##_Destroy(container);                            \
+    }                                                         \
+                                                              \
+    MemberType * Allocate(Type * const container)             \
+    {                                                         \
+        return Type##_Allocate(container);                    \
+    }                                                         \
+                                                              \
+    void Release(Type * const container, MemberType * object) \
+    {                                                         \
+        Type##_Release(container, object);                    \
+    }
 
 create_wrappers_for_type(StaticPoolInt, int);
 create_wrappers_for_type(CustomAllocatorPoolInt, int);
