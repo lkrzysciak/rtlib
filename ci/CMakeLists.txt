@@ -20,6 +20,7 @@ set(TESTS
     pool_test.cpp
     queue_containers_test.cpp
     set_test.cpp
+    event_loop_test.cpp
     )
 
 set(CMAKE_CXX_FLAGS "-Wall -Werror -save-temps=obj")
@@ -72,4 +73,14 @@ target_link_libraries(c_dynamic_binary_tree rtlib)
 
 add_executable(c_dynamic_hash_table c_tests/dynamic_hash_table.c)
 target_link_libraries(c_dynamic_hash_table rtlib)
+
+add_executable(c_dynamic_event_loop c_tests/dynamic_event_loop.c)
+target_link_libraries(c_dynamic_event_loop rtlib)
+
+add_executable(c_static_event_loop c_tests/static_event_loop.c)
+target_link_libraries(c_static_event_loop rtlib)
+
+add_executable(c_custom_event_loop c_tests/custom_event_loop.c)
+target_link_libraries(c_custom_event_loop rtlib)
+
 
