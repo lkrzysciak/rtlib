@@ -3,3 +3,4 @@ build
 *.xml
 *.png
 *.json
+ci/gt

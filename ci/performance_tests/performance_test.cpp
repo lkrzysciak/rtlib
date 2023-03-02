@@ -7,9 +7,6 @@
 #include <algorithm>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include "for_tests/list.h"
-#include "for_tests/vector.h"
-#include "for_tests/object_pool.h"
 
 #include "rtlib/vector.h"
 #include "rtlib/list.h"
@@ -564,144 +561,6 @@ unsigned int calculateStlUnorderedSetFind()
 pool_t(TestPool, int);
 static_pool_t(TestPool, int, 20);
 
-unsigned int measureGenericPool()
-{
-    uint32_t pool_buf[10000];
-    Pool * pool = Pool_Init(pool_buf, sizeof(pool_buf), sizeof(int));
-
-    auto start = std::chrono::high_resolution_clock::now();
-
-    for(int i = 0; i < 10000000; ++i)
-    {
-        for(int j = 0; j < 16; ++j)
-        {
-            void * ptr = Pool_Alloc(pool);
-            Pool_Free(pool, ptr);
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[RTLib][pool-generic-static]: " << duration.count() << std::endl;
-    return duration.count();
-}
-
-unsigned int measureTypedPool()
-{
-    TestPool test_pool{};
-    TestPool_Construct(&test_pool);
-
-    auto start = std::chrono::high_resolution_clock::now();
-
-    for(int i = 0; i < 10000000; ++i)
-    {
-        for(int j = 0; j < 16; ++j)
-        {
-            int * ptr = TestPool_Allocate(&test_pool);
-            TestPool_Release(&test_pool, ptr);
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[RTLib][pool-typed-static]: " << duration.count() << std::endl;
-    return duration.count();
-}
-
-unsigned int calculateRtlibGenericStaticListBack_ForTest()
-{
-    uint32_t buf1[10000];
-    List * vector = List_Init(buf1, sizeof(buf1), sizeof(int));
-
-    auto start = std::chrono::high_resolution_clock::now();
-
-    for(int i = 0; i < 10000000; ++i)
-    {
-        for(int j = 0; j < 16; ++j)
-        {
-            List_PushBack(vector, &j);
-        }
-        for(int j = 0; j < 16; ++j)
-        {
-            List_PopBack(vector);
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[RTLib][list-generic-static][back]: " << duration.count() << std::endl;
-    return duration.count();
-}
-
-unsigned int calculateRtlibGenericStaticVectorBack_ForTest()
-{
-    uint32_t buf1[10000];
-    Vector * vector = Vector_Init(buf1, sizeof(buf1), sizeof(int));
-
-    auto start = std::chrono::high_resolution_clock::now();
-
-    for(int i = 0; i < 10000000; ++i)
-    {
-        for(int j = 0; j < 16; ++j)
-        {
-            Vector_PushBack(vector, &j);
-        }
-        for(int j = 0; j < 16; ++j)
-        {
-            Vector_PopBack(vector);
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[RTLib][vector-generic-static][back]: " << duration.count() << std::endl;
-    return duration.count();
-}
-
-unsigned int calculateOneDirectMemoryOperation_ForTest()
-{
-    int temp_buf[16]{};
-    int samples[16]{};
-
-    auto start = std::chrono::high_resolution_clock::now();
-
-    for(int i = 0; i < 10000000; ++i)
-    {
-        memcpy(temp_buf, samples, sizeof(temp_buf));
-        memset(temp_buf, 0, sizeof(temp_buf));
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[memory][c][once]: " << duration.count() << std::endl;
-    return duration.count();
-}
-
-unsigned int calculateMultipleDirectMemoryOperation_ForTest()
-{
-    int temp_buf[16]{};
-    int samples[16]{};
-
-    auto start = std::chrono::high_resolution_clock::now();
-
-    for(int i = 0; i < 10000000; ++i)
-    {
-        for(int j = 0; j < 16; ++j)
-        {
-            memcpy(temp_buf, samples, sizeof(temp_buf));
-        }
-        for(int j = 0; j < 16; ++j)
-        {
-            memset(temp_buf, 0, sizeof(temp_buf));
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[memory][c][multiple]: " << duration.count() << std::endl;
-    return duration.count();
-}
-
 void addRecordToTree(boost::property_tree::ptree & array, std::string container, unsigned int duration)
 {
     boost::property_tree::ptree child;
@@ -799,18 +658,6 @@ int main()
     addRecordToTree(find1024, "stl-set", calculateStlSetFind<1024, 10000>());
     addRecordToTree(find1024, "stl-unorderedset", calculateStlUnorderedSetFind<1024, 10000>());
     generateFile(find1024, "find-1024.json");
-
-    /* Pool */
-    std::cout << "Pool: " << std::endl;
-    measureGenericPool();
-    measureTypedPool();
-
-    /* For test */
-    std::cout << "For tests: " << std::endl;
-    calculateRtlibGenericStaticListBack_ForTest();
-    calculateRtlibGenericStaticVectorBack_ForTest();
-    calculateOneDirectMemoryOperation_ForTest();
-    calculateMultipleDirectMemoryOperation_ForTest();
 
     return 0;
 }
