@@ -14,7 +14,8 @@ target_include_directories(
 )
 
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
+    message(STATUS "[rtlib] CI included from build")
     add_subdirectory(ci)
 else()
-    add_subdirectory(ci EXCLUDE_FROM_ALL)
+    message(STATUS "[rtlib] CI excluded from build")
 endif()
