@@ -1,9 +1,9 @@
-#include "containers/dynamic_list.h"
+#include "rtlib/list.h"
 
 /* Verify if compiles */
 
-declare_dynamic_list_t(TestUnit, int);
-define_dynamic_list_t(TestUnit, int);
+list_t(TestUnit, int);
+dynamic_list_t(TestUnit, int);
 
 static int compare_set_ints(const int * v1, const int * v2)
 {

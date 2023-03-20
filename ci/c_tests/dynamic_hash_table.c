@@ -1,9 +1,9 @@
-#include "containers/dynamic_hash_table.h"
+#include "rtlib/hash_table.h"
 
 /* Verify if compiles */
 
-declare_dynamic_hash_table_t(TestUnit, int);
-define_dynamic_hash_table_t(TestUnit, int);
+hash_table_t(TestUnit, int);
+dynamic_hash_table_t(TestUnit, int);
 
 static int compare_set_ints(const int * v1, const int * v2)
 {

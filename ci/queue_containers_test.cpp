@@ -1,43 +1,39 @@
 #include "gtest/gtest.h"
 #include <cstdint>
 #include <tuple>
-#include "containers/static_vector.h"
-#include "containers/static_list.h"
-#include "containers/custom_allocator_vector.h"
-#include "containers/custom_allocator_list.h"
-#include "containers/dynamic_vector.h"
-#include "containers/dynamic_list.h"
-#include "memory/dynamic_allocator.h"
+#include "rtlib/vector.h"
+#include "rtlib/list.h"
+#include "rtlib/memory.h"
 
 #define CONTAINER_CAPACITY 100
 
 extern "C"
 {
-    declare_static_vector_t(VectorTestType, int, CONTAINER_CAPACITY);
-    define_static_vector_t(VectorTestType, int, CONTAINER_CAPACITY);
-    declare_static_list_t(ListTestType, int, CONTAINER_CAPACITY);
-    define_static_list_t(ListTestType, int, CONTAINER_CAPACITY);
+    vector_t(VectorTestType, int);
+    static_vector_t(VectorTestType, int, CONTAINER_CAPACITY);
+    list_t(ListTestType, int);
+    static_list_t(ListTestType, int, CONTAINER_CAPACITY);
 
-    declare_dynamic_allocator_t(DynamicAllocator);
-    define_dynamic_allocator_t(DynamicAllocator);
-    declare_custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
-    define_custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
-    declare_custom_allocator_list_t(CustomAllocatorList, int, DynamicAllocator);
-    define_custom_allocator_list_t(CustomAllocatorList, int, DynamicAllocator);
+    memory_t(DynamicAllocator);
+    dynamic_memory_t(DynamicAllocator);
+    vector_t(CustomAllocatorVector, int);
+    custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
+    list_t(CustomAllocatorList, int);
+    custom_allocator_list_t(CustomAllocatorList, int, DynamicAllocator);
 
-    declare_static_vector_t(SVectorWithPointers, int *, CONTAINER_CAPACITY);
-    define_static_vector_t(SVectorWithPointers, int *, CONTAINER_CAPACITY);
-    declare_static_list_t(SListWithPointers, int *, CONTAINER_CAPACITY);
-    define_static_list_t(SListWithPointers, int *, CONTAINER_CAPACITY);
-    declare_custom_allocator_vector_t(CVectorWithPointers, int *, DynamicAllocator);
-    define_custom_allocator_vector_t(CVectorWithPointers, int *, DynamicAllocator);
-    declare_custom_allocator_list_t(CListWithPointers, int *, DynamicAllocator);
-    define_custom_allocator_list_t(CListWithPointers, int *, DynamicAllocator);
+    vector_t(SVectorWithPointers, int *);
+    static_vector_t(SVectorWithPointers, int *, CONTAINER_CAPACITY);
+    list_t(SListWithPointers, int *);
+    static_list_t(SListWithPointers, int *, CONTAINER_CAPACITY);
+    vector_t(CVectorWithPointers, int *);
+    custom_allocator_vector_t(CVectorWithPointers, int *, DynamicAllocator);
+    list_t(CListWithPointers, int *);
+    custom_allocator_list_t(CListWithPointers, int *, DynamicAllocator);
 
-    declare_dynamic_vector_t(DynamicVector, int);
-    define_dynamic_vector_t(DynamicVector, int);
-    declare_dynamic_list_t(DynamicList, int);
-    define_dynamic_list_t(DynamicList, int);
+    vector_t(DynamicVector, int);
+    dynamic_vector_t(DynamicVector, int);
+    list_t(DynamicList, int);
+    dynamic_list_t(DynamicList, int);
 
     typedef struct
     {
@@ -47,14 +43,14 @@ extern "C"
         uint64_t id;
     } StructType;
 
-    declare_static_vector_t(StructTypeStaticVector, StructType, CONTAINER_CAPACITY);
-    define_static_vector_t(StructTypeStaticVector, StructType, CONTAINER_CAPACITY);
-    declare_static_list_t(StructTypeStaticList, StructType, CONTAINER_CAPACITY);
-    define_static_list_t(StructTypeStaticList, StructType, CONTAINER_CAPACITY);
-    declare_dynamic_vector_t(StructTypeDynamicVector, StructType);
-    define_dynamic_vector_t(StructTypeDynamicVector, StructType);
-    declare_dynamic_list_t(StructTypeDynamicList, StructType);
-    define_dynamic_list_t(StructTypeDynamicList, StructType);
+    vector_t(StructTypeStaticVector, StructType);
+    static_vector_t(StructTypeStaticVector, StructType, CONTAINER_CAPACITY);
+    list_t(StructTypeStaticList, StructType);
+    static_list_t(StructTypeStaticList, StructType, CONTAINER_CAPACITY);
+    vector_t(StructTypeDynamicVector, StructType);
+    dynamic_vector_t(StructTypeDynamicVector, StructType);
+    list_t(StructTypeDynamicList, StructType);
+    dynamic_list_t(StructTypeDynamicList, StructType);
 }
 
 static int compare_set_ints(const int * v1, const int * v2)
@@ -122,64 +118,121 @@ static int compare_struct_type(const StructType * v1, const StructType * v2)
     }
 }
 
-#define create_wrappers_for_type(Type, CompareFunction, MemberType)                                              \
-                                                                                                                 \
-    void Deinit(Type * const container) { Type##_Destroy(container); }                                           \
-                                                                                                                 \
-    size_t Size(Type * const container) { return Type##_Size(container); }                                       \
-                                                                                                                 \
-    bool Empty(Type * const container) { return Type##_Empty(container); }                                       \
-                                                                                                                 \
-    int PushBack(Type * const container, MemberType value) { return Type##_PushBack(container, value); }         \
-                                                                                                                 \
-    int PushFront(Type * const container, MemberType value) { return Type##_PushFront(container, value); }       \
-                                                                                                                 \
-    int Insert(Type * const container, MemberType value, Type##_Iterator * it)                                   \
-    {                                                                                                            \
-        return Type##_Insert(container, it, value);                                                              \
-    }                                                                                                            \
-    int PopBack(Type * const container) { return Type##_PopBack(container); }                                    \
-                                                                                                                 \
-    int PopFront(Type * const container) { return Type##_PopFront(container); }                                  \
-                                                                                                                 \
-    int Erase(Type * const container, Type##_Iterator * it) { return Type##_Erase(container, it); }              \
-                                                                                                                 \
-    MemberType Back(Type * const container) { return Type##_Back(container); }                                   \
-                                                                                                                 \
-    MemberType Front(Type * const container) { return Type##_Front(container); }                                 \
-                                                                                                                 \
-    auto Begin(Type * const container) { return Type##_Begin(container); }                                       \
-                                                                                                                 \
-    auto End(Type * const container) { return Type##_End(container); }                                           \
-                                                                                                                 \
-    auto GetValue(Type * const container, size_t index) { return Type##_GetValue(container, index); }            \
-                                                                                                                 \
-    void SetValue(Type * const container, size_t index, MemberType value)                                        \
-    {                                                                                                            \
-        Type##_SetValue(container, index, value);                                                                \
-    }                                                                                                            \
-                                                                                                                 \
-    auto IteratorValue(Type##_Iterator * const it) { return Type##_Iterator_GetValue(it); }                      \
-                                                                                                                 \
-    void IteratorInc(Type##_Iterator * const it) { return Type##_Iterator_Increment(it); }                       \
-                                                                                                                 \
-    void IteratorDec(Type##_Iterator * const it) { return Type##_Iterator_Decrement(it); }                       \
-                                                                                                                 \
-    void IteratorSetValue(Type##_Iterator * const it, MemberType value) { Type##_Iterator_SetValue(it, value); } \
-                                                                                                                 \
-    bool Iterator_Equal(Type##_Iterator * const first, Type##_Iterator * const second)                           \
-    {                                                                                                            \
-        return Type##_Iterator_Equal(first, second);                                                             \
-    }                                                                                                            \
-                                                                                                                 \
-    auto Find(Type * const container, MemberType value) { return Type##_Find(container, value); }                \
-                                                                                                                 \
-    auto CustomFind(Type * const container, MemberType value, Type##_compare_t custom_comparator)                \
-    {                                                                                                            \
-        return Type##_CustomFind(container, value, custom_comparator);                                           \
-    }                                                                                                            \
-                                                                                                                 \
-    void Clear(Type * const container) { Type##_Clear(container); }
+#define create_wrappers_for_type(Type, CompareFunction, MemberType)                               \
+                                                                                                  \
+    void Deinit(Type * const container)                                                           \
+    {                                                                                             \
+        Type##_Destroy(container);                                                                \
+    }                                                                                             \
+                                                                                                  \
+    size_t Size(Type * const container)                                                           \
+    {                                                                                             \
+        return Type##_Size(container);                                                            \
+    }                                                                                             \
+                                                                                                  \
+    bool Empty(Type * const container)                                                            \
+    {                                                                                             \
+        return Type##_Empty(container);                                                           \
+    }                                                                                             \
+                                                                                                  \
+    int PushBack(Type * const container, MemberType value)                                        \
+    {                                                                                             \
+        return Type##_PushBack(container, value);                                                 \
+    }                                                                                             \
+                                                                                                  \
+    int PushFront(Type * const container, MemberType value)                                       \
+    {                                                                                             \
+        return Type##_PushFront(container, value);                                                \
+    }                                                                                             \
+                                                                                                  \
+    int Insert(Type * const container, MemberType value, Type##_Iterator * it)                    \
+    {                                                                                             \
+        return Type##_Insert(container, it, value);                                               \
+    }                                                                                             \
+    int PopBack(Type * const container)                                                           \
+    {                                                                                             \
+        return Type##_PopBack(container);                                                         \
+    }                                                                                             \
+                                                                                                  \
+    int PopFront(Type * const container)                                                          \
+    {                                                                                             \
+        return Type##_PopFront(container);                                                        \
+    }                                                                                             \
+                                                                                                  \
+    int Erase(Type * const container, Type##_Iterator * it)                                       \
+    {                                                                                             \
+        return Type##_Erase(container, it);                                                       \
+    }                                                                                             \
+                                                                                                  \
+    MemberType Back(Type * const container)                                                       \
+    {                                                                                             \
+        return Type##_Back(container);                                                            \
+    }                                                                                             \
+                                                                                                  \
+    MemberType Front(Type * const container)                                                      \
+    {                                                                                             \
+        return Type##_Front(container);                                                           \
+    }                                                                                             \
+                                                                                                  \
+    auto Begin(Type * const container)                                                            \
+    {                                                                                             \
+        return Type##_Begin(container);                                                           \
+    }                                                                                             \
+                                                                                                  \
+    auto End(Type * const container)                                                              \
+    {                                                                                             \
+        return Type##_End(container);                                                             \
+    }                                                                                             \
+                                                                                                  \
+    auto GetValue(Type * const container, size_t index)                                           \
+    {                                                                                             \
+        return Type##_GetValue(container, index);                                                 \
+    }                                                                                             \
+                                                                                                  \
+    void SetValue(Type * const container, size_t index, MemberType value)                         \
+    {                                                                                             \
+        Type##_SetValue(container, index, value);                                                 \
+    }                                                                                             \
+                                                                                                  \
+    auto IteratorValue(Type##_Iterator * const it)                                                \
+    {                                                                                             \
+        return Type##_Iterator_GetValue(it);                                                      \
+    }                                                                                             \
+                                                                                                  \
+    void IteratorInc(Type##_Iterator * const it)                                                  \
+    {                                                                                             \
+        return Type##_Iterator_Increment(it);                                                     \
+    }                                                                                             \
+                                                                                                  \
+    void IteratorDec(Type##_Iterator * const it)                                                  \
+    {                                                                                             \
+        return Type##_Iterator_Decrement(it);                                                     \
+    }                                                                                             \
+                                                                                                  \
+    void IteratorSetValue(Type##_Iterator * const it, MemberType value)                           \
+    {                                                                                             \
+        Type##_Iterator_SetValue(it, value);                                                      \
+    }                                                                                             \
+                                                                                                  \
+    bool Iterator_Equal(Type##_Iterator * const first, Type##_Iterator * const second)            \
+    {                                                                                             \
+        return Type##_Iterator_Equal(first, second);                                              \
+    }                                                                                             \
+                                                                                                  \
+    auto Find(Type * const container, MemberType value)                                           \
+    {                                                                                             \
+        return Type##_Find(container, value);                                                     \
+    }                                                                                             \
+                                                                                                  \
+    auto CustomFind(Type * const container, MemberType value, Type##_compare_t custom_comparator) \
+    {                                                                                             \
+        return Type##_CustomFind(container, value, custom_comparator);                            \
+    }                                                                                             \
+                                                                                                  \
+    void Clear(Type * const container)                                                            \
+    {                                                                                             \
+        Type##_Clear(container);                                                                  \
+    }
 
 create_wrappers_for_type(VectorTestType, compare_set_ints, int);
 create_wrappers_for_type(ListTestType, compare_set_ints, int);

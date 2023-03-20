@@ -1,9 +1,9 @@
-#include "containers/dynamic_binary_tree.h"
+#include "rtlib/binary_tree.h"
 
 /* Verify if compiles */
 
-declare_dynamic_binary_tree_t(TestUnit, int);
-define_dynamic_binary_tree_t(TestUnit, int);
+binary_tree_t(TestUnit, int);
+dynamic_binary_tree_t(TestUnit, int);
 
 static int compare_set_ints(const int * v1, const int * v2)
 {

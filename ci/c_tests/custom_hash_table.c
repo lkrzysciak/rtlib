@@ -1,15 +1,14 @@
-#include "memory/dynamic_allocator.h"
-#include "containers/custom_allocator_hash_table.h"
+#include "rtlib/memory.h"
+#include "rtlib/hash_table.h"
 
 /* Verify if compiles */
-declare_dynamic_allocator_t(DynamicAllocator);
-define_dynamic_allocator_t(DynamicAllocator);
+memory_t(DynamicAllocator);
+dynamic_memory_t(DynamicAllocator);
 
+hash_table_t(TestUnit, int);
+custom_allocator_hash_table_t(TestUnit, int, DynamicAllocator);
 
-declare_custom_allocator_hash_table_t(TestUnit, int, DynamicAllocator);
-define_custom_allocator_hash_table_t(TestUnit, int, DynamicAllocator);
-
-static int compare_set_ints(const int* v1, const int* v2)
+static int compare_set_ints(const int * v1, const int * v2)
 {
     if(*v1 > *v2)
     {
@@ -25,7 +24,7 @@ static int compare_set_ints(const int* v1, const int* v2)
     }
 }
 
-static unsigned int hash_function(const int* value)
+static unsigned int hash_function(const int * value)
 {
     return *value;
 }

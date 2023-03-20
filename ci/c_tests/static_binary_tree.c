@@ -1,11 +1,11 @@
-#include "containers/static_binary_tree.h"
+#include "rtlib/binary_tree.h"
 
 /* Verify if compiles */
 
-declare_static_binary_tree_t(TestUnit, int, 20);
-define_static_binary_tree_t(TestUnit, int, 20);
+binary_tree_t(TestUnit, int);
+static_binary_tree_t(TestUnit, int, 20);
 
-static int compare_set_ints(const int* v1, const int* v2)
+static int compare_set_ints(const int * v1, const int * v2)
 {
     if(*v1 > *v2)
     {

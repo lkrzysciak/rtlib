@@ -7,42 +7,34 @@
 #include <algorithm>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include "for_tests/list.h"
-#include "for_tests/vector.h"
-#include "for_tests/object_pool.h"
 
-#include "containers/static_vector.h"
-#include "containers/static_list.h"
-#include "containers/static_hash_table.h"
-#include "containers/static_binary_tree.h"
+#include "rtlib/vector.h"
+#include "rtlib/list.h"
+#include "rtlib/hash_table.h"
+#include "rtlib/binary_tree.h"
+#include "rtlib/pool.h"
 
-#include "containers/custom_allocator_vector.h"
-#include "containers/custom_allocator_list.h"
-#include "containers/custom_allocator_hash_table.h"
-#include "containers/custom_allocator_binary_tree.h"
+#include "rtlib/memory.h"
 
-#include "memory/dynamic_allocator.h"
-#include "memory/static_pool.h"
+vector_t(TestVector, int);
+static_vector_t(TestVector, int, 2000);
+list_t(TestList, int);
+static_list_t(TestList, int, 2000);
+hash_table_t(TestHashTable, int);
+static_hash_table_t(TestHashTable, int, 2000);
+binary_tree_t(TestBinaryTree, int);
+static_binary_tree_t(TestBinaryTree, int, 2000);
 
-declare_static_vector_t(TestVector, int, 2000);
-define_static_vector_t(TestVector, int, 2000);
-declare_static_list_t(TestList, int, 2000);
-define_static_list_t(TestList, int, 2000);
-declare_static_hash_table_t(TestHashTable, int, 2000);
-define_static_hash_table_t(TestHashTable, int, 2000);
-declare_static_binary_tree_t(TestBinaryTree, int, 2000);
-define_static_binary_tree_t(TestBinaryTree, int, 2000);
-
-declare_dynamic_allocator_t(DynamicAllocator);
-define_dynamic_allocator_t(DynamicAllocator);
-declare_custom_allocator_vector_t(DynamicAllocatorVector, int, DynamicAllocator);
-define_custom_allocator_vector_t(DynamicAllocatorVector, int, DynamicAllocator);
-declare_custom_allocator_list_t(DynamicAllocatorList, int, DynamicAllocator);
-define_custom_allocator_list_t(DynamicAllocatorList, int, DynamicAllocator);
-declare_custom_allocator_hash_table_t(DynamicAllocatorHashTable, int, DynamicAllocator);
-define_custom_allocator_hash_table_t(DynamicAllocatorHashTable, int, DynamicAllocator);
-declare_custom_allocator_binary_tree_t(DynamicAllocatorBinaryTree, int, DynamicAllocator);
-define_custom_allocator_binary_tree_t(DynamicAllocatorBinaryTree, int, DynamicAllocator);
+memory_t(DynamicAllocator);
+dynamic_memory_t(DynamicAllocator);
+vector_t(DynamicAllocatorVector, int);
+custom_allocator_vector_t(DynamicAllocatorVector, int, DynamicAllocator);
+list_t(DynamicAllocatorList, int);
+custom_allocator_list_t(DynamicAllocatorList, int, DynamicAllocator);
+hash_table_t(DynamicAllocatorHashTable, int);
+custom_allocator_hash_table_t(DynamicAllocatorHashTable, int, DynamicAllocator);
+binary_tree_t(DynamicAllocatorBinaryTree, int);
+custom_allocator_binary_tree_t(DynamicAllocatorBinaryTree, int, DynamicAllocator);
 
 static int compare_set_ints(const int * v1, const int * v2)
 {
@@ -566,146 +558,8 @@ unsigned int calculateStlUnorderedSetFind()
     stlFind(std::unordered_set<int>, onIterationSize, iterations);
 }
 
-declare_static_pool_t(TestPool, int, 20);
-define_static_pool_t(TestPool, int, 20);
-
-unsigned int measureGenericPool()
-{
-    uint32_t pool_buf[10000];
-    Pool * pool = Pool_Init(pool_buf, sizeof(pool_buf), sizeof(int));
-
-    auto start = std::chrono::high_resolution_clock::now();
-
-    for(int i = 0; i < 10000000; ++i)
-    {
-        for(int j = 0; j < 16; ++j)
-        {
-            void * ptr = Pool_Alloc(pool);
-            Pool_Free(pool, ptr);
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[RTLib][pool-generic-static]: " << duration.count() << std::endl;
-    return duration.count();
-}
-
-unsigned int measureTypedPool()
-{
-    TestPool test_pool{};
-    TestPool_Construct(&test_pool);
-
-    auto start = std::chrono::high_resolution_clock::now();
-
-    for(int i = 0; i < 10000000; ++i)
-    {
-        for(int j = 0; j < 16; ++j)
-        {
-            int * ptr = TestPool_Allocate(&test_pool);
-            TestPool_Release(&test_pool, ptr);
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[RTLib][pool-typed-static]: " << duration.count() << std::endl;
-    return duration.count();
-}
-
-unsigned int calculateRtlibGenericStaticListBack_ForTest()
-{
-    uint32_t buf1[10000];
-    List * vector = List_Init(buf1, sizeof(buf1), sizeof(int));
-
-    auto start = std::chrono::high_resolution_clock::now();
-
-    for(int i = 0; i < 10000000; ++i)
-    {
-        for(int j = 0; j < 16; ++j)
-        {
-            List_PushBack(vector, &j);
-        }
-        for(int j = 0; j < 16; ++j)
-        {
-            List_PopBack(vector);
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[RTLib][list-generic-static][back]: " << duration.count() << std::endl;
-    return duration.count();
-}
-
-unsigned int calculateRtlibGenericStaticVectorBack_ForTest()
-{
-    uint32_t buf1[10000];
-    Vector * vector = Vector_Init(buf1, sizeof(buf1), sizeof(int));
-
-    auto start = std::chrono::high_resolution_clock::now();
-
-    for(int i = 0; i < 10000000; ++i)
-    {
-        for(int j = 0; j < 16; ++j)
-        {
-            Vector_PushBack(vector, &j);
-        }
-        for(int j = 0; j < 16; ++j)
-        {
-            Vector_PopBack(vector);
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[RTLib][vector-generic-static][back]: " << duration.count() << std::endl;
-    return duration.count();
-}
-
-unsigned int calculateOneDirectMemoryOperation_ForTest()
-{
-    int temp_buf[16]{};
-    int samples[16]{};
-
-    auto start = std::chrono::high_resolution_clock::now();
-
-    for(int i = 0; i < 10000000; ++i)
-    {
-        memcpy(temp_buf, samples, sizeof(temp_buf));
-        memset(temp_buf, 0, sizeof(temp_buf));
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[memory][c][once]: " << duration.count() << std::endl;
-    return duration.count();
-}
-
-unsigned int calculateMultipleDirectMemoryOperation_ForTest()
-{
-    int temp_buf[16]{};
-    int samples[16]{};
-
-    auto start = std::chrono::high_resolution_clock::now();
-
-    for(int i = 0; i < 10000000; ++i)
-    {
-        for(int j = 0; j < 16; ++j)
-        {
-            memcpy(temp_buf, samples, sizeof(temp_buf));
-        }
-        for(int j = 0; j < 16; ++j)
-        {
-            memset(temp_buf, 0, sizeof(temp_buf));
-        }
-    }
-    auto stop = std::chrono::high_resolution_clock::now();
-
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "[memory][c][multiple]: " << duration.count() << std::endl;
-    return duration.count();
-}
+pool_t(TestPool, int);
+static_pool_t(TestPool, int, 20);
 
 void addRecordToTree(boost::property_tree::ptree & array, std::string container, unsigned int duration)
 {
@@ -804,18 +658,6 @@ int main()
     addRecordToTree(find1024, "stl-set", calculateStlSetFind<1024, 10000>());
     addRecordToTree(find1024, "stl-unorderedset", calculateStlUnorderedSetFind<1024, 10000>());
     generateFile(find1024, "find-1024.json");
-
-    /* Pool */
-    std::cout << "Pool: " << std::endl;
-    measureGenericPool();
-    measureTypedPool();
-
-    /* For test */
-    std::cout << "For tests: " << std::endl;
-    calculateRtlibGenericStaticListBack_ForTest();
-    calculateRtlibGenericStaticVectorBack_ForTest();
-    calculateOneDirectMemoryOperation_ForTest();
-    calculateMultipleDirectMemoryOperation_ForTest();
 
     return 0;
 }
