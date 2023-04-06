@@ -723,6 +723,23 @@ TYPED_TEST(ContainerTest, Permutations)
     ASSERT_EQ(expectedSet, receivedSet);
 }
 
+TYPED_TEST(ContainerTest, Fifo)
+{
+    for(int i = 0; i < 10; i++)
+    {
+        ASSERT_EQ(PushBack(&this->container, i), i + 1);
+    }
+
+    for(int i = 0; i < 10001; i++)
+    {
+        ASSERT_EQ(Front(&this->container), i);
+        ASSERT_EQ(Back(&this->container), i + 9);
+
+        ASSERT_EQ(PushBack(&this->container, i + 10), 11);
+        ASSERT_EQ(PopFront(&this->container), 10);
+    }
+}
+
 TYPED_TEST(ContainerTest, Clear)
 {
     uint32_t temp1{ 3215 };

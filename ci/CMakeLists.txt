@@ -48,6 +48,9 @@ target_link_libraries(c_static_binary_tree rtlib)
 add_executable(c_static_hash_table c_tests/static_hash_table.c)
 target_link_libraries(c_static_hash_table rtlib)
 
+add_executable(c_static_deque c_tests/static_deque.c)
+target_link_libraries(c_static_deque rtlib)
+
 add_executable(c_custom_vector c_tests/custom_vector.c)
 target_link_libraries(c_custom_vector rtlib)
 

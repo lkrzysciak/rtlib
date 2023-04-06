@@ -13,6 +13,7 @@
 #include "rtlib/hash_table.h"
 #include "rtlib/binary_tree.h"
 #include "rtlib/pool.h"
+#include "rtlib/deque.h"
 
 #include "rtlib/memory.h"
 
@@ -24,6 +25,8 @@ hash_table_t(TestHashTable, int);
 static_hash_table_t(TestHashTable, int, 2000);
 binary_tree_t(TestBinaryTree, int);
 static_binary_tree_t(TestBinaryTree, int, 2000);
+vector_t(TestDeque, int);
+static_deque_t(TestDeque, int, 2000);
 
 memory_t(DynamicAllocator);
 dynamic_memory_t(DynamicAllocator);
@@ -362,6 +365,12 @@ unsigned int calculateRtlibStaticVectorBack()
 }
 
 template<int onIterationSize, int iterations>
+unsigned int calculateRtlibStaticDequeBack()
+{
+    rtlibTest(TestDeque, TestDeque_PushBack, TestDeque_PopBack, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
 unsigned int calculateRtlibDynamicAllocatorVectorBack()
 {
     rtlibTest(DynamicAllocatorVector, DynamicAllocatorVector_PushBack, DynamicAllocatorVector_PopBack, onIterationSize,
@@ -400,6 +409,12 @@ unsigned int calculateRtlibStaticVectorFront()
 }
 
 template<int onIterationSize, int iterations>
+unsigned int calculateRtlibStaticDequeFront()
+{
+    rtlibTest(TestDeque, TestDeque_PushFront, TestDeque_PopFront, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
 unsigned int calculateRtlibDynamicAllocatorVectorFront()
 {
     rtlibTest(DynamicAllocatorVector, DynamicAllocatorVector_PushFront, DynamicAllocatorVector_PopFront,
@@ -428,6 +443,12 @@ template<int onIterationSize, int iterations, int position>
 unsigned int calculateRtlibStaticVectorMiddle()
 {
     rtlibWithIteratorTest(TestVector, Insert, Erase, onIterationSize, iterations, position);
+}
+
+template<int onIterationSize, int iterations, int position>
+unsigned int calculateRtlibStaticDequeMiddle()
+{
+    rtlibWithIteratorTest(TestDeque, Insert, Erase, onIterationSize, iterations, position);
 }
 
 template<int onIterationSize, int iterations, int position>
@@ -502,6 +523,12 @@ template<int onIterationSize, int iterations>
 unsigned int calculateRtlibStaticVectorFind()
 {
     rtlibFind(TestVector, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibStaticDequeFind()
+{
+    rtlibFind(TestDeque, onIterationSize, iterations);
 }
 
 template<int onIterationSize, int iterations>
@@ -591,6 +618,7 @@ int main()
     addRecordToTree(backTree, "rtlib-cvector", calculateRtlibDynamicAllocatorVectorBack<16, 10000000>());
     addRecordToTree(backTree, "rtlib-slist", calculateRtlibStaticListBack<16, 10000000>());
     addRecordToTree(backTree, "rtlib-clist", calculateRtlibDynamicAllocatorListBack<16, 10000000>());
+    addRecordToTree(backTree, "rtlib-sdeque", calculateRtlibStaticDequeBack<16, 10000000>());
     addRecordToTree(backTree, "stl-vector", calculateSTLVectorBack<16, 10000000>());
     addRecordToTree(backTree, "stl-list", calculateSTLListBack<16, 10000000>());
     generateFile(backTree, "back.json");
@@ -602,6 +630,7 @@ int main()
     addRecordToTree(frontTree, "rtlib-cvector", calculateRtlibDynamicAllocatorVectorFront<16, 10000000>());
     addRecordToTree(frontTree, "rtlib-slist", calculateRtlibStaticListFront<16, 10000000>());
     addRecordToTree(frontTree, "rtlib-clist", calculateRtlibDynamicAllocatorListFront<16, 10000000>());
+    addRecordToTree(frontTree, "rtlib-sdeque", calculateRtlibStaticDequeFront<16, 10000000>());
     // STL vector has no push_front method
     addRecordToTree(frontTree, "stl-list", calculateSTLListFront<16, 10000000>());
     generateFile(frontTree, "front.json");
@@ -613,6 +642,7 @@ int main()
     addRecordToTree(middleTree, "rtlib-cvector", calculateRtlibCustomVectorMiddle<16, 10000000, 1>());
     addRecordToTree(middleTree, "rtlib-slist", calculateRtlibStaticListMiddle<16, 10000000, 1>());
     addRecordToTree(middleTree, "rtlib-clist", calculateRtlibCustomListMiddle<16, 10000000, 1>());
+    addRecordToTree(middleTree, "rtlib-sdeque", calculateRtlibStaticDequeMiddle<16, 10000000, 1>());
     addRecordToTree(middleTree, "stl-vector", calculateSTLVectorMiddle<16, 10000000, 1>());
     addRecordToTree(middleTree, "stl-list", calculateSTLListMiddle<16, 10000000, 1>());
     generateFile(middleTree, "middle.json");
@@ -639,6 +669,7 @@ int main()
     addRecordToTree(find16, "rtlib-chashtable", calculateRtlibCustomHashFind<16, 10000000>());
     addRecordToTree(find16, "rtlib-sbinarytree", calculateRtlibStaticBinaryTreeFind<16, 10000000>());
     addRecordToTree(find16, "rtlib-cbinarytree", calculateRtlibCustomBinaryTreeFind<16, 10000000>());
+    addRecordToTree(find16, "rtlib-sdeque", calculateRtlibStaticDequeFind<16, 10000000>());
     addRecordToTree(find16, "stl-set", calculateStlSetFind<16, 10000000>());
     addRecordToTree(find16, "stl-unorderedset", calculateStlUnorderedSetFind<16, 10000000>());
     generateFile(find16, "find-16.json");
@@ -655,6 +686,7 @@ int main()
     addRecordToTree(find1024, "rtlib-chashtable", calculateRtlibCustomHashFind<1024, 10000>());
     addRecordToTree(find1024, "rtlib-sbinarytree", calculateRtlibStaticBinaryTreeFind<1024, 10000>());
     addRecordToTree(find1024, "rtlib-cbinarytree", calculateRtlibCustomBinaryTreeFind<1024, 10000>());
+    addRecordToTree(find16, "rtlib-sdeque", calculateRtlibStaticDequeFind<1024, 10000>());
     addRecordToTree(find1024, "stl-set", calculateStlSetFind<1024, 10000>());
     addRecordToTree(find1024, "stl-unorderedset", calculateStlUnorderedSetFind<1024, 10000>());
     generateFile(find1024, "find-1024.json");
