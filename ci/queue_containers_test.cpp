@@ -3,6 +3,7 @@
 #include <tuple>
 #include "rtlib/vector.h"
 #include "rtlib/list.h"
+#include "rtlib/deque.h"
 #include "rtlib/memory.h"
 
 #define CONTAINER_CAPACITY 100
@@ -13,6 +14,8 @@ extern "C"
     static_vector_t(VectorTestType, int, CONTAINER_CAPACITY);
     list_t(ListTestType, int);
     static_list_t(ListTestType, int, CONTAINER_CAPACITY);
+    deque_t(DequeTestType, int);
+    static_deque_t(DequeTestType, int, CONTAINER_CAPACITY);
 
     memory_t(DynamicAllocator);
     dynamic_memory_t(DynamicAllocator);
@@ -236,6 +239,7 @@ static int compare_struct_type(const StructType * v1, const StructType * v2)
 
 create_wrappers_for_type(VectorTestType, compare_set_ints, int);
 create_wrappers_for_type(ListTestType, compare_set_ints, int);
+create_wrappers_for_type(DequeTestType, compare_set_ints, int);
 create_wrappers_for_type(CustomAllocatorVector, compare_set_ints, int);
 create_wrappers_for_type(CustomAllocatorList, compare_set_ints, int);
 create_wrappers_for_type(DynamicVector, compare_set_ints, int);
@@ -249,6 +253,11 @@ void Init(VectorTestType * const container)
 void Init(ListTestType * const container)
 {
     ListTestType_Construct(container, compare_set_ints);
+}
+
+void Init(DequeTestType * const container)
+{
+    DequeTestType_Construct(container, compare_set_ints);
 }
 
 void Init(CustomAllocatorVector * const container)
@@ -344,10 +353,10 @@ struct StructTypeTest : public testing::Test
     T container;
 };
 
-using MyTypes = testing::Types<VectorTestType, ListTestType, CustomAllocatorVector, CustomAllocatorList, DynamicVector,
-                               DynamicList>;
+using MyTypes = testing::Types<VectorTestType, ListTestType, DequeTestType, CustomAllocatorVector, CustomAllocatorList,
+                               DynamicVector, DynamicList>;
 
-using StaticContainerTypes = testing::Types<VectorTestType, ListTestType>;
+using StaticContainerTypes = testing::Types<VectorTestType, ListTestType, DequeTestType>;
 
 using CustomContainerTypes = testing::Types<CustomAllocatorVector, CustomAllocatorList>;
 
