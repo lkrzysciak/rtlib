@@ -8,6 +8,7 @@ on:
       - 'develop'
       - 'feature/**'
       - 'hotfix/**'
+      - 'fix/**'
   pull_request:
     branches: 
       - 'master'
