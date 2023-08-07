@@ -25,7 +25,7 @@ hash_table_t(TestHashTable, int);
 static_hash_table_t(TestHashTable, int, 2000);
 binary_tree_t(TestBinaryTree, int);
 static_binary_tree_t(TestBinaryTree, int, 2000);
-vector_t(TestDeque, int);
+deque_t(TestDeque, int);
 static_deque_t(TestDeque, int, 2000);
 
 memory_t(DynamicAllocator);
