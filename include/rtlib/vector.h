@@ -10,6 +10,10 @@
 #define vector_t(container_t, member_t)                                                                         \
     typedef struct container_t container_t;                                                                     \
     typedef struct container_t##_Iterator container_t##_Iterator;                                               \
+    struct container_t##_Iterator                                                                               \
+    {                                                                                                           \
+        member_t * value;                                                                                       \
+    };                                                                                                          \
     typedef int (*container_t##_compare_t)(const member_t *, const member_t *);                                 \
                                                                                                                 \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function);           \
@@ -46,11 +50,6 @@
         member_t data[container_capacity];                                                                     \
         member_t * end;                                                                                        \
         container_t##_compare_t compare_function;                                                              \
-    };                                                                                                         \
-                                                                                                               \
-    struct container_t##_Iterator                                                                              \
-    {                                                                                                          \
-        member_t * value;                                                                                      \
     };                                                                                                         \
                                                                                                                \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function)           \
@@ -309,11 +308,6 @@
         member_t * data;                                                                                               \
         allocator_t allocator;                                                                                         \
         container_t##_compare_t compare_function;                                                                      \
-    };                                                                                                                 \
-                                                                                                                       \
-    struct container_t##_Iterator                                                                                      \
-    {                                                                                                                  \
-        member_t * value;                                                                                              \
     };                                                                                                                 \
                                                                                                                        \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function)                   \
