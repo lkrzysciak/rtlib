@@ -44,7 +44,6 @@ extern "C"
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function)           \
     {                                                                                                          \
         assert(self);                                                                                          \
-        assert(compare_function);                                                                              \
                                                                                                                \
         self->size             = 0;                                                                            \
         self->capacity         = sizeof(self->data) / sizeof(member_t);                                        \
@@ -243,6 +242,7 @@ extern "C"
     container_t##_Iterator container_t##_Find(container_t * const self, const member_t data)                   \
     {                                                                                                          \
         assert(self);                                                                                          \
+        assert(self->compare_function);                                                                        \
                                                                                                                \
         container_t##_Iterator end = container_t##_End(self);                                                  \
         container_t##_Iterator it  = container_t##_Begin(self);                                                \
@@ -536,6 +536,7 @@ extern "C"
     container_t##_Iterator container_t##_Find(container_t * const self, const member_t data)                           \
     {                                                                                                                  \
         assert(self);                                                                                                  \
+        assert(self->compare_function);                                                                                \
                                                                                                                        \
         container_t##_Iterator end = container_t##_End(self);                                                          \
         container_t##_Iterator it  = container_t##_Begin(self);                                                        \

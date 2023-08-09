@@ -84,4 +84,5 @@ target_link_libraries(c_static_event_loop rtlib)
 add_executable(c_custom_event_loop c_tests/custom_event_loop.c)
 target_link_libraries(c_custom_event_loop rtlib)
 
-
+add_executable(c_dec_def c_tests/dec_def.c c_tests/def.c)
+target_link_libraries(c_dec_def rtlib)

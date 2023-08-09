@@ -54,15 +54,22 @@ extern "C"
     dynamic_vector_t(StructTypeDynamicVector, StructType);
     list_t(StructTypeDynamicList, StructType);
     dynamic_list_t(StructTypeDynamicList, StructType);
-
-    // v3 api
-    static_vector(VectorTestTypeV3, int, CONTAINER_CAPACITY);
-    static_vector_impl(VectorTestTypeV3, int, CONTAINER_CAPACITY);
-    custom_allocator_vector(CustomAllocatorVectorV3, int, DynamicAllocator);
-    custom_allocator_vector_impl(CustomAllocatorVectorV3, int, DynamicAllocator);
-    dynamic_vector(DynamicVectorV3, int);
-    dynamic_vector_impl(DynamicVectorV3, int);
 }
+
+// v3 api
+static_vector(VectorTestTypeV3, int, CONTAINER_CAPACITY);
+static_vector_impl(VectorTestTypeV3, int, CONTAINER_CAPACITY);
+custom_allocator_vector(CustomAllocatorVectorV3, int, DynamicAllocator);
+custom_allocator_vector_impl(CustomAllocatorVectorV3, int, DynamicAllocator);
+dynamic_vector(DynamicVectorV3, int);
+dynamic_vector_impl(DynamicVectorV3, int);
+
+static_vector(VectorTestTypeV3NullCmp, int, CONTAINER_CAPACITY);
+static_vector_impl(VectorTestTypeV3NullCmp, int, CONTAINER_CAPACITY);
+custom_allocator_vector(CustomAllocatorVectorV3NullCmp, int, DynamicAllocator);
+custom_allocator_vector_impl(CustomAllocatorVectorV3NullCmp, int, DynamicAllocator);
+dynamic_vector(DynamicVectorV3NullCmp, int);
+dynamic_vector_impl(DynamicVectorV3NullCmp, int);
 
 static int compare_set_ints(const int * v1, const int * v2)
 {
@@ -131,6 +138,10 @@ static int compare_struct_type(const StructType * v1, const StructType * v2)
 
 #define create_wrappers_for_type(Type, CompareFunction, MemberType)                               \
                                                                                                   \
+    void Init(Type * const container)                                                             \
+    {                                                                                             \
+        Type##_Construct(container, CompareFunction);                                             \
+    }                                                                                             \
     void Deinit(Type * const container)                                                           \
     {                                                                                             \
         Type##_Destroy(container);                                                                \
@@ -253,92 +264,19 @@ create_wrappers_for_type(CustomAllocatorList, compare_set_ints, int);
 create_wrappers_for_type(DynamicVector, compare_set_ints, int);
 create_wrappers_for_type(DynamicList, compare_set_ints, int);
 
-create_wrappers_for_type(VectorTestTypeV3, compare_set_ints, int);
-create_wrappers_for_type(CustomAllocatorVectorV3, compare_set_ints, int);
-create_wrappers_for_type(DynamicVectorV3, compare_set_ints, int);
-
-void Init(VectorTestType * const container)
-{
-    VectorTestType_Construct(container, compare_set_ints);
-}
-
-void Init(ListTestType * const container)
-{
-    ListTestType_Construct(container, compare_set_ints);
-}
-
-void Init(DequeTestType * const container)
-{
-    DequeTestType_Construct(container, compare_set_ints);
-}
-
-void Init(CustomAllocatorVector * const container)
-{
-    CustomAllocatorVector_Construct(container, compare_set_ints);
-}
-
-void Init(CustomAllocatorList * const container)
-{
-    CustomAllocatorList_Construct(container, compare_set_ints);
-}
-
-void Init(DynamicVector * const container)
-{
-    DynamicVector_Construct(container, compare_set_ints);
-}
-
-void Init(DynamicList * const container)
-{
-    DynamicList_Construct(container, compare_set_ints);
-}
-
-void Init(VectorTestTypeV3 * const container)
-{
-    VectorTestTypeV3_Construct(container, compare_set_ints);
-}
-
-void Init(CustomAllocatorVectorV3 * const container)
-{
-    CustomAllocatorVectorV3_Construct(container, compare_set_ints);
-}
-
-void Init(DynamicVectorV3 * const container)
-{
-    DynamicVectorV3_Construct(container, compare_set_ints);
-}
-
 // Verifies if compiles
 create_wrappers_for_type(SVectorWithPointers, compare_set_ints_ptr, int *);
-
-void Init(SVectorWithPointers * const container)
-{
-    SVectorWithPointers_Construct(container, compare_set_ints_ptr);
-}
-
 create_wrappers_for_type(StructTypeStaticVector, compare_struct_type, StructType);
 create_wrappers_for_type(StructTypeStaticList, compare_struct_type, StructType);
 create_wrappers_for_type(StructTypeDynamicVector, compare_struct_type, StructType);
 create_wrappers_for_type(StructTypeDynamicList, compare_struct_type, StructType);
 
-void Init(StructTypeStaticVector * const container)
-{
-    StructTypeStaticVector_Construct(container, compare_struct_type);
-}
-
-void Init(StructTypeStaticList * const container)
-{
-    StructTypeStaticList_Construct(container, compare_struct_type);
-}
-
-void Init(StructTypeDynamicVector * const container)
-{
-    StructTypeDynamicVector_Construct(container, compare_struct_type);
-}
-
-void Init(StructTypeDynamicList * const container)
-{
-    StructTypeDynamicList_Construct(container, compare_struct_type);
-}
+create_wrappers_for_type(VectorTestTypeV3, compare_set_ints, int);
+create_wrappers_for_type(CustomAllocatorVectorV3, compare_set_ints, int);
+create_wrappers_for_type(DynamicVectorV3, compare_set_ints, int);
+create_wrappers_for_type(VectorTestTypeV3NullCmp, NULL, int);
+create_wrappers_for_type(CustomAllocatorVectorV3NullCmp, NULL, int);
+create_wrappers_for_type(DynamicVectorV3NullCmp, NULL, int);
 
 template<typename T>
 struct ContainerTest : public testing::Test
@@ -380,6 +318,12 @@ struct StructTypeTest : public testing::Test
     T container;
 };
 
+template<typename T>
+struct CompareFuncNotRequiredTest : public testing::Test
+{
+    T container;
+};
+
 using MyTypes = testing::Types<VectorTestType, ListTestType, DequeTestType, CustomAllocatorVector, CustomAllocatorList,
                                DynamicVector, DynamicList, VectorTestTypeV3, CustomAllocatorVectorV3, DynamicVectorV3>;
 
@@ -390,10 +334,27 @@ using CustomContainerTypes = testing::Types<CustomAllocatorVector, CustomAllocat
 using StructContainerTypes =
     testing::Types<StructTypeStaticVector, StructTypeStaticList, StructTypeDynamicVector, StructTypeDynamicList>;
 
+using CompareFuncNotrequiredTypes =
+    testing::Types<VectorTestTypeV3NullCmp, CustomAllocatorVectorV3NullCmp, DynamicVectorV3NullCmp>;
+
 TYPED_TEST_SUITE(ContainerTest, MyTypes);
 TYPED_TEST_SUITE(StaticContainerTest, StaticContainerTypes);
 TYPED_TEST_SUITE(CustomContainerTest, CustomContainerTypes);
 TYPED_TEST_SUITE(StructTypeTest, StructContainerTypes);
+TYPED_TEST_SUITE(CompareFuncNotRequiredTest, CompareFuncNotrequiredTypes);
+
+TYPED_TEST(CompareFuncNotRequiredTest, HasNoAssert)
+{
+    Init(&this->container);
+    Deinit(&this->container);
+}
+
+TYPED_TEST(CompareFuncNotRequiredTest, AssertIfTryFind)
+{
+    Init(&this->container);
+    EXPECT_DEATH(Find(&this->container, 0), "");
+    Deinit(&this->container);
+}
 
 TYPED_TEST(ContainerTest, IsEmptyAfterInit)
 {
