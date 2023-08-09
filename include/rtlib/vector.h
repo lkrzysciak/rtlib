@@ -1,5 +1,10 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -7,15 +12,7 @@
 #include <stdbool.h>
 #include "error_codes.h"
 
-#define vector_t(container_t, member_t)                                                                         \
-    typedef struct container_t container_t;                                                                     \
-    typedef struct container_t##_Iterator container_t##_Iterator;                                               \
-    struct container_t##_Iterator                                                                               \
-    {                                                                                                           \
-        member_t * value;                                                                                       \
-    };                                                                                                          \
-    typedef int (*container_t##_compare_t)(const member_t *, const member_t *);                                 \
-                                                                                                                \
+#define __vector_methods_h(container_t, member_t)                                                               \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function);           \
     void container_t##_Destroy(container_t * const self);                                                       \
     size_t container_t##_Size(const container_t * const self);                                                  \
@@ -43,22 +40,14 @@
                                                     container_t##_compare_t compare_function);                  \
     void container_t##_Clear(container_t * const self);
 
-#define static_vector_t(container_t, member_t, container_capacity)                                             \
-    struct container_t                                                                                         \
-    {                                                                                                          \
-        size_t size;                                                                                           \
-        member_t data[container_capacity];                                                                     \
-        member_t * end;                                                                                        \
-        container_t##_compare_t compare_function;                                                              \
-    };                                                                                                         \
-                                                                                                               \
+#define __static_vector_methods_c(container_t, member_t)                                                       \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function)           \
     {                                                                                                          \
         assert(self);                                                                                          \
-        assert(sizeof(self->data) / sizeof(member_t) == container_capacity);                                   \
         assert(compare_function);                                                                              \
                                                                                                                \
         self->size             = 0;                                                                            \
+        self->capacity         = sizeof(self->data) / sizeof(member_t);                                        \
         self->end              = self->data;                                                                   \
         self->compare_function = compare_function;                                                             \
     }                                                                                                          \
@@ -84,7 +73,7 @@
     {                                                                                                          \
         assert(self);                                                                                          \
                                                                                                                \
-        if(self->size < container_capacity)                                                                    \
+        if(self->size < self->capacity)                                                                        \
         {                                                                                                      \
             *self->end = data;                                                                                 \
             ++self->end;                                                                                       \
@@ -111,7 +100,7 @@
     {                                                                                                          \
         assert(self);                                                                                          \
                                                                                                                \
-        if(self->size < container_capacity)                                                                    \
+        if(self->size < self->capacity)                                                                        \
         {                                                                                                      \
             memmove(&self->data[1], &self->data[0], self->size * sizeof(member_t));                            \
             self->data[0] = data;                                                                              \
@@ -141,7 +130,7 @@
         assert(self);                                                                                          \
         assert(iterator);                                                                                      \
                                                                                                                \
-        if(self->size < container_capacity)                                                                    \
+        if(self->size < self->capacity)                                                                        \
         {                                                                                                      \
             const size_t to_move_bytes = (uint8_t *)self->end - (uint8_t *)iterator->value;                    \
             memmove(iterator->value + 1, iterator->value, to_move_bytes);                                      \
@@ -300,16 +289,7 @@
         }                                                                                                      \
     }
 
-#define custom_allocator_vector_t(container_t, member_t, allocator_t)                                                  \
-    struct container_t                                                                                                 \
-    {                                                                                                                  \
-        size_t size;                                                                                                   \
-        size_t capacity;                                                                                               \
-        member_t * data;                                                                                               \
-        allocator_t allocator;                                                                                         \
-        container_t##_compare_t compare_function;                                                                      \
-    };                                                                                                                 \
-                                                                                                                       \
+#define __custom_vector_methods_c(container_t, member_t, allocator_t)                                                  \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function)                   \
     {                                                                                                                  \
         assert(self);                                                                                                  \
@@ -602,9 +582,94 @@
         }                                                                                                              \
     }
 
+#define vector_t(container_t, member_t)                                         \
+    typedef struct container_t container_t;                                     \
+    typedef struct container_t##_Iterator container_t##_Iterator;               \
+    struct container_t##_Iterator                                               \
+    {                                                                           \
+        member_t * value;                                                       \
+    };                                                                          \
+    typedef int (*container_t##_compare_t)(const member_t *, const member_t *); \
+    __vector_methods_h(container_t, member_t)
+
+#define static_vector_t(container_t, member_t, container_capacity) \
+    struct container_t                                             \
+    {                                                              \
+        size_t size;                                               \
+        size_t capacity;                                           \
+        member_t data[container_capacity];                         \
+        member_t * end;                                            \
+        container_t##_compare_t compare_function;                  \
+    };                                                             \
+    __static_vector_methods_c(container_t, member_t)
+
+#define custom_allocator_vector_t(container_t, member_t, allocator_t) \
+    struct container_t                                                \
+    {                                                                 \
+        size_t size;                                                  \
+        size_t capacity;                                              \
+        member_t * data;                                              \
+        allocator_t allocator;                                        \
+        container_t##_compare_t compare_function;                     \
+    };                                                                \
+    __custom_vector_methods_c(container_t, member_t, allocator_t)
+
 #include "rtlib/memory.h"
 
 #define dynamic_vector_t(container_t, member_t)       \
     memory_t(container_t##_DynamicAllocator);         \
     dynamic_memory_t(container_t##_DynamicAllocator); \
     custom_allocator_vector_t(container_t, member_t, container_t##_DynamicAllocator);
+
+#define static_vector(container_t, member_t, container_capacity)                \
+    typedef int (*container_t##_compare_t)(const member_t *, const member_t *); \
+    typedef struct container_t container_t;                                     \
+    typedef struct container_t##_Iterator container_t##_Iterator;               \
+    struct container_t                                                          \
+    {                                                                           \
+        size_t size;                                                            \
+        size_t capacity;                                                        \
+        member_t data[container_capacity];                                      \
+        member_t * end;                                                         \
+        container_t##_compare_t compare_function;                               \
+    };                                                                          \
+    struct container_t##_Iterator                                               \
+    {                                                                           \
+        member_t * value;                                                       \
+    };                                                                          \
+    __vector_methods_h(container_t, member_t)
+
+#define static_vector_impl(container_t, member_t, container_capacity) __static_vector_methods_c(container_t, member_t)
+
+#define custom_allocator_vector(container_t, member_t, allocator_t)             \
+    typedef int (*container_t##_compare_t)(const member_t *, const member_t *); \
+    typedef struct container_t container_t;                                     \
+    typedef struct container_t##_Iterator container_t##_Iterator;               \
+    struct container_t                                                          \
+    {                                                                           \
+        size_t size;                                                            \
+        size_t capacity;                                                        \
+        member_t * data;                                                        \
+        allocator_t allocator;                                                  \
+        container_t##_compare_t compare_function;                               \
+    };                                                                          \
+    struct container_t##_Iterator                                               \
+    {                                                                           \
+        member_t * value;                                                       \
+    };                                                                          \
+    __vector_methods_h(container_t, member_t)
+
+#define custom_allocator_vector_impl(container_t, member_t, allocator_t) \
+    __custom_vector_methods_c(container_t, member_t, allocator_t)
+
+#define dynamic_vector(container_t, member_t)       \
+    dynamic_memory(container_t##_DynamicAllocator); \
+    custom_allocator_vector(container_t, member_t, container_t##_DynamicAllocator);
+
+#define dynamic_vector_impl(container_t, member_t)       \
+    dynamic_memory_impl(container_t##_DynamicAllocator); \
+    custom_allocator_vector_impl(container_t, member_t, container_t##_DynamicAllocator);
+
+#ifdef __cplusplus
+}
+#endif

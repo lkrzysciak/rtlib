@@ -54,6 +54,14 @@ extern "C"
     dynamic_vector_t(StructTypeDynamicVector, StructType);
     list_t(StructTypeDynamicList, StructType);
     dynamic_list_t(StructTypeDynamicList, StructType);
+
+    // v3 api
+    static_vector(VectorTestTypeV3, int, CONTAINER_CAPACITY);
+    static_vector_impl(VectorTestTypeV3, int, CONTAINER_CAPACITY);
+    custom_allocator_vector(CustomAllocatorVectorV3, int, DynamicAllocator);
+    custom_allocator_vector_impl(CustomAllocatorVectorV3, int, DynamicAllocator);
+    dynamic_vector(DynamicVectorV3, int);
+    dynamic_vector_impl(DynamicVectorV3, int);
 }
 
 static int compare_set_ints(const int * v1, const int * v2)
@@ -245,6 +253,10 @@ create_wrappers_for_type(CustomAllocatorList, compare_set_ints, int);
 create_wrappers_for_type(DynamicVector, compare_set_ints, int);
 create_wrappers_for_type(DynamicList, compare_set_ints, int);
 
+create_wrappers_for_type(VectorTestTypeV3, compare_set_ints, int);
+create_wrappers_for_type(CustomAllocatorVectorV3, compare_set_ints, int);
+create_wrappers_for_type(DynamicVectorV3, compare_set_ints, int);
+
 void Init(VectorTestType * const container)
 {
     VectorTestType_Construct(container, compare_set_ints);
@@ -278,6 +290,21 @@ void Init(DynamicVector * const container)
 void Init(DynamicList * const container)
 {
     DynamicList_Construct(container, compare_set_ints);
+}
+
+void Init(VectorTestTypeV3 * const container)
+{
+    VectorTestTypeV3_Construct(container, compare_set_ints);
+}
+
+void Init(CustomAllocatorVectorV3 * const container)
+{
+    CustomAllocatorVectorV3_Construct(container, compare_set_ints);
+}
+
+void Init(DynamicVectorV3 * const container)
+{
+    DynamicVectorV3_Construct(container, compare_set_ints);
 }
 
 // Verifies if compiles
@@ -354,11 +381,11 @@ struct StructTypeTest : public testing::Test
 };
 
 using MyTypes = testing::Types<VectorTestType, ListTestType, DequeTestType, CustomAllocatorVector, CustomAllocatorList,
-                               DynamicVector, DynamicList>;
+                               DynamicVector, DynamicList, VectorTestTypeV3, CustomAllocatorVectorV3, DynamicVectorV3>;
 
-using StaticContainerTypes = testing::Types<VectorTestType, ListTestType, DequeTestType>;
+using StaticContainerTypes = testing::Types<VectorTestType, ListTestType, DequeTestType, VectorTestTypeV3>;
 
-using CustomContainerTypes = testing::Types<CustomAllocatorVector, CustomAllocatorList>;
+using CustomContainerTypes = testing::Types<CustomAllocatorVector, CustomAllocatorList, CustomAllocatorVectorV3>;
 
 using StructContainerTypes =
     testing::Types<StructTypeStaticVector, StructTypeStaticList, StructTypeDynamicVector, StructTypeDynamicList>;
