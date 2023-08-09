@@ -184,6 +184,18 @@ extern "C"
         self->data[index] = value;                                                                             \
     }                                                                                                          \
                                                                                                                \
+    member_t * container_t##_Ref(container_t * const self, size_t index)                                       \
+    {                                                                                                          \
+        member_t * value = &self->data[index];                                                                 \
+        return value;                                                                                          \
+    }                                                                                                          \
+                                                                                                               \
+    const member_t * container_t##_CRef(const container_t * const self, size_t index)                          \
+    {                                                                                                          \
+        const member_t * value = (const member_t *)&self->data[index];                                         \
+        return value;                                                                                          \
+    }                                                                                                          \
+                                                                                                               \
     container_t##_Iterator container_t##_Begin(const container_t * const self)                                 \
     {                                                                                                          \
         assert(self);                                                                                          \
@@ -476,6 +488,18 @@ extern "C"
     void container_t##_SetValue(container_t * const self, size_t index, member_t value)                                \
     {                                                                                                                  \
         self->data[index] = value;                                                                                     \
+    }                                                                                                                  \
+                                                                                                                       \
+    member_t * container_t##_Ref(container_t * const self, size_t index)                                               \
+    {                                                                                                                  \
+        member_t * value = &self->data[index];                                                                         \
+        return value;                                                                                                  \
+    }                                                                                                                  \
+                                                                                                                       \
+    const member_t * container_t##_CRef(const container_t * const self, size_t index)                                  \
+    {                                                                                                                  \
+        const member_t * value = (const member_t *)&self->data[index];                                                 \
+        return value;                                                                                                  \
     }                                                                                                                  \
                                                                                                                        \
     container_t##_Iterator container_t##_Begin(const container_t * const self)                                         \

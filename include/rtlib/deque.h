@@ -214,6 +214,16 @@
         return container_t##_Vector_SetValue(&self->vector, (self->begin + index) % (container_capacity + 1), value); \
     }                                                                                                                 \
                                                                                                                       \
+    member_t * container_t##_Ref(container_t * const self, size_t index)                                              \
+    {                                                                                                                 \
+        return container_t##_Vector_Ref(&self->vector, (self->begin + index) % (container_capacity + 1));             \
+    }                                                                                                                 \
+                                                                                                                      \
+    const member_t * container_t##_CRef(const container_t * const self, size_t index)                                 \
+    {                                                                                                                 \
+        return container_t##_Vector_CRef(&self->vector, (self->begin + index) % (container_capacity + 1));            \
+    }                                                                                                                 \
+                                                                                                                      \
     container_t##_Iterator container_t##_Begin(const container_t * const self)                                        \
     {                                                                                                                 \
         container_t##_Iterator tmp = { 0, self };                                                                     \

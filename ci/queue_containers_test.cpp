@@ -216,6 +216,16 @@ static int compare_struct_type(const StructType * v1, const StructType * v2)
         Type##_SetValue(container, index, value);                                                 \
     }                                                                                             \
                                                                                                   \
+    auto Ref(Type * const container, size_t index)                                                \
+    {                                                                                             \
+        return Type##_Ref(container, index);                                                      \
+    }                                                                                             \
+                                                                                                  \
+    auto CRef(const Type * const container, size_t index)                                         \
+    {                                                                                             \
+        return Type##_CRef(container, index);                                                     \
+    }                                                                                             \
+                                                                                                  \
     auto IteratorValue(Type##_Iterator * const it)                                                \
     {                                                                                             \
         return Type##_Iterator_GetValue(it);                                                      \
