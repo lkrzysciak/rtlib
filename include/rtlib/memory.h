@@ -46,3 +46,6 @@
                                                                                               \
         free(object);                                                                         \
     }
+
+#define dynamic_memory memory_t
+#define dynamic_memory_impl dynamic_memory_t

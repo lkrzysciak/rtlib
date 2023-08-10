@@ -292,6 +292,30 @@
         container_t##_Iterator_SetValue(&it, value);                                                            \
     }                                                                                                           \
                                                                                                                 \
+    member_t * container_t##_Ref(container_t * const self, size_t index)                                        \
+    {                                                                                                           \
+        container_t##_Iterator it = container_t##_Begin(self);                                                  \
+                                                                                                                \
+        while(index--)                                                                                          \
+        {                                                                                                       \
+            container_t##_Iterator_Increment(&it);                                                              \
+        }                                                                                                       \
+        member_t * value = &it.node->value;                                                                     \
+        return value;                                                                                           \
+    }                                                                                                           \
+                                                                                                                \
+    const member_t * container_t##_CRef(const container_t * const self, size_t index)                           \
+    {                                                                                                           \
+        container_t##_Iterator it = container_t##_Begin(self);                                                  \
+                                                                                                                \
+        while(index--)                                                                                          \
+        {                                                                                                       \
+            container_t##_Iterator_Increment(&it);                                                              \
+        }                                                                                                       \
+        const member_t * value = (const member_t *)&it.node->value;                                             \
+        return value;                                                                                           \
+    }                                                                                                           \
+                                                                                                                \
     container_t##_Iterator container_t##_Begin(const container_t * const self)                                  \
     {                                                                                                           \
         assert(self);                                                                                           \
@@ -651,6 +675,30 @@
             container_t##_Iterator_Increment(&it);                                                              \
         }                                                                                                       \
         container_t##_Iterator_SetValue(&it, value);                                                            \
+    }                                                                                                           \
+                                                                                                                \
+    member_t * container_t##_Ref(container_t * const self, size_t index)                                        \
+    {                                                                                                           \
+        container_t##_Iterator it = container_t##_Begin(self);                                                  \
+                                                                                                                \
+        while(index--)                                                                                          \
+        {                                                                                                       \
+            container_t##_Iterator_Increment(&it);                                                              \
+        }                                                                                                       \
+        member_t * value = &it.node->value;                                                                     \
+        return value;                                                                                           \
+    }                                                                                                           \
+                                                                                                                \
+    const member_t * container_t##_CRef(const container_t * const self, size_t index)                           \
+    {                                                                                                           \
+        container_t##_Iterator it = container_t##_Begin(self);                                                  \
+                                                                                                                \
+        while(index--)                                                                                          \
+        {                                                                                                       \
+            container_t##_Iterator_Increment(&it);                                                              \
+        }                                                                                                       \
+        const member_t * value = (const member_t *)&it.node->value;                                             \
+        return value;                                                                                           \
     }                                                                                                           \
                                                                                                                 \
     container_t##_Iterator container_t##_Begin(const container_t * const self)                                  \
