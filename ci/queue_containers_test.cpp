@@ -58,18 +58,12 @@ extern "C"
 
 // v3 api
 static_vector(VectorTestTypeV3, int, CONTAINER_CAPACITY);
-static_vector_impl(VectorTestTypeV3, int, CONTAINER_CAPACITY);
 custom_allocator_vector(CustomAllocatorVectorV3, int, DynamicAllocator);
-custom_allocator_vector_impl(CustomAllocatorVectorV3, int, DynamicAllocator);
 dynamic_vector(DynamicVectorV3, int);
-dynamic_vector_impl(DynamicVectorV3, int);
 
 static_vector(VectorTestTypeV3NullCmp, int, CONTAINER_CAPACITY);
-static_vector_impl(VectorTestTypeV3NullCmp, int, CONTAINER_CAPACITY);
 custom_allocator_vector(CustomAllocatorVectorV3NullCmp, int, DynamicAllocator);
-custom_allocator_vector_impl(CustomAllocatorVectorV3NullCmp, int, DynamicAllocator);
 dynamic_vector(DynamicVectorV3NullCmp, int);
-dynamic_vector_impl(DynamicVectorV3NullCmp, int);
 
 static int compare_set_ints(const int * v1, const int * v2)
 {
@@ -911,3 +905,11 @@ TYPED_TEST(StructTypeTest, StructMembersInsert)
     ASSERT_EQ(var1.boolVar, receivedVar1.boolVar);
     ASSERT_EQ(var1.id, receivedVar1.id);
 }
+
+// must to at the end to verify if we have valid declarations
+static_vector_impl(VectorTestTypeV3, int, CONTAINER_CAPACITY);
+custom_allocator_vector_impl(CustomAllocatorVectorV3, int, DynamicAllocator);
+dynamic_vector_impl(DynamicVectorV3, int);
+static_vector_impl(VectorTestTypeV3NullCmp, int, CONTAINER_CAPACITY);
+custom_allocator_vector_impl(CustomAllocatorVectorV3NullCmp, int, DynamicAllocator);
+dynamic_vector_impl(DynamicVectorV3NullCmp, int);

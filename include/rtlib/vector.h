@@ -27,6 +27,8 @@ extern "C"
     member_t container_t##_Back(const container_t * const self);                                                \
     member_t container_t##_GetValue(const container_t * const self, size_t index);                              \
     void container_t##_SetValue(container_t * const self, size_t index, member_t value);                        \
+    member_t * container_t##_Ref(container_t * const self, size_t index);                                       \
+    const member_t * container_t##_CRef(const container_t * const self, size_t index);                          \
     container_t##_Iterator container_t##_Begin(const container_t * const self);                                 \
     container_t##_Iterator container_t##_End(const container_t * const self);                                   \
     member_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self);                        \
