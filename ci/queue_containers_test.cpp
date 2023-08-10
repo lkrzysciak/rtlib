@@ -648,6 +648,44 @@ TYPED_TEST(ContainerTest, IndexValues)
     ASSERT_EQ(GetValue(&this->container, 1), newTemp2);
 }
 
+TYPED_TEST(ContainerTest, Ref)
+{
+    uint32_t temp1{ 3215 };
+    uint32_t temp2{ 23587 };
+
+    PushBack(&this->container, temp1);
+    PushBack(&this->container, temp2);
+
+    ASSERT_EQ(*Ref(&this->container, 0), temp1);
+    ASSERT_EQ(*Ref(&this->container, 1), temp2);
+
+    uint32_t newTemp1{ 1357 };
+    uint32_t newTemp2{ 2468 };
+
+    *Ref(&this->container, 0) = newTemp1;
+    ASSERT_EQ(*Ref(&this->container, 0), newTemp1);
+    ASSERT_EQ(*Ref(&this->container, 1), temp2);
+
+    *Ref(&this->container, 1) = newTemp2;
+    ASSERT_EQ(*Ref(&this->container, 0), newTemp1);
+    ASSERT_EQ(*Ref(&this->container, 1), newTemp2);
+}
+
+TYPED_TEST(ContainerTest, CRef)
+{
+    uint32_t temp1{ 3215 };
+    uint32_t temp2{ 23587 };
+
+    PushBack(&this->container, temp1);
+    PushBack(&this->container, temp2);
+
+    ASSERT_EQ(*CRef(&this->container, 0), temp1);
+    ASSERT_EQ(*CRef(&this->container, 1), temp2);
+
+    uint32_t newTemp1{ 1357 };
+    uint32_t newTemp2{ 2468 };
+}
+
 TYPED_TEST(ContainerTest, FindAllValues)
 {
     uint32_t temp1{ 3215 };
