@@ -35,6 +35,11 @@ target_compile_options(performance_tests_O0 PUBLIC -O0)
 add_executable(performance_tests_O3 ${TESTED_FILES} performance_tests/performance_test.cpp)
 target_link_libraries(performance_tests_O3 rtlib)
 target_compile_options(performance_tests_O3 PUBLIC -O3)
+target_compile_definitions(performance_tests_O3 PUBLIC -DNDEBUG)
+
+# add_executable(perf_push_back  performance_tests/push_back.cpp)
+# target_link_libraries(perf_push_back rtlib)
+# target_compile_options(perf_push_back PUBLIC -O3)
 
 add_executable(c_static_vector c_tests/static_vector.c)
 target_link_libraries(c_static_vector rtlib)

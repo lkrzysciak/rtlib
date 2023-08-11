@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/preprocessor/repetition/repeat.hpp>
 
 #include "rtlib/vector.h"
 #include "rtlib/list.h"
@@ -17,16 +18,18 @@
 
 #include "rtlib/memory.h"
 
+#define STATIC_CONTAINER_SIZE 100000
+
 vector_t(TestVector, int);
-static_vector_t(TestVector, int, 2000);
+static_vector_t(TestVector, int, STATIC_CONTAINER_SIZE);
 list_t(TestList, int);
-static_list_t(TestList, int, 2000);
+static_list_t(TestList, int, STATIC_CONTAINER_SIZE);
 hash_table_t(TestHashTable, int);
-static_hash_table_t(TestHashTable, int, 2000);
+static_hash_table_t(TestHashTable, int, STATIC_CONTAINER_SIZE);
 binary_tree_t(TestBinaryTree, int);
-static_binary_tree_t(TestBinaryTree, int, 2000);
+static_binary_tree_t(TestBinaryTree, int, STATIC_CONTAINER_SIZE);
 deque_t(TestDeque, int);
-static_deque_t(TestDeque, int, 2000);
+static_deque_t(TestDeque, int, STATIC_CONTAINER_SIZE);
 
 memory_t(DynamicAllocator);
 dynamic_memory_t(DynamicAllocator);
@@ -298,9 +301,9 @@ unsigned int hash_function(const int * value)
     }                                                                                                 \
     auto start = std::chrono::high_resolution_clock::now();                                           \
                                                                                                       \
-    for(int i = 0; i < 10000000; ++i)                                                                 \
+    for(int i = 0; i < iterations; ++i)                                                               \
     {                                                                                                 \
-        for(int j = 0; j < 16; ++j)                                                                   \
+        for(int j = 0; j < oneIterationSize; ++j)                                                     \
         {                                                                                             \
             auto begin_it = std::begin(object);                                                       \
             for(int i = 0; i < position; ++i)                                                         \
@@ -309,7 +312,7 @@ unsigned int hash_function(const int * value)
             }                                                                                         \
             object.insert(begin_it, j);                                                               \
         }                                                                                             \
-        for(int j = 0; j < 16; ++j)                                                                   \
+        for(int j = 0; j < oneIterationSize; ++j)                                                     \
         {                                                                                             \
             auto begin_it = std::begin(object);                                                       \
             for(int i = 0; i < position; ++i)                                                         \
@@ -328,13 +331,13 @@ unsigned int hash_function(const int * value)
     stlType object{};                                                                           \
     auto start = std::chrono::high_resolution_clock::now();                                     \
                                                                                                 \
-    for(int i = 0; i < 10000000; ++i)                                                           \
+    for(int i = 0; i < iterations; ++i)                                                         \
     {                                                                                           \
-        for(int j = 0; j < 16; ++j)                                                             \
+        for(int j = 0; j < oneIterationSize; ++j)                                               \
         {                                                                                       \
             object.insert(j);                                                                   \
         }                                                                                       \
-        for(int j = 0; j < 16; ++j)                                                             \
+        for(int j = 0; j < oneIterationSize; ++j)                                               \
         {                                                                                       \
             auto begin_it = std::begin(object);                                                 \
             object.erase(begin_it);                                                             \
@@ -609,19 +612,84 @@ void generateFile(const boost::property_tree::ptree & array, std::string filenam
     boost::property_tree::write_json(filename, pt);
 }
 
+static constexpr int testedSizes[] = { 10, 20, 60, 100, 200, 600, 1000, 2000, 6000, 10000, 20000, 60000, 100000 };
+
+void addRecordToTree2(boost::property_tree::ptree & array, std::string container, unsigned int x, unsigned int y)
+{
+    boost::property_tree::ptree child;
+
+    child.put("container", container);
+    child.put("x", x);
+    child.put("y", y);
+
+    array.push_back(std::make_pair("", child));
+
+    std::cout << container << "(" << x << "): " << y << std::endl;
+}
+
+#define VECTOR_BACK_TEST(x, multiplier, output)                                                                     \
+    addRecordToTree2(output, "rtlib static vector", x, calculateRtlibStaticVectorBack<x, multiplier>());            \
+    addRecordToTree2(output, "rtlib dynamic vector", x, calculateRtlibDynamicAllocatorVectorBack<x, multiplier>()); \
+    addRecordToTree2(output, "stl vector", x, calculateSTLVectorBack<x, multiplier>());
+
+#define LIST_BACK_TEST(x, multiplier, output)                                                                   \
+    addRecordToTree2(output, "rtlib static list", x, calculateRtlibStaticListBack<x, multiplier>());            \
+    addRecordToTree2(output, "rtlib dynamic list", x, calculateRtlibDynamicAllocatorListBack<x, multiplier>()); \
+    addRecordToTree2(output, "stl list", x, calculateSTLListBack<x, multiplier>());
+
+#define LIST_FRONT_TEST(x, multiplier, output)                                                                   \
+    addRecordToTree2(output, "rtlib static list", x, calculateRtlibStaticListFront<x, multiplier>());            \
+    addRecordToTree2(output, "rtlib dynamic list", x, calculateRtlibDynamicAllocatorListFront<x, multiplier>()); \
+    addRecordToTree2(output, "stl list", x, calculateSTLListFront<x, multiplier>());
+
+#define LIST_MIDDLE_TEST(x, multiplier, output)                                                            \
+    addRecordToTree2(output, "rtlib static list", x, calculateRtlibStaticListMiddle<x, multiplier, 1>());  \
+    addRecordToTree2(output, "rtlib dynamic list", x, calculateRtlibCustomListMiddle<x, multiplier, 1>()); \
+    addRecordToTree2(output, "stl list", x, calculateSTLListMiddle<x, multiplier, 1>());
+
+#define MAKE_10_SAMPLES(TEST, INIT, X, MULTIPLIER, TREE) \
+    TEST(1 * X + INIT, MULTIPLIER, TREE)                 \
+    TEST(2 * X + INIT, MULTIPLIER, TREE)                 \
+    TEST(3 * X + INIT, MULTIPLIER, TREE)                 \
+    TEST(4 * X + INIT, MULTIPLIER, TREE)                 \
+    TEST(5 * X + INIT, MULTIPLIER, TREE)                 \
+    TEST(6 * X + INIT, MULTIPLIER, TREE)                 \
+    TEST(7 * X + INIT, MULTIPLIER, TREE)                 \
+    TEST(8 * X + INIT, MULTIPLIER, TREE)                 \
+    TEST(9 * X + INIT, MULTIPLIER, TREE)                 \
+    TEST(10 * X + INIT, MULTIPLIER, TREE)
+
+#define MAKE_100_SAMPLES(TEST, INIT, X, MULTIPLIER, TREE)     \
+    MAKE_10_SAMPLES(TEST, INIT, X, MULTIPLIER, TREE)          \
+    MAKE_10_SAMPLES(TEST, 10 * X + INIT, X, MULTIPLIER, TREE) \
+    MAKE_10_SAMPLES(TEST, 20 * X + INIT, X, MULTIPLIER, TREE) \
+    MAKE_10_SAMPLES(TEST, 30 * X + INIT, X, MULTIPLIER, TREE) \
+    MAKE_10_SAMPLES(TEST, 40 * X + INIT, X, MULTIPLIER, TREE) \
+    MAKE_10_SAMPLES(TEST, 50 * X + INIT, X, MULTIPLIER, TREE) \
+    MAKE_10_SAMPLES(TEST, 60 * X + INIT, X, MULTIPLIER, TREE) \
+    MAKE_10_SAMPLES(TEST, 70 * X + INIT, X, MULTIPLIER, TREE) \
+    MAKE_10_SAMPLES(TEST, 80 * X + INIT, X, MULTIPLIER, TREE) \
+    MAKE_10_SAMPLES(TEST, 90 * X + INIT, X, MULTIPLIER, TREE)
+
+#define MAKE_SUITE(TEST, MULTIPLIER, OUTPUT)                         \
+    boost::property_tree::ptree OUTPUT##_100{};                      \
+    MAKE_100_SAMPLES(TEST, 0, 1, MULTIPLIER, OUTPUT##_100)           \
+    generateFile(OUTPUT##_100, #OUTPUT "_100.json");                 \
+                                                                     \
+    boost::property_tree::ptree OUTPUT##_1000{};                     \
+    MAKE_100_SAMPLES(TEST, 0, 10, MULTIPLIER / 10, OUTPUT##_1000)    \
+    generateFile(OUTPUT##_1000, #OUTPUT "_1000.json");               \
+                                                                     \
+    boost::property_tree::ptree OUTPUT##_10000{};                    \
+    MAKE_100_SAMPLES(TEST, 0, 100, MULTIPLIER / 100, OUTPUT##_10000) \
+    generateFile(OUTPUT##_10000, #OUTPUT "_10000.json");
+
 int main()
 {
-    boost::property_tree::ptree backTree{};
-    /* Back */
-    std::cout << "Back: " << std::endl;
-    addRecordToTree(backTree, "rtlib-svector", calculateRtlibStaticVectorBack<16, 10000000>());
-    addRecordToTree(backTree, "rtlib-cvector", calculateRtlibDynamicAllocatorVectorBack<16, 10000000>());
-    addRecordToTree(backTree, "rtlib-slist", calculateRtlibStaticListBack<16, 10000000>());
-    addRecordToTree(backTree, "rtlib-clist", calculateRtlibDynamicAllocatorListBack<16, 10000000>());
-    addRecordToTree(backTree, "rtlib-sdeque", calculateRtlibStaticDequeBack<16, 10000000>());
-    addRecordToTree(backTree, "stl-vector", calculateSTLVectorBack<16, 10000000>());
-    addRecordToTree(backTree, "stl-list", calculateSTLListBack<16, 10000000>());
-    generateFile(backTree, "back.json");
+    MAKE_SUITE(VECTOR_BACK_TEST, 1000000, vec_back);
+    MAKE_SUITE(LIST_BACK_TEST, 100000, list_back);
+    MAKE_SUITE(LIST_FRONT_TEST, 100000, list_front);
+    MAKE_SUITE(LIST_MIDDLE_TEST, 100000, list_middle);
 
     /* Front */
     boost::property_tree::ptree frontTree{};
