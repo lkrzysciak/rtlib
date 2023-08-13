@@ -472,6 +472,7 @@ TYPED_TEST(ContainerTest, Erase)
     it = Begin(&this->container);
     IteratorInc(&it);
     ASSERT_EQ(Front(&this->container), temp1);
+    ASSERT_EQ(*CRef(&this->container, 1), temp3);
     ASSERT_EQ(Back(&this->container), temp2);
 
     it = Begin(&this->container);
@@ -767,6 +768,142 @@ TYPED_TEST(ContainerTest, Fifo)
 
         ASSERT_EQ(PushBack(&this->container, i + 10), 11);
         ASSERT_EQ(PopFront(&this->container), 10);
+
+        // for(int j = 0; j < 10; j++)
+        // {
+        //     ASSERT_EQ(*CRef(&this->container, j), j + i + 1);
+        // }
+    }
+}
+
+// TYPED_TEST(ContainerTest, Fifo2)
+// {
+//     for(int i = 0; i < 10; i++)
+//     {
+//         auto end = End(&this->container);
+//         ASSERT_EQ(Insert(&this->container, i, &end), i + 1);
+//     }
+
+//     for(int i = 0; i < 10001; i++)
+//     {
+//         ASSERT_EQ(Front(&this->container), i);
+//         ASSERT_EQ(Back(&this->container), i + 9);
+
+//         auto end = End(&this->container);
+//         ASSERT_EQ(Insert(&this->container, i + 10, &end), 11);
+//         auto begin = Begin(&this->container);
+//         ASSERT_EQ(Erase(&this->container, &begin), 10);
+
+//         for(int j = 0; j < 10; j++)
+//         {
+//             ASSERT_EQ(*CRef(&this->container, j), j + i + 1);
+//         }
+//     }
+// }
+
+TYPED_TEST(ContainerTest, InsertEraseMultipleTimes)
+{
+    for(int i = 0; i < 10; i++)
+    {
+        ASSERT_EQ(PushBack(&this->container, i), i + 1);
+    }
+
+    ASSERT_EQ(*CRef(&this->container, 0), 0);
+    ASSERT_EQ(*CRef(&this->container, 1), 1);
+    ASSERT_EQ(*CRef(&this->container, 2), 2);
+    ASSERT_EQ(*CRef(&this->container, 3), 3);
+    ASSERT_EQ(*CRef(&this->container, 4), 4);
+    ASSERT_EQ(*CRef(&this->container, 5), 5);
+    ASSERT_EQ(*CRef(&this->container, 6), 6);
+    ASSERT_EQ(*CRef(&this->container, 7), 7);
+    ASSERT_EQ(*CRef(&this->container, 8), 8);
+    ASSERT_EQ(*CRef(&this->container, 9), 9);
+
+    for(int i = 0; i < 10001; i++)
+    {
+        auto it1 = Begin(&this->container);
+        IteratorInc(&it1);
+        ASSERT_EQ(Insert(&this->container, i + 10, &it1), 11);
+
+        ASSERT_EQ(*CRef(&this->container, 0), 0);
+        ASSERT_EQ(*CRef(&this->container, 1), i + 10);
+        ASSERT_EQ(*CRef(&this->container, 2), 1);
+        ASSERT_EQ(*CRef(&this->container, 3), 2);
+        ASSERT_EQ(*CRef(&this->container, 4), 3);
+        ASSERT_EQ(*CRef(&this->container, 5), 4);
+        ASSERT_EQ(*CRef(&this->container, 6), 5);
+        ASSERT_EQ(*CRef(&this->container, 7), 6);
+        ASSERT_EQ(*CRef(&this->container, 8), 7);
+        ASSERT_EQ(*CRef(&this->container, 9), 8);
+        ASSERT_EQ(*CRef(&this->container, 10), 9);
+
+        auto it2 = Begin(&this->container);
+        IteratorInc(&it2);
+        ASSERT_EQ(Erase(&this->container, &it2), 10);
+
+        ASSERT_EQ(*CRef(&this->container, 0), 0);
+        ASSERT_EQ(*CRef(&this->container, 1), 1);
+        ASSERT_EQ(*CRef(&this->container, 2), 2);
+        ASSERT_EQ(*CRef(&this->container, 3), 3);
+        ASSERT_EQ(*CRef(&this->container, 4), 4);
+        ASSERT_EQ(*CRef(&this->container, 5), 5);
+        ASSERT_EQ(*CRef(&this->container, 6), 6);
+        ASSERT_EQ(*CRef(&this->container, 7), 7);
+        ASSERT_EQ(*CRef(&this->container, 8), 8);
+        ASSERT_EQ(*CRef(&this->container, 9), 9);
+    }
+}
+
+TYPED_TEST(ContainerTest, InsertEraseMultipleTimes2)
+{
+    for(int i = 0; i < 10; i++)
+    {
+        ASSERT_EQ(PushBack(&this->container, i), i + 1);
+    }
+
+    ASSERT_EQ(*CRef(&this->container, 0), 0);
+    ASSERT_EQ(*CRef(&this->container, 1), 1);
+    ASSERT_EQ(*CRef(&this->container, 2), 2);
+    ASSERT_EQ(*CRef(&this->container, 3), 3);
+    ASSERT_EQ(*CRef(&this->container, 4), 4);
+    ASSERT_EQ(*CRef(&this->container, 5), 5);
+    ASSERT_EQ(*CRef(&this->container, 6), 6);
+    ASSERT_EQ(*CRef(&this->container, 7), 7);
+    ASSERT_EQ(*CRef(&this->container, 8), 8);
+    ASSERT_EQ(*CRef(&this->container, 9), 9);
+
+    for(int i = 0; i < 10001; i++)
+    {
+        auto it1 = End(&this->container);
+        IteratorDec(&it1);
+        ASSERT_EQ(Insert(&this->container, i + 9, &it1), 11);
+
+        ASSERT_EQ(*CRef(&this->container, 0), 0);  // const
+        ASSERT_EQ(*CRef(&this->container, 1), i + 1);
+        ASSERT_EQ(*CRef(&this->container, 2), i + 2);
+        ASSERT_EQ(*CRef(&this->container, 3), i + 3);
+        ASSERT_EQ(*CRef(&this->container, 4), i + 4);
+        ASSERT_EQ(*CRef(&this->container, 5), i + 5);
+        ASSERT_EQ(*CRef(&this->container, 6), i + 6);
+        ASSERT_EQ(*CRef(&this->container, 7), i + 7);
+        ASSERT_EQ(*CRef(&this->container, 8), i + 8);
+        ASSERT_EQ(*CRef(&this->container, 9), i + 9);
+        ASSERT_EQ(*CRef(&this->container, 10), 9);  // const
+
+        auto it2 = Begin(&this->container);
+        IteratorInc(&it2);
+        ASSERT_EQ(Erase(&this->container, &it2), 10);
+
+        ASSERT_EQ(*CRef(&this->container, 0), 0);  // const
+        ASSERT_EQ(*CRef(&this->container, 1), i + 2);
+        ASSERT_EQ(*CRef(&this->container, 2), i + 3);
+        ASSERT_EQ(*CRef(&this->container, 3), i + 4);
+        ASSERT_EQ(*CRef(&this->container, 4), i + 5);
+        ASSERT_EQ(*CRef(&this->container, 5), i + 6);
+        ASSERT_EQ(*CRef(&this->container, 6), i + 7);
+        ASSERT_EQ(*CRef(&this->container, 7), i + 8);
+        ASSERT_EQ(*CRef(&this->container, 8), i + 9);
+        ASSERT_EQ(*CRef(&this->container, 9), 9);  // const
     }
 }
 
@@ -828,7 +965,8 @@ TYPED_TEST(CustomContainerTest, AddALotOfElementsToMakeManyReallocations)
     for(int i = 0; i < 1000; ++i)
     {
         auto it = Begin(&this->container);
-        ASSERT_EQ(Insert(&this->container, temp1, &it), i + 1);
+        ASSERT_EQ(Insert(&this->container, temp1 + i, &it), i + 1);
+        ASSERT_EQ(Front(&this->container), temp1 + i);
     }
 }
 
