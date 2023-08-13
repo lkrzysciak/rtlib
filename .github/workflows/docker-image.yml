@@ -27,7 +27,7 @@ jobs:
         report_paths: 'testresults.xml'
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: Run performance tests
-      run: ./build/ci/performance_tests_O3
+      run: ./build/ci/performance_tests_Os
     - name: Generate performace charts
       run: |
         mkdir -p -v reports
