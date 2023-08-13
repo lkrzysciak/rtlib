@@ -387,6 +387,12 @@ unsigned int calculateSTLListBack()
 }
 
 template<int onIterationSize, int iterations>
+unsigned int calculateSTLDequeBack()
+{
+    stlTest(std::deque<int>, push_back, pop_back, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
 unsigned int calculateSTLVectorBack()
 {
     stlTest(std::vector<int>, push_back, pop_back, onIterationSize, iterations);
@@ -430,6 +436,12 @@ unsigned int calculateSTLListFront()
     stlTest(std::list<int>, push_front, pop_front, onIterationSize, iterations);
 }
 
+template<int onIterationSize, int iterations>
+unsigned int calculateSTLDequeFront()
+{
+    stlTest(std::deque<int>, push_front, pop_front, onIterationSize, iterations);
+}
+
 template<int onIterationSize, int iterations, int position>
 unsigned int calculateRtlibStaticListMiddle()
 {
@@ -464,6 +476,12 @@ template<int onIterationSize, int iterations, int position>
 unsigned int calculateSTLListMiddle()
 {
     stlWithIteratorTest(std::list<int>, insert, erase, onIterationSize, iterations, position);
+}
+
+template<int onIterationSize, int iterations, int position>
+unsigned int calculateSTLDequeMiddle()
+{
+    stlWithIteratorTest(std::deque<int>, insert, erase, onIterationSize, iterations, position);
 }
 
 template<int onIterationSize, int iterations, int position>
@@ -647,6 +665,18 @@ void addRecordToTree2(boost::property_tree::ptree & array, std::string container
     addRecordToTree2(output, "rtlib dynamic list", x, calculateRtlibCustomListMiddle<x, multiplier, 1>()); \
     addRecordToTree2(output, "stl list", x, calculateSTLListMiddle<x, multiplier, 1>());
 
+#define DEQUE_BACK_TEST(x, multiplier, output)                                                         \
+    addRecordToTree2(output, "rtlib static deque", x, calculateRtlibStaticDequeBack<x, multiplier>()); \
+    addRecordToTree2(output, "stl deque", x, calculateSTLDequeBack<x, multiplier>());
+
+#define DEQUE_FRONT_TEST(x, multiplier, output)                                                         \
+    addRecordToTree2(output, "rtlib static deque", x, calculateRtlibStaticDequeFront<x, multiplier>()); \
+    addRecordToTree2(output, "stl deque", x, calculateSTLDequeFront<x, multiplier>());
+
+#define DEQUE_MIDDLE_TEST(x, multiplier, output)                                                            \
+    addRecordToTree2(output, "rtlib static deque", x, calculateRtlibStaticDequeMiddle<x, multiplier, 1>()); \
+    addRecordToTree2(output, "stl deque", x, calculateSTLDequeMiddle<x, multiplier, 1>());
+
 #define MAKE_10_SAMPLES(TEST, INIT, X, MULTIPLIER, TREE) \
     TEST(1 * X + INIT, MULTIPLIER, TREE)                 \
     TEST(2 * X + INIT, MULTIPLIER, TREE)                 \
@@ -686,10 +716,13 @@ void addRecordToTree2(boost::property_tree::ptree & array, std::string container
 
 int main()
 {
-    MAKE_SUITE(VECTOR_BACK_TEST, 1000000, vec_back);
-    MAKE_SUITE(LIST_BACK_TEST, 100000, list_back);
-    MAKE_SUITE(LIST_FRONT_TEST, 100000, list_front);
-    MAKE_SUITE(LIST_MIDDLE_TEST, 100000, list_middle);
+    MAKE_SUITE(VECTOR_BACK_TEST, 300000, vec_back);
+    MAKE_SUITE(LIST_BACK_TEST, 30000, list_back);
+    MAKE_SUITE(LIST_FRONT_TEST, 30000, list_front);
+    MAKE_SUITE(LIST_MIDDLE_TEST, 30000, list_middle);
+    MAKE_SUITE(DEQUE_BACK_TEST, 30000, deque_back);
+    MAKE_SUITE(DEQUE_FRONT_TEST, 30000, deque_front);
+    MAKE_SUITE(DEQUE_MIDDLE_TEST, 30000, deque_middle);
 
     /* Front */
     boost::property_tree::ptree frontTree{};

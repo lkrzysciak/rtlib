@@ -49,7 +49,6 @@ extern "C"
                                                                                                                \
         self->size             = 0;                                                                            \
         self->capacity         = sizeof(self->data) / sizeof(member_t);                                        \
-        self->end              = self->data;                                                                   \
         self->compare_function = compare_function;                                                             \
     }                                                                                                          \
                                                                                                                \
@@ -76,8 +75,7 @@ extern "C"
                                                                                                                \
         if(self->size < self->capacity)                                                                        \
         {                                                                                                      \
-            *self->end = data;                                                                                 \
-            ++self->end;                                                                                       \
+            self->data[self->size] = data;                                                                     \
             ++self->size;                                                                                      \
                                                                                                                \
             return self->size;                                                                                 \
@@ -93,7 +91,6 @@ extern "C"
         assert(self);                                                                                          \
                                                                                                                \
         --self->size;                                                                                          \
-        --self->end;                                                                                           \
         return self->size;                                                                                     \
     }                                                                                                          \
                                                                                                                \
@@ -105,7 +102,6 @@ extern "C"
         {                                                                                                      \
             memmove(&self->data[1], &self->data[0], self->size * sizeof(member_t));                            \
             self->data[0] = data;                                                                              \
-            ++self->end;                                                                                       \
             ++self->size;                                                                                      \
                                                                                                                \
             return self->size;                                                                                 \
@@ -121,7 +117,6 @@ extern "C"
         assert(self);                                                                                          \
                                                                                                                \
         --self->size;                                                                                          \
-        --self->end;                                                                                           \
         memmove(&self->data[0], &self->data[1], self->size * sizeof(member_t));                                \
         return self->size;                                                                                     \
     }                                                                                                          \
@@ -133,10 +128,10 @@ extern "C"
                                                                                                                \
         if(self->size < self->capacity)                                                                        \
         {                                                                                                      \
-            const size_t to_move_bytes = (uint8_t *)self->end - (uint8_t *)iterator->value;                    \
+            uint8_t * end              = (uint8_t *)&self->data[self->size];                                   \
+            const size_t to_move_bytes = end - (uint8_t *)iterator->value;                                     \
             memmove(iterator->value + 1, iterator->value, to_move_bytes);                                      \
             *iterator->value = data;                                                                           \
-            ++self->end;                                                                                       \
             ++self->size;                                                                                      \
                                                                                                                \
             return self->size;                                                                                 \
@@ -152,9 +147,9 @@ extern "C"
         assert(self);                                                                                          \
         assert(iterator);                                                                                      \
                                                                                                                \
+        uint8_t * end = (uint8_t *)&self->data[self->size];                                                    \
         --self->size;                                                                                          \
-        --self->end;                                                                                           \
-        const size_t to_move_bytes = (uint8_t *)self->end - (uint8_t *)iterator->value;                        \
+        const size_t to_move_bytes = end - (uint8_t *)iterator->value;                                         \
         memmove(iterator->value, iterator->value + 1, to_move_bytes);                                          \
         return self->size;                                                                                     \
     }                                                                                                          \
@@ -172,7 +167,7 @@ extern "C"
         assert(self);                                                                                          \
         assert(self->size > 0);                                                                                \
                                                                                                                \
-        return *(self->end - 1);                                                                               \
+        return self->data[self->size - 1];                                                                     \
     }                                                                                                          \
                                                                                                                \
     member_t container_t##_GetValue(const container_t * const self, size_t index)                              \
@@ -213,7 +208,7 @@ extern "C"
         assert(self);                                                                                          \
                                                                                                                \
         container_t##_Iterator it;                                                                             \
-        it.value = self->end;                                                                                  \
+        it.value = (member_t *)&self->data[self->size];                                                        \
                                                                                                                \
         return it;                                                                                             \
     }                                                                                                          \
@@ -625,7 +620,6 @@ extern "C"
         size_t size;                                               \
         size_t capacity;                                           \
         member_t data[container_capacity];                         \
-        member_t * end;                                            \
         container_t##_compare_t compare_function;                  \
     };                                                             \
     __static_vector_methods_c(container_t, member_t)

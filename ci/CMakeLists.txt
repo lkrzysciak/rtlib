@@ -28,14 +28,19 @@ set(TESTS
 add_executable(ut ut.cpp ${TESTS})
 target_link_libraries(ut gtest gtest_main gmock gmock_main rtlib)
 
-add_executable(performance_tests_O0 ${TESTED_FILES} performance_tests/performance_test.cpp)
-target_link_libraries(performance_tests_O0 rtlib)
-target_compile_options(performance_tests_O0 PUBLIC -O0)
+# add_executable(performance_tests_O0 ${TESTED_FILES} performance_tests/performance_test.cpp)
+# target_link_libraries(performance_tests_O0 rtlib)
+# target_compile_options(performance_tests_O0 PUBLIC -O0)
 
-add_executable(performance_tests_O3 ${TESTED_FILES} performance_tests/performance_test.cpp)
-target_link_libraries(performance_tests_O3 rtlib)
-target_compile_options(performance_tests_O3 PUBLIC -O3)
-target_compile_definitions(performance_tests_O3 PUBLIC -DNDEBUG)
+# add_executable(performance_tests_O3 ${TESTED_FILES} performance_tests/performance_test.cpp)
+# target_link_libraries(performance_tests_O3 rtlib)
+# target_compile_options(performance_tests_O3 PUBLIC -O3)
+# target_compile_definitions(performance_tests_O3 PUBLIC -DNDEBUG)
+
+add_executable(performance_tests_Os ${TESTED_FILES} performance_tests/performance_test.cpp)
+target_link_libraries(performance_tests_Os rtlib)
+target_compile_options(performance_tests_Os PUBLIC -Os)
+target_compile_definitions(performance_tests_Os PUBLIC -DNDEBUG)
 
 # add_executable(perf_push_back  performance_tests/push_back.cpp)
 # target_link_libraries(perf_push_back rtlib)
