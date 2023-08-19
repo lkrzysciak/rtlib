@@ -5,6 +5,7 @@
 #include <set>
 #include <unordered_set>
 #include <algorithm>
+#include <deque>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/preprocessor/repetition/repeat.hpp>
@@ -720,8 +721,8 @@ int main()
     MAKE_SUITE(LIST_BACK_TEST, 30000, list_back);
     MAKE_SUITE(LIST_FRONT_TEST, 30000, list_front);
     MAKE_SUITE(LIST_MIDDLE_TEST, 30000, list_middle);
-    MAKE_SUITE(DEQUE_BACK_TEST, 30000, deque_back);
-    MAKE_SUITE(DEQUE_FRONT_TEST, 30000, deque_front);
+    MAKE_SUITE(DEQUE_BACK_TEST, 100000, deque_back);
+    MAKE_SUITE(DEQUE_FRONT_TEST, 100000, deque_front);
     MAKE_SUITE(DEQUE_MIDDLE_TEST, 30000, deque_middle);
 
     /* Front */

@@ -6,14 +6,9 @@
 #include "error_codes.h"
 #include "rtlib/pool.h"
 
-#define list_t(container_t, member_t)                                                                           \
-    typedef struct container_t container_t;                                                                     \
-    typedef struct container_t##_Iterator container_t##_Iterator;                                               \
-    typedef struct container_t##_node container_t##_node;                                                       \
-    typedef int (*container_t##_compare_t)(const member_t *, const member_t *);                                 \
-                                                                                                                \
+#define __list_methods_h(container_t, member_t)                                                                 \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function);           \
-    void container_t##_Destroy(container_t * const self);                                                       \
+    void container_t##_Destruct(container_t * const self);                                                      \
     size_t container_t##_Size(const container_t * const self);                                                  \
     bool container_t##_Empty(const container_t * const self);                                                   \
     int container_t##_PushBack(container_t * const self, member_t data);                                        \
@@ -22,48 +17,32 @@
     int container_t##_PopFront(container_t * const self);                                                       \
     int container_t##_Insert(container_t * const self, container_t##_Iterator * const iterator, member_t data); \
     int container_t##_Erase(container_t * const self, container_t##_Iterator * const iterator);                 \
+    void container_t##_Clear(container_t * const self);                                                         \
     member_t container_t##_Front(const container_t * const self);                                               \
     member_t container_t##_Back(const container_t * const self);                                                \
-    member_t container_t##_GetValue(const container_t * const self, size_t index);                              \
-    void container_t##_SetValue(container_t * const self, size_t index, member_t value);                        \
+    member_t * container_t##_Ref(container_t * const self, size_t index);                                       \
+    const member_t * container_t##_CRef(const container_t * const self, size_t index);                          \
+    container_t##_Iterator container_t##_Find(container_t * const self, const member_t data);                   \
+                                                                                                                \
     container_t##_Iterator container_t##_Begin(const container_t * const self);                                 \
     container_t##_Iterator container_t##_End(const container_t * const self);                                   \
-    member_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self);                        \
-    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, member_t value);                  \
     bool container_t##_Iterator_Equal(const container_t##_Iterator * const first,                               \
                                       const container_t##_Iterator * const second);                             \
     void container_t##_Iterator_Increment(container_t##_Iterator * const self);                                 \
     void container_t##_Iterator_Decrement(container_t##_Iterator * const self);                                 \
-    container_t##_Iterator container_t##_Find(container_t * const self, const member_t data);                   \
+    member_t * container_t##_Iterator_Ref(container_t##_Iterator * const self);                                 \
+    const member_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self);                    \
+                                                                                                                \
+    /* will be deleted in v3*/                                                                                  \
+    void container_t##_Destroy(container_t * const self);                                                       \
+    member_t container_t##_GetValue(const container_t * const self, size_t index);                              \
+    void container_t##_SetValue(container_t * const self, size_t index, member_t value);                        \
+    member_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self);                        \
+    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, member_t value);                  \
     container_t##_Iterator container_t##_CustomFind(container_t * const self, const member_t data,              \
-                                                    container_t##_compare_t compare_function);                  \
-    void container_t##_Clear(container_t * const self);
+                                                    container_t##_compare_t compare_function);
 
-#define static_list_t(container_t, member_t, container_capacity)                                                \
-    struct container_t##_node                                                                                   \
-    {                                                                                                           \
-        container_t##_node * prev;                                                                              \
-        container_t##_node * next;                                                                              \
-        member_t value;                                                                                         \
-    };                                                                                                          \
-                                                                                                                \
-    struct container_t##_Iterator                                                                               \
-    {                                                                                                           \
-        container_t##_node * node;                                                                              \
-    };                                                                                                          \
-                                                                                                                \
-    pool_t(container_t##_pool, container_t##_node);                                                             \
-    static_pool_t(container_t##_pool, container_t##_node, container_capacity + 1);                              \
-                                                                                                                \
-    struct container_t                                                                                          \
-    {                                                                                                           \
-        container_t##_node * begin;                                                                             \
-        container_t##_node * end;                                                                               \
-        container_t##_pool pool;                                                                                \
-        size_t size;                                                                                            \
-        container_t##_compare_t compare_function;                                                               \
-    };                                                                                                          \
-                                                                                                                \
+#define __static_list_methods_c(container_t, member_t, container_capacity)                                      \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function)            \
     {                                                                                                           \
         assert(self);                                                                                           \
@@ -372,6 +351,7 @@
     container_t##_Iterator container_t##_Find(container_t * const self, const member_t data)                    \
     {                                                                                                           \
         assert(self);                                                                                           \
+        assert(self->compare_function);                                                                         \
                                                                                                                 \
         container_t##_Iterator end = container_t##_End(self);                                                   \
         container_t##_Iterator it  = container_t##_Begin(self);                                                 \
@@ -418,27 +398,7 @@
         }                                                                                                       \
     }
 
-#define custom_allocator_list_t(container_t, member_t, allocator_t)                                             \
-    struct container_t##_node                                                                                   \
-    {                                                                                                           \
-        container_t##_node * prev;                                                                              \
-        container_t##_node * next;                                                                              \
-        member_t value;                                                                                         \
-    };                                                                                                          \
-                                                                                                                \
-    struct container_t##_Iterator                                                                               \
-    {                                                                                                           \
-        container_t##_node * node;                                                                              \
-    };                                                                                                          \
-                                                                                                                \
-    struct container_t                                                                                          \
-    {                                                                                                           \
-        container_t##_node * begin;                                                                             \
-        container_t##_node * end;                                                                               \
-        allocator_t allocator;                                                                                  \
-        size_t size;                                                                                            \
-        container_t##_compare_t compare_function;                                                               \
-    };                                                                                                          \
+#define __custom_allocator_list_methods_c(container_t, member_t, allocator_t)                                   \
                                                                                                                 \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function)            \
     {                                                                                                           \
@@ -757,6 +717,7 @@
     container_t##_Iterator container_t##_Find(container_t * const self, const member_t data)                    \
     {                                                                                                           \
         assert(self);                                                                                           \
+        assert(self->compare_function);                                                                         \
                                                                                                                 \
         container_t##_Iterator end = container_t##_End(self);                                                   \
         container_t##_Iterator it  = container_t##_Begin(self);                                                 \
@@ -805,7 +766,134 @@
 
 #include "rtlib/memory.h"
 
+#define list_t(container_t, member_t)                                           \
+    typedef struct container_t container_t;                                     \
+    typedef struct container_t##_Iterator container_t##_Iterator;               \
+    typedef struct container_t##_node container_t##_node;                       \
+    typedef int (*container_t##_compare_t)(const member_t *, const member_t *); \
+    __list_methods_h(container_t, member_t)
+
+#define static_list_t(container_t, member_t, container_capacity)                   \
+    struct container_t##_node                                                      \
+    {                                                                              \
+        container_t##_node * prev;                                                 \
+        container_t##_node * next;                                                 \
+        member_t value;                                                            \
+    };                                                                             \
+                                                                                   \
+    struct container_t##_Iterator                                                  \
+    {                                                                              \
+        container_t##_node * node;                                                 \
+    };                                                                             \
+                                                                                   \
+    pool_t(container_t##_pool, container_t##_node);                                \
+    static_pool_t(container_t##_pool, container_t##_node, container_capacity + 1); \
+                                                                                   \
+    struct container_t                                                             \
+    {                                                                              \
+        container_t##_node * begin;                                                \
+        container_t##_node * end;                                                  \
+        container_t##_pool pool;                                                   \
+        size_t size;                                                               \
+        container_t##_compare_t compare_function;                                  \
+    };                                                                             \
+    __static_list_methods_c(container_t, member_t, container_capacity)
+
+#define custom_allocator_list_t(container_t, member_t, allocator_t) \
+    struct container_t##_node                                       \
+    {                                                               \
+        container_t##_node * prev;                                  \
+        container_t##_node * next;                                  \
+        member_t value;                                             \
+    };                                                              \
+                                                                    \
+    struct container_t##_Iterator                                   \
+    {                                                               \
+        container_t##_node * node;                                  \
+    };                                                              \
+                                                                    \
+    struct container_t                                              \
+    {                                                               \
+        container_t##_node * begin;                                 \
+        container_t##_node * end;                                   \
+        allocator_t allocator;                                      \
+        size_t size;                                                \
+        container_t##_compare_t compare_function;                   \
+    };                                                              \
+    __custom_allocator_list_methods_c(container_t, member_t, allocator_t)
+
 #define dynamic_list_t(container_t, member_t)         \
     memory_t(container_t##_DynamicAllocator);         \
     dynamic_memory_t(container_t##_DynamicAllocator); \
     custom_allocator_list_t(container_t, member_t, container_t##_DynamicAllocator);
+
+#define static_list(container_t, member_t, container_capacity)                   \
+    typedef struct container_t container_t;                                      \
+    typedef struct container_t##_Iterator container_t##_Iterator;                \
+    typedef struct container_t##_node container_t##_node;                        \
+    typedef int (*container_t##_compare_t)(const member_t *, const member_t *);  \
+    struct container_t##_node                                                    \
+    {                                                                            \
+        container_t##_node * prev;                                               \
+        container_t##_node * next;                                               \
+        member_t value;                                                          \
+    };                                                                           \
+                                                                                 \
+    struct container_t##_Iterator                                                \
+    {                                                                            \
+        container_t##_node * node;                                               \
+    };                                                                           \
+                                                                                 \
+    static_pool(container_t##_pool, container_t##_node, container_capacity + 1); \
+                                                                                 \
+    struct container_t                                                           \
+    {                                                                            \
+        container_t##_node * begin;                                              \
+        container_t##_node * end;                                                \
+        container_t##_pool pool;                                                 \
+        size_t size;                                                             \
+        container_t##_compare_t compare_function;                                \
+    };                                                                           \
+    __list_methods_h(container_t, member_t);
+
+#define static_list_impl(container_t, member_t, container_capacity)                   \
+    static_pool_impl(container_t##_pool, container_t##_node, container_capacity + 1); \
+    __static_list_methods_c(container_t, member_t, container_capacity)
+
+#define custom_allocator_list(container_t, member_t, allocator_t)               \
+    typedef struct container_t container_t;                                     \
+    typedef struct container_t##_Iterator container_t##_Iterator;               \
+    typedef struct container_t##_node container_t##_node;                       \
+    typedef int (*container_t##_compare_t)(const member_t *, const member_t *); \
+    struct container_t##_node                                                   \
+    {                                                                           \
+        container_t##_node * prev;                                              \
+        container_t##_node * next;                                              \
+        member_t value;                                                         \
+    };                                                                          \
+                                                                                \
+    struct container_t##_Iterator                                               \
+    {                                                                           \
+        container_t##_node * node;                                              \
+    };                                                                          \
+                                                                                \
+    struct container_t                                                          \
+    {                                                                           \
+        container_t##_node * begin;                                             \
+        container_t##_node * end;                                               \
+        allocator_t allocator;                                                  \
+        size_t size;                                                            \
+        container_t##_compare_t compare_function;                               \
+    };                                                                          \
+    __list_methods_h(container_t, member_t);
+
+#define custom_allocator_list_impl(container_t, member_t, allocator_t) \
+    __custom_allocator_list_methods_c(container_t, member_t, allocator_t)
+
+#define dynamic_list(container_t, member_t)         \
+    dynamic_memory(container_t##_DynamicAllocator); \
+    custom_allocator_list(container_t, member_t, container_t##_DynamicAllocator);
+
+#define dynamic_list_impl(container_t, member_t)         \
+    dynamic_memory_impl(container_t##_DynamicAllocator); \
+    custom_allocator_list_impl(container_t, member_t, container_t##_DynamicAllocator);

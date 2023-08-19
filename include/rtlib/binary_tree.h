@@ -18,18 +18,22 @@
     bool container_t##_Empty(const container_t * const self);                                      \
     int container_t##_Insert(container_t * const self, member_t data);                             \
     int container_t##_Erase(container_t * const self, container_t##_Iterator * const iterator);    \
+    void container_t##_Clear(container_t * const self);                                            \
+    container_t##_Iterator container_t##_Find(container_t * const self, member_t data);            \
+                                                                                                   \
     container_t##_Iterator container_t##_Begin(const container_t * const self);                    \
     container_t##_Iterator container_t##_End(const container_t * const self);                      \
-    member_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self);           \
-    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, member_t value);     \
     bool container_t##_Iterator_Equal(const container_t##_Iterator * const first,                  \
                                       const container_t##_Iterator * const second);                \
     void container_t##_Iterator_Increment(container_t##_Iterator * const self);                    \
     void container_t##_Iterator_Decrement(container_t##_Iterator * const self);                    \
-    container_t##_Iterator container_t##_Find(container_t * const self, member_t data);            \
+    const member_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self);       \
+                                                                                                   \
+    /* will be deleted in v3*/                                                                     \
+    member_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self);           \
+    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, member_t value);     \
     container_t##_Iterator container_t##_CustomFind(container_t * const self, const member_t data, \
-                                                    container_t##_compare_t compare_function);     \
-    void container_t##_Clear(container_t * const self);
+                                                    container_t##_compare_t compare_function);
 
 #define static_binary_tree_t(container_t, member_t, container_capacity)                                           \
     struct container_t##_node                                                                                     \

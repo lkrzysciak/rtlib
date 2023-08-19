@@ -14,7 +14,6 @@ extern "C"
 
 #define __vector_methods_h(container_t, member_t)                                                               \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function);           \
-    void container_t##_Destroy(container_t * const self);                                                       \
     size_t container_t##_Size(const container_t * const self);                                                  \
     bool container_t##_Empty(const container_t * const self);                                                   \
     int container_t##_PushBack(container_t * const self, member_t data);                                        \
@@ -23,24 +22,30 @@ extern "C"
     int container_t##_PopFront(container_t * const self);                                                       \
     int container_t##_Insert(container_t * const self, container_t##_Iterator * const iterator, member_t data); \
     int container_t##_Erase(container_t * const self, container_t##_Iterator * const iterator);                 \
+    void container_t##_Clear(container_t * const self);                                                         \
     member_t container_t##_Front(const container_t * const self);                                               \
     member_t container_t##_Back(const container_t * const self);                                                \
-    member_t container_t##_GetValue(const container_t * const self, size_t index);                              \
-    void container_t##_SetValue(container_t * const self, size_t index, member_t value);                        \
     member_t * container_t##_Ref(container_t * const self, size_t index);                                       \
     const member_t * container_t##_CRef(const container_t * const self, size_t index);                          \
+    container_t##_Iterator container_t##_Find(container_t * const self, const member_t data);                   \
+                                                                                                                \
     container_t##_Iterator container_t##_Begin(const container_t * const self);                                 \
     container_t##_Iterator container_t##_End(const container_t * const self);                                   \
-    member_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self);                        \
-    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, member_t value);                  \
     bool container_t##_Iterator_Equal(const container_t##_Iterator * const first,                               \
                                       const container_t##_Iterator * const second);                             \
     void container_t##_Iterator_Increment(container_t##_Iterator * const self);                                 \
     void container_t##_Iterator_Decrement(container_t##_Iterator * const self);                                 \
-    container_t##_Iterator container_t##_Find(container_t * const self, const member_t data);                   \
+    member_t * container_t##_Iterator_Ref(container_t##_Iterator * const self);                                 \
+    const member_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self);                    \
+                                                                                                                \
+    /* will be deleted in v3*/                                                                                  \
+    void container_t##_Destroy(container_t * const self);                                                       \
+    member_t container_t##_GetValue(const container_t * const self, size_t index);                              \
+    void container_t##_SetValue(container_t * const self, size_t index, member_t value);                        \
+    member_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self);                        \
+    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, member_t value);                  \
     container_t##_Iterator container_t##_CustomFind(container_t * const self, const member_t data,              \
-                                                    container_t##_compare_t compare_function);                  \
-    void container_t##_Clear(container_t * const self);
+                                                    container_t##_compare_t compare_function);
 
 #define __static_vector_methods_c(container_t, member_t)                                                       \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function)           \

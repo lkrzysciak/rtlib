@@ -22,29 +22,15 @@ set(TESTS
     pool_test.cpp
     queue_containers_test.cpp
     set_test.cpp
-    event_loop_test.cpp
     )
 
 add_executable(ut ut.cpp ${TESTS})
 target_link_libraries(ut gtest gtest_main gmock gmock_main rtlib)
 
-# add_executable(performance_tests_O0 ${TESTED_FILES} performance_tests/performance_test.cpp)
-# target_link_libraries(performance_tests_O0 rtlib)
-# target_compile_options(performance_tests_O0 PUBLIC -O0)
-
-# add_executable(performance_tests_O3 ${TESTED_FILES} performance_tests/performance_test.cpp)
-# target_link_libraries(performance_tests_O3 rtlib)
-# target_compile_options(performance_tests_O3 PUBLIC -O3)
-# target_compile_definitions(performance_tests_O3 PUBLIC -DNDEBUG)
-
 add_executable(performance_tests_Os ${TESTED_FILES} performance_tests/performance_test.cpp)
 target_link_libraries(performance_tests_Os rtlib)
 target_compile_options(performance_tests_Os PUBLIC -Os)
 target_compile_definitions(performance_tests_Os PUBLIC -DNDEBUG)
-
-# add_executable(perf_push_back  performance_tests/push_back.cpp)
-# target_link_libraries(perf_push_back rtlib)
-# target_compile_options(perf_push_back PUBLIC -O3)
 
 add_executable(c_static_vector c_tests/static_vector.c)
 target_link_libraries(c_static_vector rtlib)
@@ -84,15 +70,6 @@ target_link_libraries(c_dynamic_binary_tree rtlib)
 
 add_executable(c_dynamic_hash_table c_tests/dynamic_hash_table.c)
 target_link_libraries(c_dynamic_hash_table rtlib)
-
-add_executable(c_dynamic_event_loop c_tests/dynamic_event_loop.c)
-target_link_libraries(c_dynamic_event_loop rtlib)
-
-add_executable(c_static_event_loop c_tests/static_event_loop.c)
-target_link_libraries(c_static_event_loop rtlib)
-
-add_executable(c_custom_event_loop c_tests/custom_event_loop.c)
-target_link_libraries(c_custom_event_loop rtlib)
 
 add_executable(c_dec_def c_tests/dec_def.c c_tests/def.c)
 target_link_libraries(c_dec_def rtlib)
