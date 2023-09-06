@@ -6,12 +6,12 @@
 #include "rtlib/pool.h"
 #include "error_codes.h"
 
-#define binary_tree_t(container_t, member_t)                                                       \
-    typedef struct container_t container_t;                                                        \
-    typedef struct container_t##_Iterator container_t##_Iterator;                                  \
-    typedef struct container_t##_node container_t##_node;                                          \
-    typedef int (*container_t##_compare_t)(const member_t *, const member_t *);                    \
-                                                                                                   \
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+#define __binary_tree_methods_h(container_t, member_t)                                             \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare);       \
     void container_t##_Destroy(container_t * const self);                                          \
     size_t container_t##_Size(const container_t * const self);                                     \
@@ -35,31 +35,7 @@
     container_t##_Iterator container_t##_CustomFind(container_t * const self, const member_t data, \
                                                     container_t##_compare_t compare_function);
 
-#define static_binary_tree_t(container_t, member_t, container_capacity)                                           \
-    struct container_t##_node                                                                                     \
-    {                                                                                                             \
-        container_t##_node * right;                                                                               \
-        container_t##_node * left;                                                                                \
-        container_t##_node * parent;                                                                              \
-        member_t value;                                                                                           \
-    };                                                                                                            \
-                                                                                                                  \
-    struct container_t##_Iterator                                                                                 \
-    {                                                                                                             \
-        container_t##_node * node;                                                                                \
-        container_t##_node * next;                                                                                \
-        container_t##_node * prev;                                                                                \
-    };                                                                                                            \
-    pool_t(container_t##_pool, container_t##_node);                                                               \
-    static_pool_t(container_t##_pool, container_t##_node, container_capacity);                                    \
-                                                                                                                  \
-    struct container_t                                                                                            \
-    {                                                                                                             \
-        container_t##_node * root;                                                                                \
-        container_t##_pool pool;                                                                                  \
-        container_t##_compare_t compare_function;                                                                 \
-        size_t size;                                                                                              \
-    };                                                                                                            \
+#define __static_binary_tree_methods_c(container_t, member_t, container_capacity)                                 \
                                                                                                                   \
     static container_t##_node * __##container_t##_GetNextNode(container_t##_node * node)                          \
     {                                                                                                             \
@@ -407,6 +383,11 @@
         }                                                                                                         \
     }                                                                                                             \
                                                                                                                   \
+    const member_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self)                       \
+    {                                                                                                             \
+        return (const member_t *)&self->node->value;                                                              \
+    }                                                                                                             \
+                                                                                                                  \
     container_t##_Iterator container_t##_Find(container_t * const self, member_t data)                            \
     {                                                                                                             \
         assert(self);                                                                                             \
@@ -467,29 +448,7 @@
         }                                                                                                         \
     }
 
-#define custom_allocator_binary_tree_t(container_t, member_t, allocator_t)                                        \
-    struct container_t##_node                                                                                     \
-    {                                                                                                             \
-        container_t##_node * right;                                                                               \
-        container_t##_node * left;                                                                                \
-        container_t##_node * parent;                                                                              \
-        member_t value;                                                                                           \
-    };                                                                                                            \
-                                                                                                                  \
-    struct container_t##_Iterator                                                                                 \
-    {                                                                                                             \
-        container_t##_node * node;                                                                                \
-        container_t##_node * next;                                                                                \
-        container_t##_node * prev;                                                                                \
-    };                                                                                                            \
-                                                                                                                  \
-    struct container_t                                                                                            \
-    {                                                                                                             \
-        container_t##_node * root;                                                                                \
-        allocator_t allocator;                                                                                    \
-        container_t##_compare_t compare_function;                                                                 \
-        size_t size;                                                                                              \
-    };                                                                                                            \
+#define __custom_allocator_binary_tree_methods_c(container_t, member_t, allocator_t)                              \
                                                                                                                   \
     static container_t##_node * __##container_t##_GetNextNode(container_t##_node * node)                          \
     {                                                                                                             \
@@ -841,6 +800,11 @@
         }                                                                                                         \
     }                                                                                                             \
                                                                                                                   \
+    const member_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self)                       \
+    {                                                                                                             \
+        return (const member_t *)&self->node->value;                                                              \
+    }                                                                                                             \
+                                                                                                                  \
     container_t##_Iterator container_t##_Find(container_t * const self, member_t data)                            \
     {                                                                                                             \
         assert(self);                                                                                             \
@@ -901,9 +865,73 @@
         }                                                                                                         \
     }
 
+#define binary_tree_t(container_t, member_t)                                    \
+    typedef struct container_t container_t;                                     \
+    typedef struct container_t##_Iterator container_t##_Iterator;               \
+    typedef struct container_t##_node container_t##_node;                       \
+    typedef int (*container_t##_compare_t)(const member_t *, const member_t *); \
+                                                                                \
+    __binary_tree_methods_h(container_t, member_t)
+
+#define static_binary_tree_t(container_t, member_t, container_capacity)        \
+    struct container_t##_node                                                  \
+    {                                                                          \
+        container_t##_node * right;                                            \
+        container_t##_node * left;                                             \
+        container_t##_node * parent;                                           \
+        member_t value;                                                        \
+    };                                                                         \
+                                                                               \
+    struct container_t##_Iterator                                              \
+    {                                                                          \
+        container_t##_node * node;                                             \
+        container_t##_node * next;                                             \
+        container_t##_node * prev;                                             \
+    };                                                                         \
+    pool_t(container_t##_pool, container_t##_node);                            \
+    static_pool_t(container_t##_pool, container_t##_node, container_capacity); \
+                                                                               \
+    struct container_t                                                         \
+    {                                                                          \
+        container_t##_node * root;                                             \
+        container_t##_pool pool;                                               \
+        container_t##_compare_t compare_function;                              \
+        size_t size;                                                           \
+    };                                                                         \
+    __static_binary_tree_methods_c(container_t, member_t, container_capacity)
+
+#define custom_allocator_binary_tree_t(container_t, member_t, allocator_t) \
+    struct container_t##_node                                              \
+    {                                                                      \
+        container_t##_node * right;                                        \
+        container_t##_node * left;                                         \
+        container_t##_node * parent;                                       \
+        member_t value;                                                    \
+    };                                                                     \
+                                                                           \
+    struct container_t##_Iterator                                          \
+    {                                                                      \
+        container_t##_node * node;                                         \
+        container_t##_node * next;                                         \
+        container_t##_node * prev;                                         \
+    };                                                                     \
+                                                                           \
+    struct container_t                                                     \
+    {                                                                      \
+        container_t##_node * root;                                         \
+        allocator_t allocator;                                             \
+        container_t##_compare_t compare_function;                          \
+        size_t size;                                                       \
+    };                                                                     \
+    __custom_allocator_binary_tree_methods_c(container_t, member_t, allocator_t)
+
 #include "rtlib/memory.h"
 
 #define dynamic_binary_tree_t(container_t, member_t)  \
     memory_t(container_t##_DynamicAllocator);         \
     dynamic_memory_t(container_t##_DynamicAllocator); \
     custom_allocator_binary_tree_t(container_t, member_t, container_t##_DynamicAllocator);
+
+#ifdef __cplusplus
+}
+#endif

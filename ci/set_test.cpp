@@ -2,6 +2,8 @@
 #include "rtlib/binary_tree.h"
 #include "rtlib/hash_table.h"
 #include "rtlib/memory.h"
+#include "rtlib/set.h"
+#include "rtlib/unordered_set.h"
 #include <map>
 #include <set>
 #include <list>
@@ -54,6 +56,11 @@ extern "C"
     hash_table_t(StructTypeDynamicHashTable, StructType);
     dynamic_hash_table_t(StructTypeDynamicHashTable, StructType);
 }
+
+static_set(StaticSetV3, int, CONTAINER_CAPACITY);
+dynamic_set(DynamicSetV3, int);
+static_unordered_set(StaticUnorderedSetV3, int, CONTAINER_CAPACITY);
+dynamic_unordered_set(DynamicUnorderedSetV3, int);
 
 static int compare_set_ints(const int * v1, const int * v2)
 {
@@ -176,6 +183,11 @@ static unsigned int hash_function_struct_type(const StructType * value)
         return Type##_Iterator_GetValue(it);                                                      \
     }                                                                                             \
                                                                                                   \
+    auto * CRef(Type##_Iterator * const it)                                                       \
+    {                                                                                             \
+        return Type##_Iterator_CRef(it);                                                          \
+    }                                                                                             \
+                                                                                                  \
     void IteratorInc(Type##_Iterator * const it)                                                  \
     {                                                                                             \
         return Type##_Iterator_Increment(it);                                                     \
@@ -252,6 +264,26 @@ void Init(DynamicHashTable * const hash_table)
     DynamicHashTable_Construct(hash_table, compare_set_ints, hash_function);
 }
 
+void Init(StaticSetV3 * const object)
+{
+    StaticSetV3_Construct(object, compare_set_ints);
+}
+
+void Init(DynamicSetV3 * const object)
+{
+    DynamicSetV3_Construct(object, compare_set_ints);
+}
+
+void Init(StaticUnorderedSetV3 * const object)
+{
+    StaticUnorderedSetV3_Construct(object, compare_set_ints, hash_function);
+}
+
+void Init(DynamicUnorderedSetV3 * const object)
+{
+    DynamicUnorderedSetV3_Construct(object, compare_set_ints, hash_function);
+}
+
 create_wrappers_for_type(SetType, int);
 create_wrappers_for_type(HashTable, int);
 create_wrappers_for_type(CustomBinaryTree, int);
@@ -263,6 +295,11 @@ create_wrappers_for_type(StructTypeStaticBinaryTree, StructType);
 create_wrappers_for_type(StructTypeStaticHashTable, StructType);
 create_wrappers_for_type(StructTypeDynamicBinaryTree, StructType);
 create_wrappers_for_type(StructTypeDynamicHashTable, StructType);
+
+create_wrappers_for_type(StaticSetV3, int);
+create_wrappers_for_type(DynamicSetV3, int);
+create_wrappers_for_type(StaticUnorderedSetV3, int);
+create_wrappers_for_type(DynamicUnorderedSetV3, int);
 
 void Init(StructTypeStaticBinaryTree * const container)
 {
@@ -315,9 +352,10 @@ struct SetStructTypeTest : public testing::Test
 };
 
 using MyTypes =
-    testing::Types<SetType, HashTable, CustomBinaryTree, CustomHashTable, DynamicBinaryTree, DynamicHashTable>;
+    testing::Types<SetType, HashTable, CustomBinaryTree, CustomHashTable, DynamicBinaryTree, DynamicHashTable,
+                   StaticSetV3, DynamicSetV3, StaticUnorderedSetV3, DynamicUnorderedSetV3>;
 
-using StaticContainerTypes = testing::Types<SetType, HashTable>;
+using StaticContainerTypes = testing::Types<SetType, HashTable, StaticSetV3, StaticUnorderedSetV3>;
 
 using StructContainerTypes = testing::Types<StructTypeStaticBinaryTree, StructTypeStaticHashTable,
                                             StructTypeDynamicBinaryTree, StructTypeDynamicHashTable>;
@@ -645,6 +683,36 @@ TYPED_TEST(SetTest, FindExistedMember)
     ASSERT_EQ(IteratorValue(&temp5It), temp5);
 }
 
+TYPED_TEST(SetTest, CRef)
+{
+    int temp1{ 3215 };
+    int temp2{ 23587 };
+    int temp3{ 980 };
+    int temp4{ 1024 };
+    int temp5{ 5005 };
+
+    Insert(&this->container, temp1);
+    Insert(&this->container, temp2);
+    Insert(&this->container, temp3);
+    Insert(&this->container, temp4);
+    Insert(&this->container, temp5);
+
+    auto temp1It = Find(&this->container, temp1);
+    ASSERT_EQ(*CRef(&temp1It), temp1);
+
+    auto temp2It = Find(&this->container, temp2);
+    ASSERT_EQ(*CRef(&temp2It), temp2);
+
+    auto temp3It = Find(&this->container, temp3);
+    ASSERT_EQ(*CRef(&temp3It), temp3);
+
+    auto temp4It = Find(&this->container, temp4);
+    ASSERT_EQ(*CRef(&temp4It), temp4);
+
+    auto temp5It = Find(&this->container, temp5);
+    ASSERT_EQ(*CRef(&temp5It), temp5);
+}
+
 TYPED_TEST(SetTest, FindNonExistedMember)
 {
     int temp1{ 3215 };
@@ -822,3 +890,8 @@ TYPED_TEST(SetStructTypeTest, StructMembersInsert)
     ASSERT_EQ(var2.boolVar, receivedVar2.boolVar);
     ASSERT_EQ(var2.id, receivedVar2.id);
 }
+
+static_set_impl(StaticSetV3, int, CONTAINER_CAPACITY);
+dynamic_set_impl(DynamicSetV3, int);
+static_unordered_set_impl(StaticUnorderedSetV3, int, CONTAINER_CAPACITY);
+dynamic__unordered_set_impl(DynamicUnorderedSetV3, int);

@@ -37,5 +37,26 @@ int main()
     StaticDeque_Iterator staticDequeIt = StaticDeque_Begin(&staticDeque);
     StaticDeque_Destroy(&staticDeque);
 
+    StaticSet staticSet;
+    StaticSet_Construct(&staticSet, NULL);
+    StaticSet_Iterator staticSetIt = StaticSet_Begin(&staticSet);
+    StaticSet_Destroy(&staticSet);
+
+    CustomAllocatorSet customAllocatorSet;
+    CustomAllocatorSet_Construct(&customAllocatorSet, NULL);
+    CustomAllocatorSet_Iterator customAllocatorSetIt = CustomAllocatorSet_Begin(&customAllocatorSet);
+    CustomAllocatorSet_Destroy(&customAllocatorSet);
+
+    StaticUnorderedSet staticUnorderedSet;
+    StaticUnorderedSet_Construct(&staticUnorderedSet, NULL, NULL);
+    StaticUnorderedSet_Iterator staticUnorderedSetIt = StaticUnorderedSet_Begin(&staticUnorderedSet);
+    StaticUnorderedSet_Destroy(&staticUnorderedSet);
+
+    CustomAllocatorUnorderedSet customAllocatorUnorderedSet;
+    CustomAllocatorUnorderedSet_Construct(&customAllocatorUnorderedSet, NULL, NULL);
+    CustomAllocatorUnorderedSet_Iterator customAllocatorUnorderedSetIt =
+        CustomAllocatorUnorderedSet_Begin(&customAllocatorUnorderedSet);
+    CustomAllocatorUnorderedSet_Destroy(&customAllocatorUnorderedSet);
+
     return 0;
 }

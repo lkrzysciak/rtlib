@@ -7,14 +7,12 @@
 #include "rtlib/pool.h"
 #include "error_codes.h"
 
-#define hash_table_t(container_t, member_t)                                                        \
-    typedef struct container_t container_t;                                                        \
-    typedef struct container_t##_Iterator container_t##_Iterator;                                  \
-    typedef struct container_t##_node container_t##_node;                                          \
-                                                                                                   \
-    typedef int (*container_t##_compare_t)(const member_t *, const member_t *);                    \
-    typedef unsigned int (*container_t##_hash_t)(const member_t *);                                \
-                                                                                                   \
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+#define __hash_table_methods_h(container_t, member_t)                                              \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare,        \
                                  container_t##_hash_t hash);                                       \
     void container_t##_Destroy(container_t * const self);                                          \
@@ -31,6 +29,7 @@
                                       const container_t##_Iterator * const second);                \
     void container_t##_Iterator_Increment(container_t##_Iterator * const self);                    \
     void container_t##_Iterator_Decrement(container_t##_Iterator * const self);                    \
+    const member_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self);       \
                                                                                                    \
     /* will be deleted in v3*/                                                                     \
     member_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self);           \
@@ -38,32 +37,7 @@
     container_t##_Iterator container_t##_CustomFind(container_t * const self, const member_t data, \
                                                     container_t##_compare_t compare_function);
 
-#define static_hash_table_t(container_t, member_t, container_capacity)                                                 \
-                                                                                                                       \
-    struct container_t##_node                                                                                          \
-    {                                                                                                                  \
-        member_t value;                                                                                                \
-        container_t##_node * prev;                                                                                     \
-        container_t##_node * next;                                                                                     \
-    };                                                                                                                 \
-                                                                                                                       \
-    pool_t(container_t##_pool, container_t##_node);                                                                    \
-    static_pool_t(container_t##_pool, container_t##_node, container_capacity);                                         \
-                                                                                                                       \
-    struct container_t##_Iterator                                                                                      \
-    {                                                                                                                  \
-        container_t##_node * node;                                                                                     \
-        container_t * container;                                                                                       \
-    };                                                                                                                 \
-    struct container_t                                                                                                 \
-    {                                                                                                                  \
-        container_t##_node * nodes_table[container_capacity + 1];                                                      \
-        container_t##_compare_t compare_function;                                                                      \
-        container_t##_hash_t hash_function;                                                                            \
-        size_t size;                                                                                                   \
-        container_t##_pool pool;                                                                                       \
-    };                                                                                                                 \
-                                                                                                                       \
+#define __static_hash_table_methods_c(container_t, member_t, container_capacity)                                       \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare, container_t##_hash_t hash) \
     {                                                                                                                  \
         assert(self);                                                                                                  \
@@ -298,6 +272,11 @@
         }                                                                                                              \
     }                                                                                                                  \
                                                                                                                        \
+    const member_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self)                            \
+    {                                                                                                                  \
+        return (const member_t *)&self->node->value;                                                                   \
+    }                                                                                                                  \
+                                                                                                                       \
     container_t##_Iterator container_t##_Find(container_t * const self, member_t data)                                 \
     {                                                                                                                  \
         container_t##_Iterator it      = container_t##_End(self);                                                      \
@@ -350,30 +329,7 @@
         }                                                                                                              \
     }
 
-#define custom_allocator_hash_table_t(container_t, member_t, allocator_t)                                              \
-    struct container_t##_node                                                                                          \
-    {                                                                                                                  \
-        member_t value;                                                                                                \
-        container_t##_node * prev;                                                                                     \
-        container_t##_node * next;                                                                                     \
-    };                                                                                                                 \
-                                                                                                                       \
-    struct container_t##_Iterator                                                                                      \
-    {                                                                                                                  \
-        container_t##_node * node;                                                                                     \
-        container_t * container;                                                                                       \
-    };                                                                                                                 \
-                                                                                                                       \
-    struct container_t                                                                                                 \
-    {                                                                                                                  \
-        container_t##_node ** nodes_table;                                                                             \
-        size_t nodes_table_size;                                                                                       \
-        container_t##_compare_t compare_function;                                                                      \
-        container_t##_hash_t hash_function;                                                                            \
-        size_t size;                                                                                                   \
-        allocator_t allocator;                                                                                         \
-    };                                                                                                                 \
-                                                                                                                       \
+#define __custom_allocator_hash_table_methods_c(container_t, member_t, allocator_t)                                    \
     static bool __##container_t##_InsertNodeToHashTable(container_t * const self, container_t##_node * node,           \
                                                         container_t##_node ** hash_table, size_t hash_table_size)      \
     {                                                                                                                  \
@@ -666,6 +622,11 @@
         }                                                                                                              \
     }                                                                                                                  \
                                                                                                                        \
+    const member_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self)                            \
+    {                                                                                                                  \
+        return (const member_t *)&self->node->value;                                                                   \
+    }                                                                                                                  \
+                                                                                                                       \
     container_t##_Iterator container_t##_Find(container_t * const self, member_t data)                                 \
     {                                                                                                                  \
         container_t##_Iterator it      = container_t##_End(self);                                                      \
@@ -718,9 +679,74 @@
         }                                                                                                              \
     }
 
+#define hash_table_t(container_t, member_t)                                     \
+    typedef struct container_t container_t;                                     \
+    typedef struct container_t##_Iterator container_t##_Iterator;               \
+    typedef struct container_t##_node container_t##_node;                       \
+                                                                                \
+    typedef int (*container_t##_compare_t)(const member_t *, const member_t *); \
+    typedef unsigned int (*container_t##_hash_t)(const member_t *);             \
+    __hash_table_methods_h(container_t, member_t);
+
+#define static_hash_table_t(container_t, member_t, container_capacity)         \
+                                                                               \
+    struct container_t##_node                                                  \
+    {                                                                          \
+        member_t value;                                                        \
+        container_t##_node * prev;                                             \
+        container_t##_node * next;                                             \
+    };                                                                         \
+                                                                               \
+    pool_t(container_t##_pool, container_t##_node);                            \
+    static_pool_t(container_t##_pool, container_t##_node, container_capacity); \
+                                                                               \
+    struct container_t##_Iterator                                              \
+    {                                                                          \
+        container_t##_node * node;                                             \
+        container_t * container;                                               \
+    };                                                                         \
+    struct container_t                                                         \
+    {                                                                          \
+        container_t##_node * nodes_table[container_capacity + 1];              \
+        container_t##_compare_t compare_function;                              \
+        container_t##_hash_t hash_function;                                    \
+        size_t size;                                                           \
+        container_t##_pool pool;                                               \
+    };                                                                         \
+    __static_hash_table_methods_c(container_t, member_t, container_capacity);
+
+#define custom_allocator_hash_table_t(container_t, member_t, allocator_t) \
+    struct container_t##_node                                             \
+    {                                                                     \
+        member_t value;                                                   \
+        container_t##_node * prev;                                        \
+        container_t##_node * next;                                        \
+    };                                                                    \
+                                                                          \
+    struct container_t##_Iterator                                         \
+    {                                                                     \
+        container_t##_node * node;                                        \
+        container_t * container;                                          \
+    };                                                                    \
+                                                                          \
+    struct container_t                                                    \
+    {                                                                     \
+        container_t##_node ** nodes_table;                                \
+        size_t nodes_table_size;                                          \
+        container_t##_compare_t compare_function;                         \
+        container_t##_hash_t hash_function;                               \
+        size_t size;                                                      \
+        allocator_t allocator;                                            \
+    };                                                                    \
+    __custom_allocator_hash_table_methods_c(container_t, member_t, allocator_t);
+
 #include "rtlib/memory.h"
 
 #define dynamic_hash_table_t(container_t, member_t)   \
     memory_t(container_t##_DynamicAllocator);         \
     dynamic_memory_t(container_t##_DynamicAllocator); \
     custom_allocator_hash_table_t(container_t, member_t, container_t##_DynamicAllocator);
+
+#ifdef __cplusplus
+}
+#endif
