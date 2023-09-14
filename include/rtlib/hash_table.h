@@ -12,32 +12,32 @@ extern "C"
 {
 #endif
 
-#define __hash_table_methods_h(container_t, member_t)                                              \
-    void container_t##_Construct(container_t * const self, container_t##_compare_t compare,        \
-                                 container_t##_hash_t hash);                                       \
-    void container_t##_Destroy(container_t * const self);                                          \
-    size_t container_t##_Size(const container_t * const self);                                     \
-    bool container_t##_Empty(const container_t * const self);                                      \
-    int container_t##_Insert(container_t * const self, member_t data);                             \
-    int container_t##_Erase(container_t * const self, container_t##_Iterator * const iterator);    \
-    void container_t##_Clear(container_t * const self);                                            \
-    container_t##_Iterator container_t##_Find(container_t * const self, member_t data);            \
-                                                                                                   \
-    container_t##_Iterator container_t##_Begin(const container_t * const self);                    \
-    container_t##_Iterator container_t##_End(const container_t * const self);                      \
-    bool container_t##_Iterator_Equal(const container_t##_Iterator * const first,                  \
-                                      const container_t##_Iterator * const second);                \
-    void container_t##_Iterator_Increment(container_t##_Iterator * const self);                    \
-    void container_t##_Iterator_Decrement(container_t##_Iterator * const self);                    \
-    const member_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self);       \
-                                                                                                   \
-    /* will be deleted in v3*/                                                                     \
-    member_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self);           \
-    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, member_t value);     \
-    container_t##_Iterator container_t##_CustomFind(container_t * const self, const member_t data, \
+#define __hash_table_methods_h(container_t, key_t)                                              \
+    void container_t##_Construct(container_t * const self, container_t##_compare_t compare,     \
+                                 container_t##_hash_t hash);                                    \
+    void container_t##_Destroy(container_t * const self);                                       \
+    size_t container_t##_Size(const container_t * const self);                                  \
+    bool container_t##_Empty(const container_t * const self);                                   \
+    int container_t##_Insert(container_t * const self, key_t data);                             \
+    int container_t##_Erase(container_t * const self, container_t##_Iterator * const iterator); \
+    void container_t##_Clear(container_t * const self);                                         \
+    container_t##_Iterator container_t##_Find(container_t * const self, key_t data);            \
+                                                                                                \
+    container_t##_Iterator container_t##_Begin(const container_t * const self);                 \
+    container_t##_Iterator container_t##_End(const container_t * const self);                   \
+    bool container_t##_Iterator_Equal(const container_t##_Iterator * const first,               \
+                                      const container_t##_Iterator * const second);             \
+    void container_t##_Iterator_Increment(container_t##_Iterator * const self);                 \
+    void container_t##_Iterator_Decrement(container_t##_Iterator * const self);                 \
+    const key_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self);       \
+                                                                                                \
+    /* will be deleted in v3*/                                                                  \
+    key_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self);           \
+    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, key_t key);       \
+    container_t##_Iterator container_t##_CustomFind(container_t * const self, const key_t data, \
                                                     container_t##_compare_t compare_function);
 
-#define __static_hash_table_methods_c(container_t, member_t, container_capacity)                                       \
+#define __static_hash_table_methods_c(container_t, key_t, container_capacity)                                          \
     void container_t##_Construct(container_t * const self, container_t##_compare_t compare, container_t##_hash_t hash) \
     {                                                                                                                  \
         assert(self);                                                                                                  \
@@ -72,22 +72,21 @@ extern "C"
         return self->size == 0;                                                                                        \
     }                                                                                                                  \
                                                                                                                        \
-    int container_t##_Insert(container_t * const self, member_t data)                                                  \
+    int container_t##_Insert(container_t * const self, key_t data)                                                     \
     {                                                                                                                  \
         assert(self);                                                                                                  \
                                                                                                                        \
         container_t##_node * node = container_t##_pool_Allocate(&self->pool);                                          \
         if(node)                                                                                                       \
         {                                                                                                              \
-            const unsigned int hash_value                           = self->hash_function((const member_t *)&data);    \
+            const unsigned int hash_value                           = self->hash_function((const key_t *)&data);       \
             unsigned int index                                      = hash_value % container_capacity;                 \
             container_t##_node * before_the_last_node_for_this_hash = NULL;                                            \
             container_t##_node * last_node_for_this_hash            = self->nodes_table[index];                        \
                                                                                                                        \
             while(last_node_for_this_hash)                                                                             \
             {                                                                                                          \
-                if(self->compare_function((const member_t *)&data,                                                     \
-                                          (const member_t *)&last_node_for_this_hash->value) == 0)                     \
+                if(self->compare_function((const key_t *)&data, (const key_t *)&last_node_for_this_hash->key) == 0)    \
                 {                                                                                                      \
                     container_t##_pool_Release(&self->pool, node);                                                     \
                     return ELEMENT_EXISTS;                                                                             \
@@ -104,8 +103,8 @@ extern "C"
             {                                                                                                          \
                 self->nodes_table[index] = node;                                                                       \
             }                                                                                                          \
-            node->prev  = before_the_last_node_for_this_hash;                                                          \
-            node->value = data;                                                                                        \
+            node->prev = before_the_last_node_for_this_hash;                                                           \
+            node->key  = data;                                                                                         \
         }                                                                                                              \
         else                                                                                                           \
         {                                                                                                              \
@@ -127,7 +126,7 @@ extern "C"
         }                                                                                                              \
         else                                                                                                           \
         {                                                                                                              \
-            const unsigned int hash_value = self->hash_function((const member_t *)&iterator->node->value);             \
+            const unsigned int hash_value = self->hash_function((const key_t *)&iterator->node->key);                  \
             unsigned int index            = hash_value % container_capacity;                                           \
             self->nodes_table[index]      = next_node;                                                                 \
         }                                                                                                              \
@@ -172,20 +171,20 @@ extern "C"
         return it;                                                                                                     \
     }                                                                                                                  \
                                                                                                                        \
-    member_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self)                                \
+    key_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self)                                   \
     {                                                                                                                  \
         assert(self);                                                                                                  \
                                                                                                                        \
-        member_t member = self->node->value;                                                                           \
+        key_t member = self->node->key;                                                                                \
         return member;                                                                                                 \
     }                                                                                                                  \
                                                                                                                        \
-    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, member_t value)                          \
+    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, key_t key)                               \
     {                                                                                                                  \
         assert(self);                                                                                                  \
                                                                                                                        \
         container_t##_Erase(self->container, self);                                                                    \
-        container_t##_Insert(self->container, value);                                                                  \
+        container_t##_Insert(self->container, key);                                                                    \
     }                                                                                                                  \
                                                                                                                        \
     bool container_t##_Iterator_Equal(const container_t##_Iterator * const first,                                      \
@@ -209,7 +208,7 @@ extern "C"
         }                                                                                                              \
         else                                                                                                           \
         {                                                                                                              \
-            const unsigned int hash_value = self->container->hash_function((const member_t *)&self->node->value);      \
+            const unsigned int hash_value = self->container->hash_function((const key_t *)&self->node->key);           \
             unsigned int index            = hash_value % container_capacity;                                           \
                                                                                                                        \
             container_t##_node ** ptr_to_next_node_ptr = &self->container->nodes_table[index + 1];                     \
@@ -250,7 +249,7 @@ extern "C"
             }                                                                                                          \
             else                                                                                                       \
             {                                                                                                          \
-                const unsigned int hash_value = self->container->hash_function((const member_t *)&self->node->value);  \
+                const unsigned int hash_value = self->container->hash_function((const key_t *)&self->node->key);       \
                 index                         = hash_value % container_capacity;                                       \
             }                                                                                                          \
             container_t##_node ** ptr_to_next_node_ptr = &self->container->nodes_table[index - 1];                     \
@@ -272,21 +271,20 @@ extern "C"
         }                                                                                                              \
     }                                                                                                                  \
                                                                                                                        \
-    const member_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self)                            \
+    const key_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self)                               \
     {                                                                                                                  \
-        return (const member_t *)&self->node->value;                                                                   \
+        return (const key_t *)&self->node->key;                                                                        \
     }                                                                                                                  \
                                                                                                                        \
-    container_t##_Iterator container_t##_Find(container_t * const self, member_t data)                                 \
+    container_t##_Iterator container_t##_Find(container_t * const self, key_t data)                                    \
     {                                                                                                                  \
         container_t##_Iterator it      = container_t##_End(self);                                                      \
-        const unsigned int hash_value  = self->hash_function((const member_t *)&data);                                 \
+        const unsigned int hash_value  = self->hash_function((const key_t *)&data);                                    \
         unsigned int index             = hash_value % container_capacity;                                              \
         container_t##_node * temp_node = self->nodes_table[index];                                                     \
         while(temp_node)                                                                                               \
         {                                                                                                              \
-            const int compare_result =                                                                                 \
-                self->compare_function((const member_t *)&data, (const member_t *)&temp_node->value);                  \
+            const int compare_result = self->compare_function((const key_t *)&data, (const key_t *)&temp_node->key);   \
             if(compare_result == 0)                                                                                    \
             {                                                                                                          \
                 it.node = temp_node;                                                                                   \
@@ -298,7 +296,7 @@ extern "C"
         return it;                                                                                                     \
     }                                                                                                                  \
                                                                                                                        \
-    container_t##_Iterator container_t##_CustomFind(container_t * const self, const member_t data,                     \
+    container_t##_Iterator container_t##_CustomFind(container_t * const self, const key_t data,                        \
                                                     container_t##_compare_t compare_function)                          \
     {                                                                                                                  \
         assert(self);                                                                                                  \
@@ -309,7 +307,7 @@ extern "C"
         for(; !container_t##_Iterator_Equal(&it, &end); container_t##_Iterator_Increment(&it))                         \
                                                                                                                        \
         {                                                                                                              \
-            const member_t it_value = container_t##_Iterator_GetValue(&it);                                            \
+            const key_t it_value = container_t##_Iterator_GetValue(&it);                                               \
             if(compare_function(&data, &it_value) == 0)                                                                \
             {                                                                                                          \
                 break;                                                                                                 \
@@ -329,19 +327,18 @@ extern "C"
         }                                                                                                              \
     }
 
-#define __custom_allocator_hash_table_methods_c(container_t, member_t, allocator_t)                                    \
+#define __custom_allocator_hash_table_methods_c(container_t, key_t, allocator_t)                                       \
     static bool __##container_t##_InsertNodeToHashTable(container_t * const self, container_t##_node * node,           \
                                                         container_t##_node ** hash_table, size_t hash_table_size)      \
     {                                                                                                                  \
-        const unsigned int hash_value                           = self->hash_function((const member_t *)&node->value); \
+        const unsigned int hash_value                           = self->hash_function((const key_t *)&node->key);      \
         unsigned int index                                      = hash_value % hash_table_size;                        \
         container_t##_node * before_the_last_node_for_this_hash = NULL;                                                \
         container_t##_node * last_node_for_this_hash            = hash_table[index];                                   \
                                                                                                                        \
         while(last_node_for_this_hash)                                                                                 \
         {                                                                                                              \
-            if(self->compare_function((const member_t *)&node->value,                                                  \
-                                      (const member_t *)&last_node_for_this_hash->value) == 0)                         \
+            if(self->compare_function((const key_t *)&node->key, (const key_t *)&last_node_for_this_hash->key) == 0)   \
             {                                                                                                          \
                 return false;                                                                                          \
             }                                                                                                          \
@@ -405,7 +402,7 @@ extern "C"
         return self->size == 0;                                                                                        \
     }                                                                                                                  \
                                                                                                                        \
-    int container_t##_Insert(container_t * const self, member_t data)                                                  \
+    int container_t##_Insert(container_t * const self, key_t data)                                                     \
     {                                                                                                                  \
         assert(self);                                                                                                  \
                                                                                                                        \
@@ -414,7 +411,7 @@ extern "C"
         memset(node, 0, sizeof(container_t##_node));                                                                   \
         if(node)                                                                                                       \
         {                                                                                                              \
-            node->value = data;                                                                                        \
+            node->key = data;                                                                                          \
             if(self->nodes_table_size == self->size)                                                                   \
             {                                                                                                          \
                 size_t new_nodes_table_size            = self->nodes_table_size * 2;                                   \
@@ -430,9 +427,9 @@ extern "C"
                         container_t##_Iterator it         = container_t##_Begin(self);                                 \
                         container_t##_node * rehased_node = (container_t##_node *)allocator_t##_Allocate(              \
                             &self->allocator, sizeof(container_t##_node));                                             \
-                        rehased_node->prev  = NULL;                                                                    \
-                        rehased_node->next  = NULL;                                                                    \
-                        rehased_node->value = it.node->value;                                                          \
+                        rehased_node->prev = NULL;                                                                     \
+                        rehased_node->next = NULL;                                                                     \
+                        rehased_node->key  = it.node->key;                                                             \
                         if(!__##container_t##_InsertNodeToHashTable(self, rehased_node, new_nodes_table,               \
                                                                     new_nodes_table_size))                             \
                         {                                                                                              \
@@ -476,7 +473,7 @@ extern "C"
         }                                                                                                              \
         else                                                                                                           \
         {                                                                                                              \
-            const unsigned int hash_value = self->hash_function((const member_t *)&iterator->node->value);             \
+            const unsigned int hash_value = self->hash_function((const key_t *)&iterator->node->key);                  \
             unsigned int index            = hash_value % self->nodes_table_size;                                       \
             self->nodes_table[index]      = next_node;                                                                 \
         }                                                                                                              \
@@ -521,20 +518,20 @@ extern "C"
         return it;                                                                                                     \
     }                                                                                                                  \
                                                                                                                        \
-    member_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self)                                \
+    key_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self)                                   \
     {                                                                                                                  \
         assert(self);                                                                                                  \
                                                                                                                        \
-        member_t member = self->node->value;                                                                           \
+        key_t member = self->node->key;                                                                                \
         return member;                                                                                                 \
     }                                                                                                                  \
                                                                                                                        \
-    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, member_t value)                          \
+    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, key_t key)                               \
     {                                                                                                                  \
         assert(self);                                                                                                  \
                                                                                                                        \
         container_t##_Erase(self->container, self);                                                                    \
-        container_t##_Insert(self->container, value);                                                                  \
+        container_t##_Insert(self->container, key);                                                                    \
     }                                                                                                                  \
                                                                                                                        \
     bool container_t##_Iterator_Equal(const container_t##_Iterator * const first,                                      \
@@ -558,7 +555,7 @@ extern "C"
         }                                                                                                              \
         else                                                                                                           \
         {                                                                                                              \
-            const unsigned int hash_value = self->container->hash_function((const member_t *)&self->node->value);      \
+            const unsigned int hash_value = self->container->hash_function((const key_t *)&self->node->key);           \
             unsigned int index            = hash_value % self->container->nodes_table_size;                            \
                                                                                                                        \
             container_t##_node ** ptr_to_next_node_ptr = &self->container->nodes_table[index + 1];                     \
@@ -600,7 +597,7 @@ extern "C"
             }                                                                                                          \
             else                                                                                                       \
             {                                                                                                          \
-                const unsigned int hash_value = self->container->hash_function((const member_t *)&self->node->value);  \
+                const unsigned int hash_value = self->container->hash_function((const key_t *)&self->node->key);       \
                 index                         = hash_value % self->container->nodes_table_size;                        \
             }                                                                                                          \
             container_t##_node ** ptr_to_next_node_ptr = &self->container->nodes_table[index - 1];                     \
@@ -622,21 +619,20 @@ extern "C"
         }                                                                                                              \
     }                                                                                                                  \
                                                                                                                        \
-    const member_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self)                            \
+    const key_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self)                               \
     {                                                                                                                  \
-        return (const member_t *)&self->node->value;                                                                   \
+        return (const key_t *)&self->node->key;                                                                        \
     }                                                                                                                  \
                                                                                                                        \
-    container_t##_Iterator container_t##_Find(container_t * const self, member_t data)                                 \
+    container_t##_Iterator container_t##_Find(container_t * const self, key_t data)                                    \
     {                                                                                                                  \
         container_t##_Iterator it      = container_t##_End(self);                                                      \
-        const unsigned int hash_value  = self->hash_function((const member_t *)&data);                                 \
+        const unsigned int hash_value  = self->hash_function((const key_t *)&data);                                    \
         unsigned int index             = hash_value % self->nodes_table_size;                                          \
         container_t##_node * temp_node = self->nodes_table[index];                                                     \
         while(temp_node)                                                                                               \
         {                                                                                                              \
-            const int compare_result =                                                                                 \
-                self->compare_function((const member_t *)&data, (const member_t *)&temp_node->value);                  \
+            const int compare_result = self->compare_function((const key_t *)&data, (const key_t *)&temp_node->key);   \
             if(compare_result == 0)                                                                                    \
             {                                                                                                          \
                 it.node = temp_node;                                                                                   \
@@ -648,7 +644,7 @@ extern "C"
         return it;                                                                                                     \
     }                                                                                                                  \
                                                                                                                        \
-    container_t##_Iterator container_t##_CustomFind(container_t * const self, const member_t data,                     \
+    container_t##_Iterator container_t##_CustomFind(container_t * const self, const key_t data,                        \
                                                     container_t##_compare_t compare_function)                          \
     {                                                                                                                  \
         assert(self);                                                                                                  \
@@ -659,7 +655,7 @@ extern "C"
         for(; !container_t##_Iterator_Equal(&it, &end); container_t##_Iterator_Increment(&it))                         \
                                                                                                                        \
         {                                                                                                              \
-            const member_t it_value = container_t##_Iterator_GetValue(&it);                                            \
+            const key_t it_value = container_t##_Iterator_GetValue(&it);                                               \
             if(compare_function(&data, &it_value) == 0)                                                                \
             {                                                                                                          \
                 break;                                                                                                 \
@@ -679,20 +675,20 @@ extern "C"
         }                                                                                                              \
     }
 
-#define hash_table_t(container_t, member_t)                                     \
-    typedef struct container_t container_t;                                     \
-    typedef struct container_t##_Iterator container_t##_Iterator;               \
-    typedef struct container_t##_node container_t##_node;                       \
-                                                                                \
-    typedef int (*container_t##_compare_t)(const member_t *, const member_t *); \
-    typedef unsigned int (*container_t##_hash_t)(const member_t *);             \
-    __hash_table_methods_h(container_t, member_t);
+#define hash_table_t(container_t, key_t)                                  \
+    typedef struct container_t container_t;                               \
+    typedef struct container_t##_Iterator container_t##_Iterator;         \
+    typedef struct container_t##_node container_t##_node;                 \
+                                                                          \
+    typedef int (*container_t##_compare_t)(const key_t *, const key_t *); \
+    typedef unsigned int (*container_t##_hash_t)(const key_t *);          \
+    __hash_table_methods_h(container_t, key_t);
 
-#define static_hash_table_t(container_t, member_t, container_capacity)         \
+#define static_hash_table_t(container_t, key_t, container_capacity)            \
                                                                                \
     struct container_t##_node                                                  \
     {                                                                          \
-        member_t value;                                                        \
+        key_t key;                                                             \
         container_t##_node * prev;                                             \
         container_t##_node * next;                                             \
     };                                                                         \
@@ -713,39 +709,39 @@ extern "C"
         size_t size;                                                           \
         container_t##_pool pool;                                               \
     };                                                                         \
-    __static_hash_table_methods_c(container_t, member_t, container_capacity);
+    __static_hash_table_methods_c(container_t, key_t, container_capacity);
 
-#define custom_allocator_hash_table_t(container_t, member_t, allocator_t) \
-    struct container_t##_node                                             \
-    {                                                                     \
-        member_t value;                                                   \
-        container_t##_node * prev;                                        \
-        container_t##_node * next;                                        \
-    };                                                                    \
-                                                                          \
-    struct container_t##_Iterator                                         \
-    {                                                                     \
-        container_t##_node * node;                                        \
-        container_t * container;                                          \
-    };                                                                    \
-                                                                          \
-    struct container_t                                                    \
-    {                                                                     \
-        container_t##_node ** nodes_table;                                \
-        size_t nodes_table_size;                                          \
-        container_t##_compare_t compare_function;                         \
-        container_t##_hash_t hash_function;                               \
-        size_t size;                                                      \
-        allocator_t allocator;                                            \
-    };                                                                    \
-    __custom_allocator_hash_table_methods_c(container_t, member_t, allocator_t);
+#define custom_allocator_hash_table_t(container_t, key_t, allocator_t) \
+    struct container_t##_node                                          \
+    {                                                                  \
+        key_t key;                                                     \
+        container_t##_node * prev;                                     \
+        container_t##_node * next;                                     \
+    };                                                                 \
+                                                                       \
+    struct container_t##_Iterator                                      \
+    {                                                                  \
+        container_t##_node * node;                                     \
+        container_t * container;                                       \
+    };                                                                 \
+                                                                       \
+    struct container_t                                                 \
+    {                                                                  \
+        container_t##_node ** nodes_table;                             \
+        size_t nodes_table_size;                                       \
+        container_t##_compare_t compare_function;                      \
+        container_t##_hash_t hash_function;                            \
+        size_t size;                                                   \
+        allocator_t allocator;                                         \
+    };                                                                 \
+    __custom_allocator_hash_table_methods_c(container_t, key_t, allocator_t);
 
 #include "rtlib/memory.h"
 
-#define dynamic_hash_table_t(container_t, member_t)   \
+#define dynamic_hash_table_t(container_t, key_t)      \
     memory_t(container_t##_DynamicAllocator);         \
     dynamic_memory_t(container_t##_DynamicAllocator); \
-    custom_allocator_hash_table_t(container_t, member_t, container_t##_DynamicAllocator);
+    custom_allocator_hash_table_t(container_t, key_t, container_t##_DynamicAllocator);
 
 #ifdef __cplusplus
 }
