@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "rtlib/map.h"
+#include "rtlib/unordered_map.h"
 #include <map>
 #include <set>
 #include <list>
@@ -9,6 +10,8 @@
 
 static_map(StaticMapV3, int, int, CONTAINER_CAPACITY);
 dynamic_map(DynamicMapV3, int, int);
+static_unordered_map(StaticUnorderedMapV3, int, int, CONTAINER_CAPACITY);
+dynamic_unordered_map(DynamicUnorderedMapV3, int, int);
 
 static unsigned int int_Hash(const int * value)
 {
@@ -118,6 +121,8 @@ static int int_Compare(const int * v1, const int * v2)
 
 create_wrappers_for_type(StaticMapV3, int, int);
 create_wrappers_for_type(DynamicMapV3, int, int);
+create_wrappers_for_type(StaticUnorderedMapV3, int, int);
+create_wrappers_for_type(DynamicUnorderedMapV3, int, int);
 
 template<typename T>
 struct MapTest : public testing::Test
@@ -139,9 +144,9 @@ struct StaticMapTest : public testing::Test
     T container;
 };
 
-using AllTypes = testing::Types<StaticMapV3, DynamicMapV3>;
+using AllTypes = testing::Types<StaticMapV3, DynamicMapV3, StaticUnorderedMapV3, DynamicUnorderedMapV3>;
 
-using StaticTypes = testing::Types<StaticMapV3>;
+using StaticTypes = testing::Types<StaticMapV3, StaticUnorderedMapV3>;
 
 TYPED_TEST_CASE(MapTest, AllTypes);
 TYPED_TEST_CASE(StaticMapTest, StaticTypes);
@@ -648,3 +653,5 @@ TYPED_TEST(StaticMapTest, InsertOverLimitExistingElements)
 
 static_map_impl(StaticMapV3, int, int, CONTAINER_CAPACITY);
 dynamic_map_impl(DynamicMapV3, int, int);
+static_unordered_map_impl(StaticUnorderedMapV3, int, int, CONTAINER_CAPACITY);
+dynamic_unordered_map_impl(DynamicUnorderedMapV3, int, int);

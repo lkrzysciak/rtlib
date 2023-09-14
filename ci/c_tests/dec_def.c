@@ -58,5 +58,20 @@ int main()
         CustomAllocatorUnorderedSet_Begin(&customAllocatorUnorderedSet);
     CustomAllocatorUnorderedSet_Destroy(&customAllocatorUnorderedSet);
 
+    StaticMap staticMap;
+    StaticMap_Construct(&staticMap);
+    StaticMap_Iterator staticMapIt = StaticMap_Begin(&staticMap);
+    StaticMap_Destruct(&staticMap);
+
+    CustomAllocatorMap customAllocatorMap;
+    CustomAllocatorMap_Construct(&customAllocatorMap);
+    CustomAllocatorMap_Iterator customAllocatorMapIt = CustomAllocatorMap_Begin(&customAllocatorMap);
+    CustomAllocatorMap_Destruct(&customAllocatorMap);
+
+    DynamicMap dynamicMap;
+    DynamicMap_Construct(&dynamicMap);
+    DynamicMap_Iterator dynamicMapIt = DynamicMap_Begin(&dynamicMap);
+    DynamicMap_Destruct(&dynamicMap);
+
     return 0;
 }
