@@ -2,13 +2,7 @@
 #include "rtlib/hash_table.h"
 
 /* Verify if compiles */
-memory_t(DynamicAllocator);
-dynamic_memory_t(DynamicAllocator);
-
-hash_table_t(TestUnit, int);
-custom_allocator_hash_table_t(TestUnit, int, DynamicAllocator);
-
-static int compare_set_ints(const int * v1, const int * v2)
+static int int_Compare(const int * v1, const int * v2)
 {
     if(*v1 > *v2)
     {
@@ -24,15 +18,21 @@ static int compare_set_ints(const int * v1, const int * v2)
     }
 }
 
-static unsigned int hash_function(const int * value)
+static unsigned int int_Hash(const int * value)
 {
     return *value;
 }
 
+memory_t(DynamicAllocator);
+dynamic_memory_t(DynamicAllocator);
+
+hash_table_t(TestUnit, int);
+custom_allocator_hash_table_t(TestUnit, int, DynamicAllocator);
+
 int main()
 {
     TestUnit test_unit;
-    TestUnit_Construct(&test_unit, compare_set_ints, hash_function);
+    TestUnit_Construct(&test_unit);
     TestUnit_Destroy(&test_unit);
 
     return 0;

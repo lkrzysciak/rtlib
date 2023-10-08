@@ -21,6 +21,27 @@
 
 #define STATIC_CONTAINER_SIZE 100000
 
+static int int_Compare(const int * v1, const int * v2)
+{
+    if(*v1 > *v2)
+    {
+        return 1;
+    }
+    else if(*v1 < *v2)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+unsigned int int_Hash(const int * value)
+{
+    return *value;
+}
+
 vector_t(TestVector, int);
 static_vector_t(TestVector, int, STATIC_CONTAINER_SIZE);
 list_t(TestList, int);
@@ -42,27 +63,6 @@ hash_table_t(DynamicAllocatorHashTable, int);
 custom_allocator_hash_table_t(DynamicAllocatorHashTable, int, DynamicAllocator);
 binary_tree_t(DynamicAllocatorBinaryTree, int);
 custom_allocator_binary_tree_t(DynamicAllocatorBinaryTree, int, DynamicAllocator);
-
-static int compare_set_ints(const int * v1, const int * v2)
-{
-    if(*v1 > *v2)
-    {
-        return 1;
-    }
-    else if(*v1 < *v2)
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-unsigned int hash_function(const int * value)
-{
-    return *value;
-}
 
 #define cCall(object, addMethod, deleteMethod, oneIterationSize, iterations) \
     for(int i = 0; i < iterations; ++i)                                      \
@@ -93,7 +93,7 @@ unsigned int hash_function(const int * value)
 /* Adding to rtlib container without iterators */
 #define rtlibFind(rtlibType, oneIterationSize, iterations)                               \
     rtlibType rtlibObject;                                                               \
-    rtlibType##_Construct(&rtlibObject, compare_set_ints);                               \
+    rtlibType##_Construct(&rtlibObject);                                                 \
                                                                                          \
     for(int j = 0; j < oneIterationSize; ++j)                                            \
     {                                                                                    \
@@ -117,7 +117,7 @@ unsigned int hash_function(const int * value)
 
 #define rtlibBinaryTreeFind(rtlibType, oneIterationSize, iterations)                     \
     rtlibType rtlibObject;                                                               \
-    rtlibType##_Construct(&rtlibObject, compare_set_ints);                               \
+    rtlibType##_Construct(&rtlibObject);                                                 \
                                                                                          \
     for(int j = 0; j < oneIterationSize; ++j)                                            \
     {                                                                                    \
@@ -140,7 +140,7 @@ unsigned int hash_function(const int * value)
 
 #define rtlibHashTableFind(rtlibType, oneIterationSize, iterations)                      \
     rtlibType rtlibObject;                                                               \
-    rtlibType##_Construct(&rtlibObject, compare_set_ints, hash_function);                \
+    rtlibType##_Construct(&rtlibObject);                                                 \
                                                                                          \
     for(int j = 0; j < oneIterationSize; ++j)                                            \
     {                                                                                    \
@@ -186,7 +186,7 @@ unsigned int hash_function(const int * value)
 
 #define rtlibTest(rtlibType, addMethod, deleteMethod, oneIterationSize, iterations)      \
     rtlibType rtlibObject;                                                               \
-    rtlibType##_Construct(&rtlibObject, compare_set_ints);                               \
+    rtlibType##_Construct(&rtlibObject);                                                 \
                                                                                          \
     auto start = std::chrono::high_resolution_clock::now();                              \
                                                                                          \
@@ -199,7 +199,7 @@ unsigned int hash_function(const int * value)
 /* Adding to rtlib container without iterators */
 #define rtlibTestWithHash(rtlibType, addMethod, deleteMethod, oneIterationSize, iterations) \
     rtlibType rtlibObject;                                                                  \
-    rtlibType##_Construct(&rtlibObject, compare_set_ints, hash_function);                   \
+    rtlibType##_Construct(&rtlibObject);                                                    \
                                                                                             \
     auto start = std::chrono::high_resolution_clock::now();                                 \
                                                                                             \
@@ -222,7 +222,7 @@ unsigned int hash_function(const int * value)
 
 #define rtlibTestWithTree(rtlibType, addMethod, deleteMethod, oneIterationSize, iterations) \
     rtlibType rtlibObject;                                                                  \
-    rtlibType##_Construct(&rtlibObject, compare_set_ints);                                  \
+    rtlibType##_Construct(&rtlibObject);                                                    \
                                                                                             \
     auto start = std::chrono::high_resolution_clock::now();                                 \
                                                                                             \
@@ -246,7 +246,7 @@ unsigned int hash_function(const int * value)
 /* Adding to stl container with iterators */
 #define rtlibWithIteratorTest(rtlibType, addMethod, deleteMethod, oneIterationSize, iterations, position) \
     rtlibType object;                                                                                     \
-    rtlibType##_Construct(&object, compare_set_ints);                                                     \
+    rtlibType##_Construct(&object);                                                                       \
     for(int i = 0; i < position; ++i)                                                                     \
     {                                                                                                     \
         auto begin_it = rtlibType##_Begin(&object);                                                       \
