@@ -8,6 +8,64 @@
 
 #define CONTAINER_CAPACITY 100
 
+typedef struct
+{
+    double doubleVar;
+    int intVar;
+    bool boolVar;
+    uint64_t id;
+} StructType;
+
+static int int_Compare(const int * v1, const int * v2)
+{
+    if(*v1 > *v2)
+    {
+        return 1;
+    }
+    else if(*v1 < *v2)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+static int StructType_Compare(const StructType * v1, const StructType * v2)
+{
+    if(v1->id > v2->id)
+    {
+        return 1;
+    }
+    else if(v1->id < v2->id)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+typedef int * IntPtr;
+
+static int IntPtr_Compare(const IntPtr * v1, const IntPtr * v2)
+{
+    if(*v1 > *v2)
+    {
+        return 1;
+    }
+    else if(*v1 < *v2)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 extern "C"
 {
     vector_t(VectorTestType, int);
@@ -24,27 +82,19 @@ extern "C"
     list_t(CustomAllocatorList, int);
     custom_allocator_list_t(CustomAllocatorList, int, DynamicAllocator);
 
-    vector_t(SVectorWithPointers, int *);
-    static_vector_t(SVectorWithPointers, int *, CONTAINER_CAPACITY);
-    list_t(SListWithPointers, int *);
-    static_list_t(SListWithPointers, int *, CONTAINER_CAPACITY);
-    vector_t(CVectorWithPointers, int *);
-    custom_allocator_vector_t(CVectorWithPointers, int *, DynamicAllocator);
-    list_t(CListWithPointers, int *);
-    custom_allocator_list_t(CListWithPointers, int *, DynamicAllocator);
+    vector_t(SVectorWithPointers, IntPtr);
+    static_vector_t(SVectorWithPointers, IntPtr, CONTAINER_CAPACITY);
+    list_t(SListWithPointers, IntPtr);
+    static_list_t(SListWithPointers, IntPtr, CONTAINER_CAPACITY);
+    vector_t(CVectorWithPointers, IntPtr);
+    custom_allocator_vector_t(CVectorWithPointers, IntPtr, DynamicAllocator);
+    list_t(CListWithPointers, IntPtr);
+    custom_allocator_list_t(CListWithPointers, IntPtr, DynamicAllocator);
 
     vector_t(DynamicVector, int);
     dynamic_vector_t(DynamicVector, int);
     list_t(DynamicList, int);
     dynamic_list_t(DynamicList, int);
-
-    typedef struct
-    {
-        double doubleVar;
-        int intVar;
-        bool boolVar;
-        uint64_t id;
-    } StructType;
 
     vector_t(StructTypeStaticVector, StructType);
     static_vector_t(StructTypeStaticVector, StructType, CONTAINER_CAPACITY);
@@ -139,11 +189,11 @@ static int compare_struct_type(const StructType * v1, const StructType * v2)
     }
 }
 
-#define create_wrappers_for_type(Type, CompareFunction, MemberType)                                  \
+#define create_wrappers_for_type(Type, MemberType)                                                   \
                                                                                                      \
     void Init(Type * const container)                                                                \
     {                                                                                                \
-        Type##_Construct(container, CompareFunction);                                                \
+        Type##_Construct(container);                                                                 \
     }                                                                                                \
     void Deinit(Type * const container)                                                              \
     {                                                                                                \
@@ -279,36 +329,36 @@ static int compare_struct_type(const StructType * v1, const StructType * v2)
         Type##_Clear(container);                                                                     \
     }
 
-create_wrappers_for_type(VectorTestType, compare_set_ints, int);
-create_wrappers_for_type(ListTestType, compare_set_ints, int);
-create_wrappers_for_type(DequeTestType, compare_set_ints, int);
-create_wrappers_for_type(CustomAllocatorVector, compare_set_ints, int);
-create_wrappers_for_type(CustomAllocatorList, compare_set_ints, int);
-create_wrappers_for_type(DynamicVector, compare_set_ints, int);
-create_wrappers_for_type(DynamicList, compare_set_ints, int);
+create_wrappers_for_type(VectorTestType, int);
+create_wrappers_for_type(ListTestType, int);
+create_wrappers_for_type(DequeTestType, int);
+create_wrappers_for_type(CustomAllocatorVector, int);
+create_wrappers_for_type(CustomAllocatorList, int);
+create_wrappers_for_type(DynamicVector, int);
+create_wrappers_for_type(DynamicList, int);
 
 // Verifies if compiles
-create_wrappers_for_type(SVectorWithPointers, compare_set_ints_ptr, int *);
-create_wrappers_for_type(StructTypeStaticVector, compare_struct_type, StructType);
-create_wrappers_for_type(StructTypeStaticList, compare_struct_type, StructType);
-create_wrappers_for_type(StructTypeDynamicVector, compare_struct_type, StructType);
-create_wrappers_for_type(StructTypeDynamicList, compare_struct_type, StructType);
+create_wrappers_for_type(SVectorWithPointers, int *);
+create_wrappers_for_type(StructTypeStaticVector, StructType);
+create_wrappers_for_type(StructTypeStaticList, StructType);
+create_wrappers_for_type(StructTypeDynamicVector, StructType);
+create_wrappers_for_type(StructTypeDynamicList, StructType);
 
-create_wrappers_for_type(VectorTestTypeV3, compare_set_ints, int);
-create_wrappers_for_type(CustomAllocatorVectorV3, compare_set_ints, int);
-create_wrappers_for_type(DynamicVectorV3, compare_set_ints, int);
-create_wrappers_for_type(StaticDequeV3, compare_set_ints, int);
-create_wrappers_for_type(StaticListV3, compare_set_ints, int);
-create_wrappers_for_type(CustomAllocatorListV3, compare_set_ints, int);
-create_wrappers_for_type(DynamicListV3, compare_set_ints, int);
+create_wrappers_for_type(VectorTestTypeV3, int);
+create_wrappers_for_type(CustomAllocatorVectorV3, int);
+create_wrappers_for_type(DynamicVectorV3, int);
+create_wrappers_for_type(StaticDequeV3, int);
+create_wrappers_for_type(StaticListV3, int);
+create_wrappers_for_type(CustomAllocatorListV3, int);
+create_wrappers_for_type(DynamicListV3, int);
 
-create_wrappers_for_type(VectorTestTypeV3NullCmp, NULL, int);
-create_wrappers_for_type(CustomAllocatorVectorV3NullCmp, NULL, int);
-create_wrappers_for_type(DynamicVectorV3NullCmp, NULL, int);
-create_wrappers_for_type(StaticDequeV3NullCmp, NULL, int);
-create_wrappers_for_type(StaticListV3NullCmp, NULL, int);
-create_wrappers_for_type(CustomAllocatorListV3NullCmp, NULL, int);
-create_wrappers_for_type(DynamicListV3NullCmp, NULL, int);
+create_wrappers_for_type(VectorTestTypeV3NullCmp, int);
+create_wrappers_for_type(CustomAllocatorVectorV3NullCmp, int);
+create_wrappers_for_type(DynamicVectorV3NullCmp, int);
+create_wrappers_for_type(StaticDequeV3NullCmp, int);
+create_wrappers_for_type(StaticListV3NullCmp, int);
+create_wrappers_for_type(CustomAllocatorListV3NullCmp, int);
+create_wrappers_for_type(DynamicListV3NullCmp, int);
 
 template<typename T>
 struct ContainerTest : public testing::Test
@@ -350,12 +400,6 @@ struct StructTypeTest : public testing::Test
     T container;
 };
 
-template<typename T>
-struct CompareFuncNotRequiredTest : public testing::Test
-{
-    T container;
-};
-
 using MyTypes = testing::Types<VectorTestType, ListTestType, DequeTestType, CustomAllocatorVector, CustomAllocatorList,
                                DynamicVector, DynamicList, VectorTestTypeV3, CustomAllocatorVectorV3, DynamicVectorV3,
                                StaticDequeV3, StaticListV3, CustomAllocatorListV3, DynamicListV3>;
@@ -369,28 +413,10 @@ using CustomContainerTypes =
 using StructContainerTypes =
     testing::Types<StructTypeStaticVector, StructTypeStaticList, StructTypeDynamicVector, StructTypeDynamicList>;
 
-using CompareFuncNotrequiredTypes =
-    testing::Types<VectorTestTypeV3NullCmp, CustomAllocatorVectorV3NullCmp, DynamicVectorV3NullCmp,
-                   StaticDequeV3NullCmp, StaticListV3NullCmp, CustomAllocatorListV3NullCmp, DynamicListV3NullCmp>;
-
 TYPED_TEST_SUITE(ContainerTest, MyTypes);
 TYPED_TEST_SUITE(StaticContainerTest, StaticContainerTypes);
 TYPED_TEST_SUITE(CustomContainerTest, CustomContainerTypes);
 TYPED_TEST_SUITE(StructTypeTest, StructContainerTypes);
-TYPED_TEST_SUITE(CompareFuncNotRequiredTest, CompareFuncNotrequiredTypes);
-
-TYPED_TEST(CompareFuncNotRequiredTest, HasNoAssert)
-{
-    Init(&this->container);
-    Deinit(&this->container);
-}
-
-TYPED_TEST(CompareFuncNotRequiredTest, AssertIfTryFind)
-{
-    Init(&this->container);
-    EXPECT_DEATH(Find(&this->container, 0), "");
-    Deinit(&this->container);
-}
 
 TYPED_TEST(ContainerTest, IsEmptyAfterInit)
 {

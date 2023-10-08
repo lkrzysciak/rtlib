@@ -1,11 +1,7 @@
 #include "rtlib/binary_tree.h"
 
 /* Verify if compiles */
-
-binary_tree_t(TestUnit, int);
-static_binary_tree_t(TestUnit, int, 20);
-
-static int compare_set_ints(const int * v1, const int * v2)
+static int int_Compare(const int * v1, const int * v2)
 {
     if(*v1 > *v2)
     {
@@ -21,10 +17,13 @@ static int compare_set_ints(const int * v1, const int * v2)
     }
 }
 
+binary_tree_t(TestUnit, int);
+static_binary_tree_t(TestUnit, int, 20);
+
 int main()
 {
     TestUnit test_unit;
-    TestUnit_Construct(&test_unit, compare_set_ints);
+    TestUnit_Construct(&test_unit);
     TestUnit_Destroy(&test_unit);
 
     return 0;

@@ -7,7 +7,7 @@
 #include "rtlib/pool.h"
 
 #define __list_methods_h(container_t, member_t)                                                                 \
-    void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function);           \
+    void container_t##_Construct(container_t * const self);                                                     \
     void container_t##_Destruct(container_t * const self);                                                      \
     size_t container_t##_Size(const container_t * const self);                                                  \
     bool container_t##_Empty(const container_t * const self);                                                   \
@@ -43,18 +43,17 @@
                                                     container_t##_compare_t compare_function);
 
 #define __static_list_methods_c(container_t, member_t, container_capacity)                                      \
-    void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function)            \
+    void container_t##_Construct(container_t * const self)                                                      \
     {                                                                                                           \
         assert(self);                                                                                           \
                                                                                                                 \
         container_t##_pool_Construct(&self->pool);                                                              \
         self->end = container_t##_pool_Allocate(&self->pool);                                                   \
         assert(self->end);                                                                                      \
-        self->begin            = self->end;                                                                     \
-        self->begin->prev      = NULL;                                                                          \
-        self->begin->next      = NULL;                                                                          \
-        self->size             = 0;                                                                             \
-        self->compare_function = compare_function;                                                              \
+        self->begin       = self->end;                                                                          \
+        self->begin->prev = NULL;                                                                               \
+        self->begin->next = NULL;                                                                               \
+        self->size        = 0;                                                                                  \
     }                                                                                                           \
                                                                                                                 \
     void container_t##_Destroy(container_t * const self)                                                        \
@@ -351,7 +350,6 @@
     container_t##_Iterator container_t##_Find(container_t * const self, const member_t data)                    \
     {                                                                                                           \
         assert(self);                                                                                           \
-        assert(self->compare_function);                                                                         \
                                                                                                                 \
         container_t##_Iterator end = container_t##_End(self);                                                   \
         container_t##_Iterator it  = container_t##_Begin(self);                                                 \
@@ -359,7 +357,7 @@
         for(; !container_t##_Iterator_Equal(&it, &end); container_t##_Iterator_Increment(&it))                  \
         {                                                                                                       \
             const member_t it_value = container_t##_Iterator_GetValue(&it);                                     \
-            if(self->compare_function(&data, &it_value) == 0)                                                   \
+            if(member_t##_Compare(&data, &it_value) == 0)                                                       \
             {                                                                                                   \
                 break;                                                                                          \
             }                                                                                                   \
@@ -400,18 +398,17 @@
 
 #define __custom_allocator_list_methods_c(container_t, member_t, allocator_t)                                   \
                                                                                                                 \
-    void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function)            \
+    void container_t##_Construct(container_t * const self)                                                      \
     {                                                                                                           \
         assert(self);                                                                                           \
                                                                                                                 \
         allocator_t##_Construct(&self->allocator);                                                              \
         self->end = (container_t##_node *)allocator_t##_Allocate(&self->allocator, sizeof(container_t##_node)); \
         assert(self->end);                                                                                      \
-        self->begin            = self->end;                                                                     \
-        self->begin->prev      = NULL;                                                                          \
-        self->begin->next      = NULL;                                                                          \
-        self->size             = 0;                                                                             \
-        self->compare_function = compare_function;                                                              \
+        self->begin       = self->end;                                                                          \
+        self->begin->prev = NULL;                                                                               \
+        self->begin->next = NULL;                                                                               \
+        self->size        = 0;                                                                                  \
     }                                                                                                           \
                                                                                                                 \
     void container_t##_Destroy(container_t * const self)                                                        \
@@ -717,7 +714,6 @@
     container_t##_Iterator container_t##_Find(container_t * const self, const member_t data)                    \
     {                                                                                                           \
         assert(self);                                                                                           \
-        assert(self->compare_function);                                                                         \
                                                                                                                 \
         container_t##_Iterator end = container_t##_End(self);                                                   \
         container_t##_Iterator it  = container_t##_Begin(self);                                                 \
@@ -725,7 +721,7 @@
         for(; !container_t##_Iterator_Equal(&it, &end); container_t##_Iterator_Increment(&it))                  \
         {                                                                                                       \
             const member_t it_value = container_t##_Iterator_GetValue(&it);                                     \
-            if(self->compare_function(&data, &it_value) == 0)                                                   \
+            if(member_t##_Compare(&data, &it_value) == 0)                                                       \
             {                                                                                                   \
                 break;                                                                                          \
             }                                                                                                   \
@@ -795,7 +791,6 @@
         container_t##_node * end;                                                  \
         container_t##_pool pool;                                                   \
         size_t size;                                                               \
-        container_t##_compare_t compare_function;                                  \
     };                                                                             \
     __static_list_methods_c(container_t, member_t, container_capacity)
 
@@ -818,7 +813,6 @@
         container_t##_node * end;                                   \
         allocator_t allocator;                                      \
         size_t size;                                                \
-        container_t##_compare_t compare_function;                   \
     };                                                              \
     __custom_allocator_list_methods_c(container_t, member_t, allocator_t)
 
@@ -852,7 +846,6 @@
         container_t##_node * end;                                                \
         container_t##_pool pool;                                                 \
         size_t size;                                                             \
-        container_t##_compare_t compare_function;                                \
     };                                                                           \
     __list_methods_h(container_t, member_t);
 
@@ -883,7 +876,6 @@
         container_t##_node * end;                                               \
         allocator_t allocator;                                                  \
         size_t size;                                                            \
-        container_t##_compare_t compare_function;                               \
     };                                                                          \
     __list_methods_h(container_t, member_t);
 

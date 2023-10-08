@@ -9,6 +9,79 @@
 #include <list>
 #include <numeric>
 
+typedef struct
+{
+    double doubleVar;
+    int intVar;
+    bool boolVar;
+    uint64_t id;
+} StructType;
+
+typedef int * IntPtr;
+
+static unsigned int int_Hash(const int * value)
+{
+    return *value;
+}
+
+static int int_Compare(const int * v1, const int * v2)
+{
+    if(*v1 > *v2)
+    {
+        return 1;
+    }
+    else if(*v1 < *v2)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+static unsigned int IntPtr_Hash(const IntPtr * value)
+{
+    return (unsigned int)**value;
+}
+
+static int IntPtr_Compare(const IntPtr * v1, const IntPtr * v2)
+{
+    if(*v1 > *v2)
+    {
+        return 1;
+    }
+    else if(*v1 < *v2)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+static unsigned int StructType_Hash(const StructType * value)
+{
+    return value->id;
+}
+
+static int StructType_Compare(const StructType * v1, const StructType * v2)
+{
+    if(v1->id > v2->id)
+    {
+        return 1;
+    }
+    else if(v1->id < v2->id)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 #define CONTAINER_CAPACITY 100
 
 extern "C"
@@ -25,27 +98,19 @@ extern "C"
     hash_table_t(CustomHashTable, int);
     custom_allocator_hash_table_t(CustomHashTable, int, MyDynamicAllocator);
 
-    binary_tree_t(SSetTypeWithPointers, int *);
-    static_binary_tree_t(SSetTypeWithPointers, int *, CONTAINER_CAPACITY);
-    hash_table_t(SHashTableWithPointers, int *);
-    static_hash_table_t(SHashTableWithPointers, int *, CONTAINER_CAPACITY);
-    binary_tree_t(CSetTypeWithPointers, int *);
-    custom_allocator_binary_tree_t(CSetTypeWithPointers, int *, MyDynamicAllocator);
-    hash_table_t(CHashTableWithPointers, int *);
-    custom_allocator_hash_table_t(CHashTableWithPointers, int *, MyDynamicAllocator);
+    binary_tree_t(SSetTypeWithPointers, IntPtr);
+    static_binary_tree_t(SSetTypeWithPointers, IntPtr, CONTAINER_CAPACITY);
+    hash_table_t(SHashTableWithPointers, IntPtr);
+    static_hash_table_t(SHashTableWithPointers, IntPtr, CONTAINER_CAPACITY);
+    binary_tree_t(CSetTypeWithPointers, IntPtr);
+    custom_allocator_binary_tree_t(CSetTypeWithPointers, IntPtr, MyDynamicAllocator);
+    hash_table_t(CHashTableWithPointers, IntPtr);
+    custom_allocator_hash_table_t(CHashTableWithPointers, IntPtr, MyDynamicAllocator);
 
     binary_tree_t(DynamicBinaryTree, int);
     dynamic_binary_tree_t(DynamicBinaryTree, int);
     hash_table_t(DynamicHashTable, int);
     dynamic_hash_table_t(DynamicHashTable, int);
-
-    typedef struct
-    {
-        double doubleVar;
-        int intVar;
-        bool boolVar;
-        uint64_t id;
-    } StructType;
 
     binary_tree_t(StructTypeStaticBinaryTree, StructType);
     static_binary_tree_t(StructTypeStaticBinaryTree, StructType, CONTAINER_CAPACITY);
@@ -78,7 +143,7 @@ static int compare_set_ints(const int * v1, const int * v2)
     }
 }
 
-static int compare_set_ints_ptr(const int ** v1, const int ** v2)
+static int compare_set_ints_ptr(const IntPtr * v1, const IntPtr * v2)
 {
     if(*v1 > *v2)
     {
@@ -132,7 +197,7 @@ static unsigned int hash_function(const int * value)
     return *value;
 }
 
-static unsigned int hash_function_ptr(const int ** value)
+static unsigned int hash_function_ptr(const IntPtr * value)
 {
     return **value;
 }
@@ -226,62 +291,62 @@ static unsigned int hash_function_struct_type(const StructType * value)
 /* Specialized init functions */
 void Init(SetType * const set_object)
 {
-    SetType_Construct(set_object, compare_set_ints);
+    SetType_Construct(set_object);
 }
 
 void Init(SSetTypeWithPointers * const set_object)
 {
-    SSetTypeWithPointers_Construct(set_object, compare_set_ints_ptr);
+    SSetTypeWithPointers_Construct(set_object);
 }
 
 void Init(HashTable * const hash_table)
 {
-    HashTable_Construct(hash_table, compare_set_ints, hash_function);
+    HashTable_Construct(hash_table);
 }
 
 void Init(SHashTableWithPointers * const hash_table)
 {
-    SHashTableWithPointers_Construct(hash_table, compare_set_ints_ptr, hash_function_ptr);
+    SHashTableWithPointers_Construct(hash_table);
 }
 
 void Init(CustomBinaryTree * const container)
 {
-    CustomBinaryTree_Construct(container, compare_set_ints);
+    CustomBinaryTree_Construct(container);
 }
 
 void Init(CustomHashTable * const hash_table)
 {
-    CustomHashTable_Construct(hash_table, compare_set_ints, hash_function);
+    CustomHashTable_Construct(hash_table);
 }
 
 void Init(DynamicBinaryTree * const container)
 {
-    DynamicBinaryTree_Construct(container, compare_set_ints);
+    DynamicBinaryTree_Construct(container);
 }
 
 void Init(DynamicHashTable * const hash_table)
 {
-    DynamicHashTable_Construct(hash_table, compare_set_ints, hash_function);
+    DynamicHashTable_Construct(hash_table);
 }
 
 void Init(StaticSetV3 * const object)
 {
-    StaticSetV3_Construct(object, compare_set_ints);
+    StaticSetV3_Construct(object);
 }
 
 void Init(DynamicSetV3 * const object)
 {
-    DynamicSetV3_Construct(object, compare_set_ints);
+    DynamicSetV3_Construct(object);
 }
 
 void Init(StaticUnorderedSetV3 * const object)
 {
-    StaticUnorderedSetV3_Construct(object, compare_set_ints, hash_function);
+    StaticUnorderedSetV3_Construct(object);
 }
 
 void Init(DynamicUnorderedSetV3 * const object)
 {
-    DynamicUnorderedSetV3_Construct(object, compare_set_ints, hash_function);
+    DynamicUnorderedSetV3_Construct(object);
 }
 
 create_wrappers_for_type(SetType, int);
@@ -303,22 +368,22 @@ create_wrappers_for_type(DynamicUnorderedSetV3, int);
 
 void Init(StructTypeStaticBinaryTree * const container)
 {
-    StructTypeStaticBinaryTree_Construct(container, compare_struct_type);
+    StructTypeStaticBinaryTree_Construct(container);
 }
 
 void Init(StructTypeStaticHashTable * const container)
 {
-    StructTypeStaticHashTable_Construct(container, compare_struct_type, hash_function_struct_type);
+    StructTypeStaticHashTable_Construct(container);
 }
 
 void Init(StructTypeDynamicBinaryTree * const container)
 {
-    StructTypeDynamicBinaryTree_Construct(container, compare_struct_type);
+    StructTypeDynamicBinaryTree_Construct(container);
 }
 
 void Init(StructTypeDynamicHashTable * const container)
 {
-    StructTypeDynamicHashTable_Construct(container, compare_struct_type, hash_function_struct_type);
+    StructTypeDynamicHashTable_Construct(container);
 }
 
 template<typename T>
