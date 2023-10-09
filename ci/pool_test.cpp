@@ -22,7 +22,7 @@ extern "C"
                                                               \
     void Deinit(Type * const container)                       \
     {                                                         \
-        Type##_Destroy(container);                            \
+        Type##_Destruct(container);                           \
     }                                                         \
                                                               \
     MemberType * Allocate(Type * const container)             \

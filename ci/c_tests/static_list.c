@@ -26,7 +26,7 @@ int main()
     TestUnit test_unit;
     TestUnit_Construct(&test_unit);
     TestUnit_PushBack(&test_unit, 5);
-    TestUnit_Destroy(&test_unit);
+    TestUnit_Destruct(&test_unit);
 
     return 0;
 }

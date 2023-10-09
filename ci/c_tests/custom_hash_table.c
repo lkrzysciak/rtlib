@@ -33,7 +33,7 @@ int main()
 {
     TestUnit test_unit;
     TestUnit_Construct(&test_unit);
-    TestUnit_Destroy(&test_unit);
+    TestUnit_Destruct(&test_unit);
 
     return 0;
 }

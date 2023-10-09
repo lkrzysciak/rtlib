@@ -4,7 +4,7 @@
 
 #define __pool_methods_h(type_t, member_t)             \
     void type_t##_Construct(type_t * const self);      \
-    void type_t##_Destroy(type_t * const self);        \
+    void type_t##_Destruct(type_t * const self);       \
     member_t * type_t##_Allocate(type_t * const self); \
     void type_t##_Release(type_t * const self, member_t * object);
 
@@ -23,7 +23,7 @@
         self->last_free_block->next = NULL;                                 \
     }                                                                       \
                                                                             \
-    void type_t##_Destroy(type_t * const self)                              \
+    void type_t##_Destruct(type_t * const self)                             \
     {                                                                       \
         assert(self);                                                       \
     }                                                                       \
@@ -73,11 +73,11 @@
         allocator_t##_Construct(&self->allocator);                                     \
     }                                                                                  \
                                                                                        \
-    void pool_t##_Destroy(pool_t * const self)                                         \
+    void pool_t##_Destruct(pool_t * const self)                                        \
     {                                                                                  \
         assert(self);                                                                  \
                                                                                        \
-        allocator_t##_Destroy(&self->allocator);                                       \
+        allocator_t##_Destruct(&self->allocator);                                      \
     }                                                                                  \
                                                                                        \
     member_t * pool_t##_Allocate(pool_t * const self)                                  \

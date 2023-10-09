@@ -10,7 +10,7 @@
     } container_t;                                                                             \
                                                                                                \
     void container_t##_Construct(container_t * const self);                                    \
-    void container_t##_Destroy(container_t * const self);                                      \
+    void container_t##_Destruct(container_t * const self);                                     \
     void * container_t##_Allocate(container_t * const self, size_t size);                      \
     void * container_t##_Reallocate(container_t * const self, void * object, size_t new_size); \
     void container_t##_Deallocate(container_t * const self, void * object);
@@ -21,7 +21,7 @@
         assert(self);                                                                         \
     }                                                                                         \
                                                                                               \
-    void container_t##_Destroy(container_t * const self)                                      \
+    void container_t##_Destruct(container_t * const self)                                     \
     {                                                                                         \
         assert(self);                                                                         \
     }                                                                                         \

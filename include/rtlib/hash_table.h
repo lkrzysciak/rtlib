@@ -14,7 +14,7 @@ extern "C"
 
 #define __hash_table_methods_h(container_t, key_t)                                              \
     void container_t##_Construct(container_t * const self);                                     \
-    void container_t##_Destroy(container_t * const self);                                       \
+    void container_t##_Destruct(container_t * const self);                                      \
     size_t container_t##_Size(const container_t * const self);                                  \
     bool container_t##_Empty(const container_t * const self);                                   \
     int container_t##_Insert(container_t * const self, key_t data);                             \
@@ -28,13 +28,7 @@ extern "C"
                                       const container_t##_Iterator * const second);             \
     void container_t##_Iterator_Increment(container_t##_Iterator * const self);                 \
     void container_t##_Iterator_Decrement(container_t##_Iterator * const self);                 \
-    const key_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self);       \
-                                                                                                \
-    /* will be deleted in v3*/                                                                  \
-    key_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self);           \
-    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, key_t key);       \
-    container_t##_Iterator container_t##_CustomFind(container_t * const self, const key_t data, \
-                                                    container_t##_compare_t compare_function);
+    const key_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self);
 
 #define __static_hash_table_methods_c(container_t, key_t, container_capacity)                                 \
     void container_t##_Construct(container_t * const self)                                                    \
@@ -46,11 +40,11 @@ extern "C"
         container_t##_pool_Construct(&self->pool);                                                            \
     }                                                                                                         \
                                                                                                               \
-    void container_t##_Destroy(container_t * const self)                                                      \
+    void container_t##_Destruct(container_t * const self)                                                     \
     {                                                                                                         \
         assert(self);                                                                                         \
                                                                                                               \
-        container_t##_pool_Destroy(&self->pool);                                                              \
+        container_t##_pool_Destruct(&self->pool);                                                             \
     }                                                                                                         \
                                                                                                               \
     size_t container_t##_Size(const container_t * const self)                                                 \
@@ -166,22 +160,6 @@ extern "C"
         return it;                                                                                            \
     }                                                                                                         \
                                                                                                               \
-    key_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self)                          \
-    {                                                                                                         \
-        assert(self);                                                                                         \
-                                                                                                              \
-        key_t member = self->node->key;                                                                       \
-        return member;                                                                                        \
-    }                                                                                                         \
-                                                                                                              \
-    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, key_t key)                      \
-    {                                                                                                         \
-        assert(self);                                                                                         \
-                                                                                                              \
-        container_t##_Erase(self->container, self);                                                           \
-        container_t##_Insert(self->container, key);                                                           \
-    }                                                                                                         \
-                                                                                                              \
     bool container_t##_Iterator_Equal(const container_t##_Iterator * const first,                             \
                                       const container_t##_Iterator * const second)                            \
     {                                                                                                         \
@@ -291,26 +269,6 @@ extern "C"
         return it;                                                                                            \
     }                                                                                                         \
                                                                                                               \
-    container_t##_Iterator container_t##_CustomFind(container_t * const self, const key_t data,               \
-                                                    container_t##_compare_t compare_function)                 \
-    {                                                                                                         \
-        assert(self);                                                                                         \
-        assert(compare_function);                                                                             \
-                                                                                                              \
-        container_t##_Iterator end = container_t##_End(self);                                                 \
-        container_t##_Iterator it  = container_t##_Begin(self);                                               \
-        for(; !container_t##_Iterator_Equal(&it, &end); container_t##_Iterator_Increment(&it))                \
-                                                                                                              \
-        {                                                                                                     \
-            const key_t it_value = container_t##_Iterator_GetValue(&it);                                      \
-            if(compare_function(&data, &it_value) == 0)                                                       \
-            {                                                                                                 \
-                break;                                                                                        \
-            }                                                                                                 \
-        }                                                                                                     \
-        return it;                                                                                            \
-    }                                                                                                         \
-                                                                                                              \
     void container_t##_Clear(container_t * const self)                                                        \
     {                                                                                                         \
         assert(self);                                                                                         \
@@ -368,7 +326,7 @@ extern "C"
         memset(self->nodes_table, 0, nodes_table_size_in_bytes);                                                    \
     }                                                                                                               \
                                                                                                                     \
-    void container_t##_Destroy(container_t * const self)                                                            \
+    void container_t##_Destruct(container_t * const self)                                                           \
     {                                                                                                               \
         while(container_t##_Size(self) != 0)                                                                        \
         {                                                                                                           \
@@ -376,7 +334,7 @@ extern "C"
             container_t##_Erase(self, &begin);                                                                      \
         }                                                                                                           \
         allocator_t##_Deallocate(&self->allocator, self->nodes_table);                                              \
-        allocator_t##_Destroy(&self->allocator);                                                                    \
+        allocator_t##_Destruct(&self->allocator);                                                                   \
     }                                                                                                               \
                                                                                                                     \
     size_t container_t##_Size(const container_t * const self)                                                       \
@@ -509,22 +467,6 @@ extern "C"
         return it;                                                                                                  \
     }                                                                                                               \
                                                                                                                     \
-    key_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self)                                \
-    {                                                                                                               \
-        assert(self);                                                                                               \
-                                                                                                                    \
-        key_t member = self->node->key;                                                                             \
-        return member;                                                                                              \
-    }                                                                                                               \
-                                                                                                                    \
-    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, key_t key)                            \
-    {                                                                                                               \
-        assert(self);                                                                                               \
-                                                                                                                    \
-        container_t##_Erase(self->container, self);                                                                 \
-        container_t##_Insert(self->container, key);                                                                 \
-    }                                                                                                               \
-                                                                                                                    \
     bool container_t##_Iterator_Equal(const container_t##_Iterator * const first,                                   \
                                       const container_t##_Iterator * const second)                                  \
     {                                                                                                               \
@@ -632,26 +574,6 @@ extern "C"
             temp_node = temp_node->next;                                                                            \
         }                                                                                                           \
         it.container = (container_t *)self;                                                                         \
-        return it;                                                                                                  \
-    }                                                                                                               \
-                                                                                                                    \
-    container_t##_Iterator container_t##_CustomFind(container_t * const self, const key_t data,                     \
-                                                    container_t##_compare_t compare_function)                       \
-    {                                                                                                               \
-        assert(self);                                                                                               \
-        assert(compare_function);                                                                                   \
-                                                                                                                    \
-        container_t##_Iterator end = container_t##_End(self);                                                       \
-        container_t##_Iterator it  = container_t##_Begin(self);                                                     \
-        for(; !container_t##_Iterator_Equal(&it, &end); container_t##_Iterator_Increment(&it))                      \
-                                                                                                                    \
-        {                                                                                                           \
-            const key_t it_value = container_t##_Iterator_GetValue(&it);                                            \
-            if(compare_function(&data, &it_value) == 0)                                                             \
-            {                                                                                                       \
-                break;                                                                                              \
-            }                                                                                                       \
-        }                                                                                                           \
         return it;                                                                                                  \
     }                                                                                                               \
                                                                                                                     \
