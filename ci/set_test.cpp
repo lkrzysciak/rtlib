@@ -1,6 +1,4 @@
 #include "gtest/gtest.h"
-#include "rtlib/binary_tree.h"
-#include "rtlib/hash_table.h"
 #include "rtlib/memory.h"
 #include "rtlib/set.h"
 #include "rtlib/unordered_set.h"
@@ -84,48 +82,24 @@ static int StructType_Compare(const StructType * v1, const StructType * v2)
 
 #define CONTAINER_CAPACITY 100
 
-extern "C"
-{
-    binary_tree_t(SetType, int);
-    static_binary_tree_t(SetType, int, CONTAINER_CAPACITY);
-    hash_table_t(HashTable, int);
-    static_hash_table_t(HashTable, int, CONTAINER_CAPACITY);
+dynamic_memory(MyDynamicAllocator);
+dynamic_memory_impl(MyDynamicAllocator);
 
-    memory_t(MyDynamicAllocator);
-    dynamic_memory_t(MyDynamicAllocator);
-    binary_tree_t(CustomBinaryTree, int);
-    custom_allocator_binary_tree_t(CustomBinaryTree, int, MyDynamicAllocator);
-    hash_table_t(CustomHashTable, int);
-    custom_allocator_hash_table_t(CustomHashTable, int, MyDynamicAllocator);
+static_set(SSetWithInt, int, CONTAINER_CAPACITY);
+custom_allocator_set(CSetWithInt, int, MyDynamicAllocator);
+dynamic_set(DSetWithInt, int);
+static_set(SSetWithPointer, IntPtr, CONTAINER_CAPACITY);
+custom_allocator_set(CSetWithPointer, IntPtr, MyDynamicAllocator);
+static_set(SSetWithStruct, StructType, CONTAINER_CAPACITY);
+dynamic_set(DSetWithStruct, StructType);
 
-    binary_tree_t(SSetTypeWithPointers, IntPtr);
-    static_binary_tree_t(SSetTypeWithPointers, IntPtr, CONTAINER_CAPACITY);
-    hash_table_t(SHashTableWithPointers, IntPtr);
-    static_hash_table_t(SHashTableWithPointers, IntPtr, CONTAINER_CAPACITY);
-    binary_tree_t(CSetTypeWithPointers, IntPtr);
-    custom_allocator_binary_tree_t(CSetTypeWithPointers, IntPtr, MyDynamicAllocator);
-    hash_table_t(CHashTableWithPointers, IntPtr);
-    custom_allocator_hash_table_t(CHashTableWithPointers, IntPtr, MyDynamicAllocator);
-
-    binary_tree_t(DynamicBinaryTree, int);
-    dynamic_binary_tree_t(DynamicBinaryTree, int);
-    hash_table_t(DynamicHashTable, int);
-    dynamic_hash_table_t(DynamicHashTable, int);
-
-    binary_tree_t(StructTypeStaticBinaryTree, StructType);
-    static_binary_tree_t(StructTypeStaticBinaryTree, StructType, CONTAINER_CAPACITY);
-    hash_table_t(StructTypeStaticHashTable, StructType);
-    static_hash_table_t(StructTypeStaticHashTable, StructType, CONTAINER_CAPACITY);
-    binary_tree_t(StructTypeDynamicBinaryTree, StructType);
-    dynamic_binary_tree_t(StructTypeDynamicBinaryTree, StructType);
-    hash_table_t(StructTypeDynamicHashTable, StructType);
-    dynamic_hash_table_t(StructTypeDynamicHashTable, StructType);
-}
-
-static_set(StaticSetV3, int, CONTAINER_CAPACITY);
-dynamic_set(DynamicSetV3, int);
 static_unordered_set(StaticUnorderedSetV3, int, CONTAINER_CAPACITY);
+custom_allocator_unordered_set(CustomHashTable, int, MyDynamicAllocator);
 dynamic_unordered_set(DynamicUnorderedSetV3, int);
+static_unordered_set(SHashTableWithPointers, IntPtr, CONTAINER_CAPACITY);
+custom_allocator_unordered_set(CHashTableWithPointers, IntPtr, MyDynamicAllocator);
+static_unordered_set(StructTypeStaticHashTable, StructType, CONTAINER_CAPACITY);
+dynamic_unordered_set(StructTypeDynamicHashTable, StructType);
 
 static int compare_set_ints(const int * v1, const int * v2)
 {
@@ -208,6 +182,10 @@ static unsigned int hash_function_struct_type(const StructType * value)
 }
 
 #define create_wrappers_for_type(Type, MemberType)                                     \
+    void Init(Type * const container)                                                  \
+    {                                                                                  \
+        Type##_Construct(container);                                                   \
+    }                                                                                  \
     void Deinit(Type * const container)                                                \
     {                                                                                  \
         Type##_Destruct(container);                                                    \
@@ -273,103 +251,18 @@ static unsigned int hash_function_struct_type(const StructType * value)
         Type##_Clear(container);                                                       \
     }
 
-/* Specialized init functions */
-void Init(SetType * const set_object)
-{
-    SetType_Construct(set_object);
-}
-
-void Init(SSetTypeWithPointers * const set_object)
-{
-    SSetTypeWithPointers_Construct(set_object);
-}
-
-void Init(HashTable * const hash_table)
-{
-    HashTable_Construct(hash_table);
-}
-
-void Init(SHashTableWithPointers * const hash_table)
-{
-    SHashTableWithPointers_Construct(hash_table);
-}
-
-void Init(CustomBinaryTree * const container)
-{
-    CustomBinaryTree_Construct(container);
-}
-
-void Init(CustomHashTable * const hash_table)
-{
-    CustomHashTable_Construct(hash_table);
-}
-
-void Init(DynamicBinaryTree * const container)
-{
-    DynamicBinaryTree_Construct(container);
-}
-
-void Init(DynamicHashTable * const hash_table)
-{
-    DynamicHashTable_Construct(hash_table);
-}
-
-void Init(StaticSetV3 * const object)
-{
-    StaticSetV3_Construct(object);
-}
-
-void Init(DynamicSetV3 * const object)
-{
-    DynamicSetV3_Construct(object);
-}
-
-void Init(StaticUnorderedSetV3 * const object)
-{
-    StaticUnorderedSetV3_Construct(object);
-}
-
-void Init(DynamicUnorderedSetV3 * const object)
-{
-    DynamicUnorderedSetV3_Construct(object);
-}
-
-create_wrappers_for_type(SetType, int);
-create_wrappers_for_type(HashTable, int);
-create_wrappers_for_type(CustomBinaryTree, int);
+create_wrappers_for_type(CSetWithInt, int);
 create_wrappers_for_type(CustomHashTable, int);
-create_wrappers_for_type(DynamicBinaryTree, int);
-create_wrappers_for_type(DynamicHashTable, int);
 
-create_wrappers_for_type(StructTypeStaticBinaryTree, StructType);
+create_wrappers_for_type(SSetWithStruct, StructType);
 create_wrappers_for_type(StructTypeStaticHashTable, StructType);
-create_wrappers_for_type(StructTypeDynamicBinaryTree, StructType);
+create_wrappers_for_type(DSetWithStruct, StructType);
 create_wrappers_for_type(StructTypeDynamicHashTable, StructType);
 
-create_wrappers_for_type(StaticSetV3, int);
-create_wrappers_for_type(DynamicSetV3, int);
+create_wrappers_for_type(SSetWithInt, int);
+create_wrappers_for_type(DSetWithInt, int);
 create_wrappers_for_type(StaticUnorderedSetV3, int);
 create_wrappers_for_type(DynamicUnorderedSetV3, int);
-
-void Init(StructTypeStaticBinaryTree * const container)
-{
-    StructTypeStaticBinaryTree_Construct(container);
-}
-
-void Init(StructTypeStaticHashTable * const container)
-{
-    StructTypeStaticHashTable_Construct(container);
-}
-
-void Init(StructTypeDynamicBinaryTree * const container)
-{
-    StructTypeDynamicBinaryTree_Construct(container);
-}
-
-void Init(StructTypeDynamicHashTable * const container)
-{
-    StructTypeDynamicHashTable_Construct(container);
-}
 
 template<typename T>
 struct SetTest : public testing::Test
@@ -402,13 +295,12 @@ struct SetStructTypeTest : public testing::Test
 };
 
 using MyTypes =
-    testing::Types<SetType, HashTable, CustomBinaryTree, CustomHashTable, DynamicBinaryTree, DynamicHashTable,
-                   StaticSetV3, DynamicSetV3, StaticUnorderedSetV3, DynamicUnorderedSetV3>;
+    testing::Types<CSetWithInt, CustomHashTable, SSetWithInt, DSetWithInt, StaticUnorderedSetV3, DynamicUnorderedSetV3>;
 
-using StaticContainerTypes = testing::Types<SetType, HashTable, StaticSetV3, StaticUnorderedSetV3>;
+using StaticContainerTypes = testing::Types<SSetWithInt, StaticUnorderedSetV3>;
 
-using StructContainerTypes = testing::Types<StructTypeStaticBinaryTree, StructTypeStaticHashTable,
-                                            StructTypeDynamicBinaryTree, StructTypeDynamicHashTable>;
+using StructContainerTypes =
+    testing::Types<SSetWithStruct, StructTypeStaticHashTable, DSetWithStruct, StructTypeDynamicHashTable>;
 
 TYPED_TEST_CASE(SetTest, MyTypes);
 TYPED_TEST_CASE(StaticSetTest, StaticContainerTypes);
@@ -848,7 +740,18 @@ TYPED_TEST(SetStructTypeTest, StructMembersInsert)
     ASSERT_EQ(var2.id, receivedVar2.id);
 }
 
-static_set_impl(StaticSetV3, int, CONTAINER_CAPACITY);
-dynamic_set_impl(DynamicSetV3, int);
+static_set_impl(SSetWithInt, int, CONTAINER_CAPACITY);
+custom_allocator_set_impl(CSetWithInt, int, MyDynamicAllocator);
+dynamic_set_impl(DSetWithInt, int);
+static_set_impl(SSetWithPointer, IntPtr, CONTAINER_CAPACITY);
+custom_allocator_set_impl(CSetWithPointer, IntPtr, MyDynamicAllocator);
+static_set_impl(SSetWithStruct, StructType, CONTAINER_CAPACITY);
+dynamic_set_impl(DSetWithStruct, StructType);
+
 static_unordered_set_impl(StaticUnorderedSetV3, int, CONTAINER_CAPACITY);
-dynamic__unordered_set_impl(DynamicUnorderedSetV3, int);
+custom_allocator_unordered_set_impl(CustomHashTable, int, MyDynamicAllocator);
+dynamic_unordered_set_impl(DynamicUnorderedSetV3, int);
+static_unordered_set_impl(SHashTableWithPointers, IntPtr, CONTAINER_CAPACITY);
+custom_allocator_unordered_set_impl(CHashTableWithPointers, IntPtr, MyDynamicAllocator);
+static_unordered_set_impl(StructTypeStaticHashTable, StructType, CONTAINER_CAPACITY);
+dynamic_unordered_set_impl(StructTypeDynamicHashTable, StructType);

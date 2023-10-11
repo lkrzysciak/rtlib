@@ -66,63 +66,31 @@ static int IntPtr_Compare(const IntPtr * v1, const IntPtr * v2)
     }
 }
 
-extern "C"
-{
-    vector_t(VectorTestType, int);
-    static_vector_t(VectorTestType, int, CONTAINER_CAPACITY);
-    list_t(ListTestType, int);
-    static_list_t(ListTestType, int, CONTAINER_CAPACITY);
-    deque_t(DequeTestType, int);
-    static_deque_t(DequeTestType, int, CONTAINER_CAPACITY);
+dynamic_memory(DynamicAllocator);
 
-    memory_t(DynamicAllocator);
-    dynamic_memory_t(DynamicAllocator);
-    vector_t(CustomAllocatorVector, int);
-    custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
-    list_t(CustomAllocatorList, int);
-    custom_allocator_list_t(CustomAllocatorList, int, DynamicAllocator);
+static_vector(SVectorWithInt, int, CONTAINER_CAPACITY);
+custom_allocator_vector(CVectorWithInt, int, DynamicAllocator);
+dynamic_vector(DVectorWithInt, int);
+static_vector(SVectorWithPointers, IntPtr, CONTAINER_CAPACITY);
+custom_allocator_vector(CVectorWithPointers, IntPtr, DynamicAllocator);
+dynamic_vector(DVectorWithPointers, IntPtr);
+static_vector(SVectorWithStruct, StructType, CONTAINER_CAPACITY);
+custom_allocator_vector(CVectorWithStruct, StructType, DynamicAllocator);
+dynamic_vector(DVectorWithStruct, StructType);
 
-    vector_t(SVectorWithPointers, IntPtr);
-    static_vector_t(SVectorWithPointers, IntPtr, CONTAINER_CAPACITY);
-    list_t(SListWithPointers, IntPtr);
-    static_list_t(SListWithPointers, IntPtr, CONTAINER_CAPACITY);
-    vector_t(CVectorWithPointers, IntPtr);
-    custom_allocator_vector_t(CVectorWithPointers, IntPtr, DynamicAllocator);
-    list_t(CListWithPointers, IntPtr);
-    custom_allocator_list_t(CListWithPointers, IntPtr, DynamicAllocator);
+static_deque(SDequeWithInt, int, CONTAINER_CAPACITY);
+static_deque(SDequeWithPointers, IntPtr, CONTAINER_CAPACITY);
+static_deque(SDequeWithStruct, StructType, CONTAINER_CAPACITY);
 
-    vector_t(DynamicVector, int);
-    dynamic_vector_t(DynamicVector, int);
-    list_t(DynamicList, int);
-    dynamic_list_t(DynamicList, int);
-
-    vector_t(StructTypeStaticVector, StructType);
-    static_vector_t(StructTypeStaticVector, StructType, CONTAINER_CAPACITY);
-    list_t(StructTypeStaticList, StructType);
-    static_list_t(StructTypeStaticList, StructType, CONTAINER_CAPACITY);
-    vector_t(StructTypeDynamicVector, StructType);
-    dynamic_vector_t(StructTypeDynamicVector, StructType);
-    list_t(StructTypeDynamicList, StructType);
-    dynamic_list_t(StructTypeDynamicList, StructType);
-}
-
-// v3 api
-static_vector(VectorTestTypeV3, int, CONTAINER_CAPACITY);
-custom_allocator_vector(CustomAllocatorVectorV3, int, DynamicAllocator);
-dynamic_vector(DynamicVectorV3, int);
-static_vector(VectorTestTypeV3NullCmp, int, CONTAINER_CAPACITY);
-custom_allocator_vector(CustomAllocatorVectorV3NullCmp, int, DynamicAllocator);
-dynamic_vector(DynamicVectorV3NullCmp, int);
-
-static_deque(StaticDequeV3, int, CONTAINER_CAPACITY);
-static_deque(StaticDequeV3NullCmp, int, CONTAINER_CAPACITY);
-
-static_list(StaticListV3, int, CONTAINER_CAPACITY);
-custom_allocator_list(CustomAllocatorListV3, int, DynamicAllocator);
-dynamic_list(DynamicListV3, int);
-static_list(StaticListV3NullCmp, int, CONTAINER_CAPACITY);
-custom_allocator_list(CustomAllocatorListV3NullCmp, int, DynamicAllocator);
-dynamic_list(DynamicListV3NullCmp, int);
+static_list(SListWithInt, int, CONTAINER_CAPACITY);
+custom_allocator_list(CListWithInt, int, DynamicAllocator);
+dynamic_list(DListWithInt, int);
+static_list(SListWithPointers, IntPtr, CONTAINER_CAPACITY);
+custom_allocator_list(CListWithPointers, IntPtr, DynamicAllocator);
+dynamic_list(DListWithPointers, IntPtr);
+static_list(SListWithStruct, StructType, CONTAINER_CAPACITY);
+custom_allocator_list(CListWithStruct, StructType, DynamicAllocator);
+dynamic_list(DListWithStruct, StructType);
 
 static int compare_set_ints(const int * v1, const int * v2)
 {
@@ -304,36 +272,29 @@ static int compare_struct_type(const StructType * v1, const StructType * v2)
         Type##_Clear(container);                                                       \
     }
 
-create_wrappers_for_type(VectorTestType, int);
-create_wrappers_for_type(ListTestType, int);
-create_wrappers_for_type(DequeTestType, int);
-create_wrappers_for_type(CustomAllocatorVector, int);
-create_wrappers_for_type(CustomAllocatorList, int);
-create_wrappers_for_type(DynamicVector, int);
-create_wrappers_for_type(DynamicList, int);
+create_wrappers_for_type(SVectorWithInt, int);
+create_wrappers_for_type(CVectorWithInt, int);
+create_wrappers_for_type(DVectorWithInt, int);
+create_wrappers_for_type(SVectorWithPointers, IntPtr);
+create_wrappers_for_type(CVectorWithPointers, IntPtr);
+create_wrappers_for_type(DVectorWithPointers, IntPtr);
+create_wrappers_for_type(SVectorWithStruct, StructType);
+create_wrappers_for_type(CVectorWithStruct, StructType);
+create_wrappers_for_type(DVectorWithStruct, StructType);
 
-// Verifies if compiles
-create_wrappers_for_type(SVectorWithPointers, int *);
-create_wrappers_for_type(StructTypeStaticVector, StructType);
-create_wrappers_for_type(StructTypeStaticList, StructType);
-create_wrappers_for_type(StructTypeDynamicVector, StructType);
-create_wrappers_for_type(StructTypeDynamicList, StructType);
+create_wrappers_for_type(SDequeWithInt, int);
+create_wrappers_for_type(SDequeWithPointers, IntPtr);
+create_wrappers_for_type(SDequeWithStruct, StructType);
 
-create_wrappers_for_type(VectorTestTypeV3, int);
-create_wrappers_for_type(CustomAllocatorVectorV3, int);
-create_wrappers_for_type(DynamicVectorV3, int);
-create_wrappers_for_type(StaticDequeV3, int);
-create_wrappers_for_type(StaticListV3, int);
-create_wrappers_for_type(CustomAllocatorListV3, int);
-create_wrappers_for_type(DynamicListV3, int);
-
-create_wrappers_for_type(VectorTestTypeV3NullCmp, int);
-create_wrappers_for_type(CustomAllocatorVectorV3NullCmp, int);
-create_wrappers_for_type(DynamicVectorV3NullCmp, int);
-create_wrappers_for_type(StaticDequeV3NullCmp, int);
-create_wrappers_for_type(StaticListV3NullCmp, int);
-create_wrappers_for_type(CustomAllocatorListV3NullCmp, int);
-create_wrappers_for_type(DynamicListV3NullCmp, int);
+create_wrappers_for_type(SListWithInt, int);
+create_wrappers_for_type(CListWithInt, int);
+create_wrappers_for_type(DListWithInt, int);
+create_wrappers_for_type(SListWithPointers, IntPtr);
+create_wrappers_for_type(CListWithPointers, IntPtr);
+create_wrappers_for_type(DListWithPointers, IntPtr);
+create_wrappers_for_type(SListWithStruct, StructType);
+create_wrappers_for_type(CListWithStruct, StructType);
+create_wrappers_for_type(DListWithStruct, StructType);
 
 template<typename T>
 struct ContainerTest : public testing::Test
@@ -375,20 +336,17 @@ struct StructTypeTest : public testing::Test
     T container;
 };
 
-using MyTypes = testing::Types<VectorTestType, ListTestType, DequeTestType, CustomAllocatorVector, CustomAllocatorList,
-                               DynamicVector, DynamicList, VectorTestTypeV3, CustomAllocatorVectorV3, DynamicVectorV3,
-                               StaticDequeV3, StaticListV3, CustomAllocatorListV3, DynamicListV3>;
+using IntTypes = testing::Types<SVectorWithInt, CVectorWithInt, DVectorWithInt, SListWithInt, CListWithInt,
+                                DListWithInt, SDequeWithInt>;
 
-using StaticContainerTypes =
-    testing::Types<VectorTestType, ListTestType, DequeTestType, VectorTestTypeV3, StaticDequeV3, StaticListV3>;
+using StaticContainerTypes = testing::Types<SVectorWithInt, SListWithInt, SDequeWithInt>;
 
-using CustomContainerTypes =
-    testing::Types<CustomAllocatorVector, CustomAllocatorList, CustomAllocatorVectorV3, CustomAllocatorListV3>;
+using CustomContainerTypes = testing::Types<CVectorWithInt, CListWithInt>;
 
-using StructContainerTypes =
-    testing::Types<StructTypeStaticVector, StructTypeStaticList, StructTypeDynamicVector, StructTypeDynamicList>;
+using StructContainerTypes = testing::Types<SVectorWithStruct, CVectorWithStruct, DVectorWithStruct, SListWithStruct,
+                                            CListWithStruct, DListWithStruct, SDequeWithStruct>;
 
-TYPED_TEST_SUITE(ContainerTest, MyTypes);
+TYPED_TEST_SUITE(ContainerTest, IntTypes);
 TYPED_TEST_SUITE(StaticContainerTest, StaticContainerTypes);
 TYPED_TEST_SUITE(CustomContainerTest, CustomContainerTypes);
 TYPED_TEST_SUITE(StructTypeTest, StructContainerTypes);
@@ -1102,17 +1060,28 @@ TYPED_TEST(StructTypeTest, StructMembersInsert)
 }
 
 // must to at the end to verify if we have valid declarations
-static_vector_impl(VectorTestTypeV3, int, CONTAINER_CAPACITY);
-custom_allocator_vector_impl(CustomAllocatorVectorV3, int, DynamicAllocator);
-dynamic_vector_impl(DynamicVectorV3, int);
-static_vector_impl(VectorTestTypeV3NullCmp, int, CONTAINER_CAPACITY);
-custom_allocator_vector_impl(CustomAllocatorVectorV3NullCmp, int, DynamicAllocator);
-dynamic_vector_impl(DynamicVectorV3NullCmp, int);
-static_deque_impl(StaticDequeV3, int, CONTAINER_CAPACITY);
-static_deque_impl(StaticDequeV3NullCmp, int, CONTAINER_CAPACITY);
-static_list_impl(StaticListV3, int, CONTAINER_CAPACITY);
-custom_allocator_list_impl(CustomAllocatorListV3, int, DynamicAllocator);
-dynamic_list_impl(DynamicListV3, int);
-static_list_impl(StaticListV3NullCmp, int, CONTAINER_CAPACITY);
-custom_allocator_list_impl(CustomAllocatorListV3NullCmp, int, DynamicAllocator);
-dynamic_list_impl(DynamicListV3NullCmp, int);
+dynamic_memory_impl(DynamicAllocator);
+
+static_vector_impl(SVectorWithInt, int, CONTAINER_CAPACITY);
+custom_allocator_vector_impl(CVectorWithInt, int, DynamicAllocator);
+dynamic_vector_impl(DVectorWithInt, int);
+static_vector_impl(SVectorWithPointers, IntPtr, CONTAINER_CAPACITY);
+custom_allocator_vector_impl(CVectorWithPointers, IntPtr, DynamicAllocator);
+dynamic_vector_impl(DVectorWithPointers, IntPtr);
+static_vector_impl(SVectorWithStruct, StructType, CONTAINER_CAPACITY);
+custom_allocator_vector_impl(CVectorWithStruct, StructType, DynamicAllocator);
+dynamic_vector_impl(DVectorWithStruct, StructType);
+
+static_deque_impl(SDequeWithInt, int, CONTAINER_CAPACITY);
+static_deque_impl(SDequeWithPointers, IntPtr, CONTAINER_CAPACITY);
+static_deque_impl(SDequeWithStruct, StructType, CONTAINER_CAPACITY);
+
+static_list_impl(SListWithInt, int, CONTAINER_CAPACITY);
+custom_allocator_list_impl(CListWithInt, int, DynamicAllocator);
+dynamic_list_impl(DListWithInt, int);
+static_list_impl(SListWithPointers, IntPtr, CONTAINER_CAPACITY);
+custom_allocator_list_impl(CListWithPointers, IntPtr, DynamicAllocator);
+dynamic_list_impl(DListWithPointers, IntPtr);
+static_list_impl(SListWithStruct, StructType, CONTAINER_CAPACITY);
+custom_allocator_list_impl(CListWithStruct, StructType, DynamicAllocator);
+dynamic_list_impl(DListWithStruct, StructType);

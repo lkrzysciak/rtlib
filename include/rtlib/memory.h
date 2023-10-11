@@ -2,7 +2,12 @@
 
 #include <stdlib.h>
 
-#define memory_t(container_t)                                                                  \
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+#define dynamic_memory(container_t)                                                            \
                                                                                                \
     typedef struct container_t                                                                 \
     {                                                                                          \
@@ -15,7 +20,7 @@
     void * container_t##_Reallocate(container_t * const self, void * object, size_t new_size); \
     void container_t##_Deallocate(container_t * const self, void * object);
 
-#define dynamic_memory_t(container_t)                                                         \
+#define dynamic_memory_impl(container_t)                                                      \
     void container_t##_Construct(container_t * const self)                                    \
     {                                                                                         \
         assert(self);                                                                         \
@@ -47,5 +52,6 @@
         free(object);                                                                         \
     }
 
-#define dynamic_memory memory_t
-#define dynamic_memory_impl dynamic_memory_t
+#ifdef __cplusplus
+}
+#endif

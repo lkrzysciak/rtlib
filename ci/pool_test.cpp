@@ -5,13 +5,13 @@ extern "C"
 #include "rtlib/memory.h"
 #include "rtlib/pool.h"
 
-    pool_t(StaticPoolInt, int);
-    static_pool_t(StaticPoolInt, int, 5);
+    static_pool(StaticPoolInt, int, 5);
+    static_pool_impl(StaticPoolInt, int, 5);
 
-    memory_t(PoolDynamicAllocator);
-    dynamic_memory_t(PoolDynamicAllocator);
-    pool_t(CustomAllocatorPoolInt, int);
-    custom_allocator_pool_t(CustomAllocatorPoolInt, int, PoolDynamicAllocator);
+    dynamic_memory(PoolDynamicAllocator);
+    dynamic_memory_impl(PoolDynamicAllocator);
+    custom_allocator_pool(CustomAllocatorPoolInt, int, PoolDynamicAllocator);
+    custom_allocator_pool_impl(CustomAllocatorPoolInt, int, PoolDynamicAllocator);
 }
 
 #define create_wrappers_for_type(Type, MemberType)            \

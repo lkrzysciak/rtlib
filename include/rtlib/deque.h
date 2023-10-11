@@ -279,29 +279,6 @@ extern "C"
         self->size  = 0;                                                                                         \
     }
 
-#define deque_t(container_t, member_t)                                          \
-    typedef struct container_t container_t;                                     \
-    typedef struct container_t##_Iterator container_t##_Iterator;               \
-    typedef int (*container_t##_compare_t)(const member_t *, const member_t *); \
-                                                                                \
-    __deque_methods_h(container_t, member_t)
-
-#define static_deque_t(container_t, member_t, container_capacity) \
-    struct container_t##_Iterator                                 \
-    {                                                             \
-        int index;                                                \
-        const container_t * owner;                                \
-    };                                                            \
-                                                                  \
-    struct container_t                                            \
-    {                                                             \
-        member_t data[container_capacity + 1];                    \
-        int begin;                                                \
-        int end;                                                  \
-        int size;                                                 \
-    };                                                            \
-    __static_deque_methods_c(container_t, member_t, container_capacity)
-
 #define static_deque(container_t, member_t, container_capacity)                 \
     typedef struct container_t container_t;                                     \
     typedef struct container_t##_Iterator container_t##_Iterator;               \

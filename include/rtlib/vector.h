@@ -11,6 +11,7 @@ extern "C"
 #include <string.h>
 #include <stdbool.h>
 #include "error_codes.h"
+#include "rtlib/memory.h"
 
 #define __vector_methods_h(container_t, member_t)                                                               \
     void container_t##_Construct(container_t * const self);                                                     \
@@ -530,42 +531,6 @@ extern "C"
             container_t##_Erase(self, &begin);                                                                         \
         }                                                                                                              \
     }
-
-#define vector_t(container_t, member_t)                                         \
-    typedef struct container_t container_t;                                     \
-    typedef struct container_t##_Iterator container_t##_Iterator;               \
-    struct container_t##_Iterator                                               \
-    {                                                                           \
-        member_t * value;                                                       \
-    };                                                                          \
-    typedef int (*container_t##_compare_t)(const member_t *, const member_t *); \
-    __vector_methods_h(container_t, member_t)
-
-#define static_vector_t(container_t, member_t, container_capacity) \
-    struct container_t                                             \
-    {                                                              \
-        size_t size;                                               \
-        size_t capacity;                                           \
-        member_t data[container_capacity];                         \
-    };                                                             \
-    __static_vector_methods_c(container_t, member_t)
-
-#define custom_allocator_vector_t(container_t, member_t, allocator_t) \
-    struct container_t                                                \
-    {                                                                 \
-        size_t size;                                                  \
-        size_t capacity;                                              \
-        member_t * data;                                              \
-        allocator_t allocator;                                        \
-    };                                                                \
-    __custom_vector_methods_c(container_t, member_t, allocator_t)
-
-#include "rtlib/memory.h"
-
-#define dynamic_vector_t(container_t, member_t)       \
-    memory_t(container_t##_DynamicAllocator);         \
-    dynamic_memory_t(container_t##_DynamicAllocator); \
-    custom_allocator_vector_t(container_t, member_t, container_t##_DynamicAllocator);
 
 #define static_vector(container_t, member_t, container_capacity)                \
     typedef int (*container_t##_compare_t)(const member_t *, const member_t *); \

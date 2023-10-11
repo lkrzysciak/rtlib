@@ -2,6 +2,11 @@
 
 #include <assert.h>
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #define __pool_methods_h(type_t, member_t)             \
     void type_t##_Construct(type_t * const self);      \
     void type_t##_Destruct(type_t * const self);       \
@@ -61,11 +66,6 @@
     }
 
 #define __custom_allocator_pool_methods_c(pool_t, member_t, allocator_t)               \
-    typedef struct pool_t                                                              \
-    {                                                                                  \
-        allocator_t allocator;                                                         \
-    } pool_t;                                                                          \
-                                                                                       \
     void pool_t##_Construct(pool_t * const self)                                       \
     {                                                                                  \
         assert(self);                                                                  \
@@ -93,30 +93,6 @@
                                                                                        \
         allocator_t##_Deallocate(&self->allocator, object);                            \
     }
-
-#define pool_t(type_t, member_t)  \
-    typedef struct type_t type_t; \
-    __pool_methods_h(type_t, member_t)
-
-#define static_pool_t(type_t, member_t, pool_capacity) \
-    typedef struct type_t##_node type_t##_node;        \
-                                                       \
-    struct type_t##_node                               \
-    {                                                  \
-        member_t value;                                \
-        type_t##_node * next;                          \
-    };                                                 \
-                                                       \
-    typedef struct type_t                              \
-    {                                                  \
-        type_t##_node nodes[pool_capacity];            \
-        type_t##_node * first_free_block;              \
-        type_t##_node * last_free_block;               \
-    } type_t;                                          \
-    __static_pool_methods_c(type_t, member_t, pool_capacity)
-
-#define custom_allocator_pool_t(pool_t, member_t, allocator_t) \
-    __custom_allocator_pool_methods_c(pool_t, member_t, allocator_t)
 
 #define static_pool(type_t, member_t, pool_capacity) \
     typedef struct type_t type_t;                    \
@@ -147,4 +123,8 @@
 #define static_pool_impl(type_t, member_t, pool_capacity) __static_pool_methods_c(type_t, member_t, pool_capacity)
 
 #define custom_allocator_pool_impl(type_t, member_t, allocator_t) \
-    __custom_allocator_pool_methods_c(pool_t, member_t, allocator_t)
+    __custom_allocator_pool_methods_c(type_t, member_t, allocator_t)
+
+#ifdef __cplusplus
+}
+#endif

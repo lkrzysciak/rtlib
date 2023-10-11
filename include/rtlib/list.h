@@ -5,6 +5,12 @@
 #include <stdbool.h>
 #include "error_codes.h"
 #include "rtlib/pool.h"
+#include "rtlib/memory.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 #define __list_methods_h(container_t, member_t)                                                                 \
     void container_t##_Construct(container_t * const self);                                                     \
@@ -660,67 +666,6 @@
         }                                                                                                       \
     }
 
-#include "rtlib/memory.h"
-
-#define list_t(container_t, member_t)                                           \
-    typedef struct container_t container_t;                                     \
-    typedef struct container_t##_Iterator container_t##_Iterator;               \
-    typedef struct container_t##_node container_t##_node;                       \
-    typedef int (*container_t##_compare_t)(const member_t *, const member_t *); \
-    __list_methods_h(container_t, member_t)
-
-#define static_list_t(container_t, member_t, container_capacity)                   \
-    struct container_t##_node                                                      \
-    {                                                                              \
-        container_t##_node * prev;                                                 \
-        container_t##_node * next;                                                 \
-        member_t value;                                                            \
-    };                                                                             \
-                                                                                   \
-    struct container_t##_Iterator                                                  \
-    {                                                                              \
-        container_t##_node * node;                                                 \
-    };                                                                             \
-                                                                                   \
-    pool_t(container_t##_pool, container_t##_node);                                \
-    static_pool_t(container_t##_pool, container_t##_node, container_capacity + 1); \
-                                                                                   \
-    struct container_t                                                             \
-    {                                                                              \
-        container_t##_node * begin;                                                \
-        container_t##_node * end;                                                  \
-        container_t##_pool pool;                                                   \
-        size_t size;                                                               \
-    };                                                                             \
-    __static_list_methods_c(container_t, member_t, container_capacity)
-
-#define custom_allocator_list_t(container_t, member_t, allocator_t) \
-    struct container_t##_node                                       \
-    {                                                               \
-        container_t##_node * prev;                                  \
-        container_t##_node * next;                                  \
-        member_t value;                                             \
-    };                                                              \
-                                                                    \
-    struct container_t##_Iterator                                   \
-    {                                                               \
-        container_t##_node * node;                                  \
-    };                                                              \
-                                                                    \
-    struct container_t                                              \
-    {                                                               \
-        container_t##_node * begin;                                 \
-        container_t##_node * end;                                   \
-        allocator_t allocator;                                      \
-        size_t size;                                                \
-    };                                                              \
-    __custom_allocator_list_methods_c(container_t, member_t, allocator_t)
-
-#define dynamic_list_t(container_t, member_t)         \
-    memory_t(container_t##_DynamicAllocator);         \
-    dynamic_memory_t(container_t##_DynamicAllocator); \
-    custom_allocator_list_t(container_t, member_t, container_t##_DynamicAllocator);
-
 #define static_list(container_t, member_t, container_capacity)                   \
     typedef struct container_t container_t;                                      \
     typedef struct container_t##_Iterator container_t##_Iterator;                \
@@ -789,3 +734,7 @@
 #define dynamic_list_impl(container_t, member_t)         \
     dynamic_memory_impl(container_t##_DynamicAllocator); \
     custom_allocator_list_impl(container_t, member_t, container_t##_DynamicAllocator);
+
+#ifdef __cplusplus
+}
+#endif

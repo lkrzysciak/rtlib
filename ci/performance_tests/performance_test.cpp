@@ -12,8 +12,8 @@
 
 #include "rtlib/vector.h"
 #include "rtlib/list.h"
-#include "rtlib/hash_table.h"
-#include "rtlib/binary_tree.h"
+#include "rtlib/unordered_set.h"
+#include "rtlib/set.h"
 #include "rtlib/pool.h"
 #include "rtlib/deque.h"
 
@@ -42,27 +42,27 @@ unsigned int int_Hash(const int * value)
     return *value;
 }
 
-vector_t(TestVector, int);
-static_vector_t(TestVector, int, STATIC_CONTAINER_SIZE);
-list_t(TestList, int);
-static_list_t(TestList, int, STATIC_CONTAINER_SIZE);
-hash_table_t(TestHashTable, int);
-static_hash_table_t(TestHashTable, int, STATIC_CONTAINER_SIZE);
-binary_tree_t(TestBinaryTree, int);
-static_binary_tree_t(TestBinaryTree, int, STATIC_CONTAINER_SIZE);
-deque_t(TestDeque, int);
-static_deque_t(TestDeque, int, STATIC_CONTAINER_SIZE);
+static_vector(TestVector, int, STATIC_CONTAINER_SIZE);
+static_vector_impl(TestVector, int, STATIC_CONTAINER_SIZE);
+static_list(TestList, int, STATIC_CONTAINER_SIZE);
+static_list_impl(TestList, int, STATIC_CONTAINER_SIZE);
+static_unordered_set(TestHashTable, int, STATIC_CONTAINER_SIZE);
+static_unordered_set_impl(TestHashTable, int, STATIC_CONTAINER_SIZE);
+static_set(TestBinaryTree, int, STATIC_CONTAINER_SIZE);
+static_set_impl(TestBinaryTree, int, STATIC_CONTAINER_SIZE);
+static_deque(TestDeque, int, STATIC_CONTAINER_SIZE);
+static_deque_impl(TestDeque, int, STATIC_CONTAINER_SIZE);
 
-memory_t(DynamicAllocator);
-dynamic_memory_t(DynamicAllocator);
-vector_t(DynamicAllocatorVector, int);
-custom_allocator_vector_t(DynamicAllocatorVector, int, DynamicAllocator);
-list_t(DynamicAllocatorList, int);
-custom_allocator_list_t(DynamicAllocatorList, int, DynamicAllocator);
-hash_table_t(DynamicAllocatorHashTable, int);
-custom_allocator_hash_table_t(DynamicAllocatorHashTable, int, DynamicAllocator);
-binary_tree_t(DynamicAllocatorBinaryTree, int);
-custom_allocator_binary_tree_t(DynamicAllocatorBinaryTree, int, DynamicAllocator);
+dynamic_memory(DynamicAllocator);
+dynamic_memory_impl(DynamicAllocator);
+custom_allocator_vector(DynamicAllocatorVector, int, DynamicAllocator);
+custom_allocator_vector_impl(DynamicAllocatorVector, int, DynamicAllocator);
+custom_allocator_list(DynamicAllocatorList, int, DynamicAllocator);
+custom_allocator_list_impl(DynamicAllocatorList, int, DynamicAllocator);
+custom_allocator_unordered_set(DynamicAllocatorHashTable, int, DynamicAllocator);
+custom_allocator_unordered_set_impl(DynamicAllocatorHashTable, int, DynamicAllocator);
+custom_allocator_set(DynamicAllocatorBinaryTree, int, DynamicAllocator);
+custom_allocator_set_impl(DynamicAllocatorBinaryTree, int, DynamicAllocator);
 
 #define cCall(object, addMethod, deleteMethod, oneIterationSize, iterations) \
     for(int i = 0; i < iterations; ++i)                                      \
@@ -607,8 +607,8 @@ unsigned int calculateStlUnorderedSetFind()
     stlFind(std::unordered_set<int>, onIterationSize, iterations);
 }
 
-pool_t(TestPool, int);
-static_pool_t(TestPool, int, 20);
+static_pool(TestPool, int, 20);
+static_pool_impl(TestPool, int, 20);
 
 void addRecordToTree(boost::property_tree::ptree & array, std::string container, unsigned int duration)
 {
