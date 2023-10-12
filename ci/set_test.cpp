@@ -90,96 +90,20 @@ custom_allocator_set(CSetWithInt, int, MyDynamicAllocator);
 dynamic_set(DSetWithInt, int);
 static_set(SSetWithPointer, IntPtr, CONTAINER_CAPACITY);
 custom_allocator_set(CSetWithPointer, IntPtr, MyDynamicAllocator);
+dynamic_set(DSetWithPointer, IntPtr);
 static_set(SSetWithStruct, StructType, CONTAINER_CAPACITY);
+custom_allocator_set(CSetWithStruct, StructType, MyDynamicAllocator);
 dynamic_set(DSetWithStruct, StructType);
 
-static_unordered_set(StaticUnorderedSetV3, int, CONTAINER_CAPACITY);
-custom_allocator_unordered_set(CustomHashTable, int, MyDynamicAllocator);
-dynamic_unordered_set(DynamicUnorderedSetV3, int);
-static_unordered_set(SHashTableWithPointers, IntPtr, CONTAINER_CAPACITY);
-custom_allocator_unordered_set(CHashTableWithPointers, IntPtr, MyDynamicAllocator);
-static_unordered_set(StructTypeStaticHashTable, StructType, CONTAINER_CAPACITY);
-dynamic_unordered_set(StructTypeDynamicHashTable, StructType);
-
-static int compare_set_ints(const int * v1, const int * v2)
-{
-    if(*v1 > *v2)
-    {
-        return 1;
-    }
-    else if(*v1 < *v2)
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-static int compare_set_ints_ptr(const IntPtr * v1, const IntPtr * v2)
-{
-    if(*v1 > *v2)
-    {
-        return 1;
-    }
-    else if(*v1 < *v2)
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-static int compare_custom_ints(const int * v1, const int * v2)
-{
-    /* We are looking for x+1 value - for test only */
-    if(*v1 > (*v2 + 1))
-    {
-        return 1;
-    }
-    else if(*v1 < (*v2 + 1))
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-static int compare_struct_type(const StructType * v1, const StructType * v2)
-{
-    if(v1->id > v2->id)
-    {
-        return 1;
-    }
-    else if(v1->id < v2->id)
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-static unsigned int hash_function(const int * value)
-{
-    return *value;
-}
-
-static unsigned int hash_function_ptr(const IntPtr * value)
-{
-    return **value;
-}
-
-static unsigned int hash_function_struct_type(const StructType * value)
-{
-    return value->id;
-}
+static_unordered_set(SUnorderedSetWithInt, int, CONTAINER_CAPACITY);
+custom_allocator_unordered_set(CUnorderedSetWithInt, int, MyDynamicAllocator);
+dynamic_unordered_set(DUnorderedSetWithInt, int);
+static_unordered_set(SUnorderedSetWithPointer, IntPtr, CONTAINER_CAPACITY);
+custom_allocator_unordered_set(CUnorderedSetWithPointer, IntPtr, MyDynamicAllocator);
+dynamic_unordered_set(DUnorderedSetWithPointer, IntPtr);
+static_unordered_set(SUnorderedSetWithStruct, StructType, CONTAINER_CAPACITY);
+custom_allocator_unordered_set(CUnorderedSetWithStruct, StructType, MyDynamicAllocator);
+dynamic_unordered_set(DUnorderedSetWithStruct, StructType);
 
 #define create_wrappers_for_type(Type, MemberType)                                     \
     void Init(Type * const container)                                                  \
@@ -251,18 +175,24 @@ static unsigned int hash_function_struct_type(const StructType * value)
         Type##_Clear(container);                                                       \
     }
 
-create_wrappers_for_type(CSetWithInt, int);
-create_wrappers_for_type(CustomHashTable, int);
-
-create_wrappers_for_type(SSetWithStruct, StructType);
-create_wrappers_for_type(StructTypeStaticHashTable, StructType);
-create_wrappers_for_type(DSetWithStruct, StructType);
-create_wrappers_for_type(StructTypeDynamicHashTable, StructType);
-
 create_wrappers_for_type(SSetWithInt, int);
+create_wrappers_for_type(CSetWithInt, int);
 create_wrappers_for_type(DSetWithInt, int);
-create_wrappers_for_type(StaticUnorderedSetV3, int);
-create_wrappers_for_type(DynamicUnorderedSetV3, int);
+create_wrappers_for_type(SSetWithPointer, IntPtr);
+create_wrappers_for_type(CSetWithPointer, IntPtr);
+create_wrappers_for_type(DSetWithPointer, IntPtr);
+create_wrappers_for_type(SSetWithStruct, StructType);
+create_wrappers_for_type(CSetWithStruct, StructType);
+create_wrappers_for_type(DSetWithStruct, StructType);
+create_wrappers_for_type(SUnorderedSetWithInt, int);
+create_wrappers_for_type(CUnorderedSetWithInt, int);
+create_wrappers_for_type(DUnorderedSetWithInt, int);
+create_wrappers_for_type(SUnorderedSetWithPointer, IntPtr);
+create_wrappers_for_type(CUnorderedSetWithPointer, IntPtr);
+create_wrappers_for_type(DUnorderedSetWithPointer, IntPtr);
+create_wrappers_for_type(SUnorderedSetWithStruct, StructType);
+create_wrappers_for_type(CUnorderedSetWithStruct, StructType);
+create_wrappers_for_type(DUnorderedSetWithStruct, StructType);
 
 template<typename T>
 struct SetTest : public testing::Test
@@ -294,17 +224,31 @@ struct SetStructTypeTest : public testing::Test
     T container;
 };
 
-using MyTypes =
-    testing::Types<CSetWithInt, CustomHashTable, SSetWithInt, DSetWithInt, StaticUnorderedSetV3, DynamicUnorderedSetV3>;
+template<typename T>
+struct SetPointerTest : public testing::Test
+{
+    void SetUp() override { Init(&container); }
 
-using StaticContainerTypes = testing::Types<SSetWithInt, StaticUnorderedSetV3>;
+    void TearDown() override { Deinit(&container); }
 
-using StructContainerTypes =
-    testing::Types<SSetWithStruct, StructTypeStaticHashTable, DSetWithStruct, StructTypeDynamicHashTable>;
+    T container;
+};
+
+using MyTypes = testing::Types<SSetWithInt, CSetWithInt, DSetWithInt, SUnorderedSetWithInt, CUnorderedSetWithInt,
+                               DUnorderedSetWithInt>;
+
+using StaticContainerTypes = testing::Types<SSetWithInt, SUnorderedSetWithInt>;
+
+using StructContainerTypes = testing::Types<SSetWithStruct, CSetWithStruct, DSetWithStruct, SUnorderedSetWithStruct,
+                                            CUnorderedSetWithStruct, DUnorderedSetWithStruct>;
+
+using TypesWithPointer = testing::Types<SSetWithPointer, CSetWithPointer, DSetWithPointer, SUnorderedSetWithPointer,
+                                        CUnorderedSetWithPointer, DUnorderedSetWithPointer>;
 
 TYPED_TEST_CASE(SetTest, MyTypes);
 TYPED_TEST_CASE(StaticSetTest, StaticContainerTypes);
 TYPED_TEST_CASE(SetStructTypeTest, StructContainerTypes);
+TYPED_TEST_CASE(SetPointerTest, TypesWithPointer);
 
 TYPED_TEST(SetTest, IsEmptyAfterInit)
 {
@@ -740,18 +684,45 @@ TYPED_TEST(SetStructTypeTest, StructMembersInsert)
     ASSERT_EQ(var2.id, receivedVar2.id);
 }
 
+TYPED_TEST(SetPointerTest, Insert)
+{
+    int * a = new int(5);
+    int * b = new int(11);
+    std::set<int *> expected{ a, b };
+
+    ASSERT_EQ(Insert(&this->container, a), 1);
+    ASSERT_EQ(Insert(&this->container, b), 2);
+
+    std::set<int *> received{};
+    auto it = Begin(&this->container);
+    received.insert(*CRef(&it));
+    IteratorInc(&it);
+    received.insert(*CRef(&it));
+
+    ASSERT_EQ(expected, received);
+
+    Clear(&this->container);
+
+    delete a;
+    delete b;
+}
+
 static_set_impl(SSetWithInt, int, CONTAINER_CAPACITY);
 custom_allocator_set_impl(CSetWithInt, int, MyDynamicAllocator);
 dynamic_set_impl(DSetWithInt, int);
 static_set_impl(SSetWithPointer, IntPtr, CONTAINER_CAPACITY);
 custom_allocator_set_impl(CSetWithPointer, IntPtr, MyDynamicAllocator);
+dynamic_set_impl(DSetWithPointer, IntPtr);
 static_set_impl(SSetWithStruct, StructType, CONTAINER_CAPACITY);
+custom_allocator_set_impl(CSetWithStruct, StructType, MyDynamicAllocator);
 dynamic_set_impl(DSetWithStruct, StructType);
 
-static_unordered_set_impl(StaticUnorderedSetV3, int, CONTAINER_CAPACITY);
-custom_allocator_unordered_set_impl(CustomHashTable, int, MyDynamicAllocator);
-dynamic_unordered_set_impl(DynamicUnorderedSetV3, int);
-static_unordered_set_impl(SHashTableWithPointers, IntPtr, CONTAINER_CAPACITY);
-custom_allocator_unordered_set_impl(CHashTableWithPointers, IntPtr, MyDynamicAllocator);
-static_unordered_set_impl(StructTypeStaticHashTable, StructType, CONTAINER_CAPACITY);
-dynamic_unordered_set_impl(StructTypeDynamicHashTable, StructType);
+static_unordered_set_impl(SUnorderedSetWithInt, int, CONTAINER_CAPACITY);
+custom_allocator_unordered_set_impl(CUnorderedSetWithInt, int, MyDynamicAllocator);
+dynamic_unordered_set_impl(DUnorderedSetWithInt, int);
+static_unordered_set_impl(SUnorderedSetWithPointer, IntPtr, CONTAINER_CAPACITY);
+custom_allocator_unordered_set_impl(CUnorderedSetWithPointer, IntPtr, MyDynamicAllocator);
+dynamic_unordered_set_impl(DUnorderedSetWithPointer, IntPtr);
+static_unordered_set_impl(SUnorderedSetWithStruct, StructType, CONTAINER_CAPACITY);
+custom_allocator_unordered_set_impl(CUnorderedSetWithStruct, StructType, MyDynamicAllocator);
+dynamic_unordered_set_impl(DUnorderedSetWithStruct, StructType);
