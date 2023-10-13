@@ -336,6 +336,16 @@ struct StructTypeTest : public testing::Test
     T container;
 };
 
+template<typename T>
+struct QueuePointerTest : public testing::Test
+{
+    void SetUp() override { Init(&container); }
+
+    void TearDown() override { Deinit(&container); }
+
+    T container;
+};
+
 using IntTypes = testing::Types<SVectorWithInt, CVectorWithInt, DVectorWithInt, SListWithInt, CListWithInt,
                                 DListWithInt, SDequeWithInt>;
 
@@ -346,10 +356,14 @@ using CustomContainerTypes = testing::Types<CVectorWithInt, CListWithInt>;
 using StructContainerTypes = testing::Types<SVectorWithStruct, CVectorWithStruct, DVectorWithStruct, SListWithStruct,
                                             CListWithStruct, DListWithStruct, SDequeWithStruct>;
 
+using TypesWithPointer = testing::Types<SVectorWithPointers, CVectorWithPointers, DVectorWithPointers,
+                                        SListWithPointers, CListWithPointers, DListWithPointers, SDequeWithPointers>;
+
 TYPED_TEST_SUITE(ContainerTest, IntTypes);
 TYPED_TEST_SUITE(StaticContainerTest, StaticContainerTypes);
 TYPED_TEST_SUITE(CustomContainerTest, CustomContainerTypes);
 TYPED_TEST_SUITE(StructTypeTest, StructContainerTypes);
+TYPED_TEST_SUITE(QueuePointerTest, TypesWithPointer);
 
 TYPED_TEST(ContainerTest, IsEmptyAfterInit)
 {
@@ -1057,6 +1071,25 @@ TYPED_TEST(StructTypeTest, StructMembersInsert)
     ASSERT_EQ(var1.intVar, receivedVar1.intVar);
     ASSERT_EQ(var1.boolVar, receivedVar1.boolVar);
     ASSERT_EQ(var1.id, receivedVar1.id);
+}
+
+TYPED_TEST(QueuePointerTest, Insert)
+{
+    int * a = new int(5);
+    int * b = new int(11);
+
+    ASSERT_EQ(PushBack(&this->container, a), 1);
+    ASSERT_EQ(PushBack(&this->container, b), 2);
+
+    auto it = Begin(&this->container);
+    ASSERT_EQ(a, *Iterator_CRef(&it));
+    IteratorInc(&it);
+    ASSERT_EQ(b, *Iterator_CRef(&it));
+
+    Clear(&this->container);
+
+    delete a;
+    delete b;
 }
 
 // must to at the end to verify if we have valid declarations

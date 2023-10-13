@@ -115,7 +115,7 @@ custom_allocator_set_impl(DynamicAllocatorBinaryTree, int, DynamicAllocator);
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
     return duration.count();
 
-#define rtlibBinaryTreeFind(rtlibType, oneIterationSize, iterations)                     \
+#define rtlibSetFind(rtlibType, oneIterationSize, iterations)                            \
     rtlibType rtlibObject;                                                               \
     rtlibType##_Construct(&rtlibObject);                                                 \
                                                                                          \
@@ -130,7 +130,8 @@ custom_allocator_set_impl(DynamicAllocatorBinaryTree, int, DynamicAllocator);
     {                                                                                    \
         for(int j = 0; j < oneIterationSize; ++j)                                        \
         {                                                                                \
-            rtlibType##_Find(&rtlibObject, j);                                           \
+            volatile auto it = rtlibType##_Find(&rtlibObject, j);                        \
+            (void)it;                                                                    \
         }                                                                                \
     }                                                                                    \
                                                                                          \
@@ -138,30 +139,7 @@ custom_allocator_set_impl(DynamicAllocatorBinaryTree, int, DynamicAllocator);
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
     return duration.count();
 
-#define rtlibHashTableFind(rtlibType, oneIterationSize, iterations)                      \
-    rtlibType rtlibObject;                                                               \
-    rtlibType##_Construct(&rtlibObject);                                                 \
-                                                                                         \
-    for(int j = 0; j < oneIterationSize; ++j)                                            \
-    {                                                                                    \
-        rtlibType##_Insert(&rtlibObject, j);                                             \
-    }                                                                                    \
-                                                                                         \
-    auto start = std::chrono::high_resolution_clock::now();                              \
-                                                                                         \
-    for(int i = 0; i < iterations; ++i)                                                  \
-    {                                                                                    \
-        for(int j = 0; j < oneIterationSize; ++j)                                        \
-        {                                                                                \
-            rtlibType##_Find(&rtlibObject, j);                                           \
-        }                                                                                \
-    }                                                                                    \
-                                                                                         \
-    auto stop     = std::chrono::high_resolution_clock::now();                           \
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
-    return duration.count();
-
-#define stlFind(stlType, oneIterationSize, iterations)                                   \
+#define stlSetFind(stlType, oneIterationSize, iterations)                                \
     stlType stlObject;                                                                   \
                                                                                          \
     for(int j = 0; j < oneIterationSize; ++j)                                            \
@@ -176,7 +154,8 @@ custom_allocator_set_impl(DynamicAllocatorBinaryTree, int, DynamicAllocator);
     {                                                                                    \
         for(int j = 0; j < oneIterationSize; ++j)                                        \
         {                                                                                \
-            std::find(std::begin(stlObject), std::end(stlObject), j);                    \
+            volatile auto it = stlObject.find(j);                                        \
+            (void)it;                                                                    \
         }                                                                                \
     }                                                                                    \
                                                                                          \
@@ -562,49 +541,37 @@ unsigned int calculateRtlibCustomVectorFind()
 template<int onIterationSize, int iterations>
 unsigned int calculateRtlibStaticBinaryTreeFind()
 {
-    rtlibBinaryTreeFind(TestBinaryTree, onIterationSize, iterations);
+    rtlibSetFind(TestBinaryTree, onIterationSize, iterations);
 }
 
 template<int onIterationSize, int iterations>
 unsigned int calculateRtlibCustomBinaryTreeFind()
 {
-    rtlibBinaryTreeFind(DynamicAllocatorBinaryTree, onIterationSize, iterations);
+    rtlibSetFind(DynamicAllocatorBinaryTree, onIterationSize, iterations);
 }
 
 template<int onIterationSize, int iterations>
 unsigned int calculateRtlibStaticHashFind()
 {
-    rtlibHashTableFind(TestHashTable, onIterationSize, iterations);
+    rtlibSetFind(TestHashTable, onIterationSize, iterations);
 }
 
 template<int onIterationSize, int iterations>
 unsigned int calculateRtlibCustomHashFind()
 {
-    rtlibHashTableFind(DynamicAllocatorHashTable, onIterationSize, iterations);
-}
-
-template<int onIterationSize, int iterations>
-unsigned int calculateStlListFind()
-{
-    stlFind(std::list<int>, onIterationSize, iterations);
-}
-
-template<int onIterationSize, int iterations>
-unsigned int calculateStlVectorFind()
-{
-    stlFind(std::vector<int>, onIterationSize, iterations);
+    rtlibSetFind(DynamicAllocatorHashTable, onIterationSize, iterations);
 }
 
 template<int onIterationSize, int iterations>
 unsigned int calculateStlSetFind()
 {
-    stlFind(std::set<int>, onIterationSize, iterations);
+    stlSetFind(std::set<int>, onIterationSize, iterations);
 }
 
 template<int onIterationSize, int iterations>
 unsigned int calculateStlUnorderedSetFind()
 {
-    stlFind(std::unordered_set<int>, onIterationSize, iterations);
+    stlSetFind(std::unordered_set<int>, onIterationSize, iterations);
 }
 
 static_pool(TestPool, int, 20);
@@ -678,6 +645,16 @@ void addRecordToTree2(boost::property_tree::ptree & array, std::string container
     addRecordToTree2(output, "rtlib static deque", x, calculateRtlibStaticDequeMiddle<x, multiplier, 1>()); \
     addRecordToTree2(output, "stl deque", x, calculateSTLDequeMiddle<x, multiplier, 1>());
 
+#define SET_FIND_TEST(x, multiplier, output)                                                               \
+    addRecordToTree2(output, "rtlib static set", x, calculateRtlibStaticBinaryTreeFind<x, multiplier>());  \
+    addRecordToTree2(output, "rtlib dynamic set", x, calculateRtlibCustomBinaryTreeFind<x, multiplier>()); \
+    addRecordToTree2(output, "stl set", x, calculateStlSetFind<x, multiplier>());
+
+#define UNORDERED_SET_FIND_TEST(x, multiplier, output)                                                         \
+    addRecordToTree2(output, "rtlib static unordered set", x, calculateRtlibStaticHashFind<x, multiplier>());  \
+    addRecordToTree2(output, "rtlib dynamic unordered set", x, calculateRtlibCustomHashFind<x, multiplier>()); \
+    addRecordToTree2(output, "stl unordered set", x, calculateStlUnorderedSetFind<x, multiplier>());
+
 #define MAKE_10_SAMPLES(TEST, INIT, X, MULTIPLIER, TREE) \
     TEST(1 * X + INIT, MULTIPLIER, TREE)                 \
     TEST(2 * X + INIT, MULTIPLIER, TREE)                 \
@@ -721,77 +698,11 @@ int main()
     MAKE_SUITE(LIST_BACK_TEST, 30000, list_back);
     MAKE_SUITE(LIST_FRONT_TEST, 30000, list_front);
     MAKE_SUITE(LIST_MIDDLE_TEST, 30000, list_middle);
-    MAKE_SUITE(DEQUE_BACK_TEST, 100000, deque_back);
-    MAKE_SUITE(DEQUE_FRONT_TEST, 100000, deque_front);
-    MAKE_SUITE(DEQUE_MIDDLE_TEST, 30000, deque_middle);
-
-    /* Front */
-    boost::property_tree::ptree frontTree{};
-    std::cout << "Front: " << std::endl;
-    addRecordToTree(frontTree, "rtlib-svector", calculateRtlibStaticVectorFront<16, 10000000>());
-    addRecordToTree(frontTree, "rtlib-cvector", calculateRtlibDynamicAllocatorVectorFront<16, 10000000>());
-    addRecordToTree(frontTree, "rtlib-slist", calculateRtlibStaticListFront<16, 10000000>());
-    addRecordToTree(frontTree, "rtlib-clist", calculateRtlibDynamicAllocatorListFront<16, 10000000>());
-    addRecordToTree(frontTree, "rtlib-sdeque", calculateRtlibStaticDequeFront<16, 10000000>());
-    // STL vector has no push_front method
-    addRecordToTree(frontTree, "stl-list", calculateSTLListFront<16, 10000000>());
-    generateFile(frontTree, "front.json");
-
-    /* Middle */
-    boost::property_tree::ptree middleTree{};
-    std::cout << "Middle: " << std::endl;
-    addRecordToTree(middleTree, "rtlib-svector", calculateRtlibStaticVectorMiddle<16, 10000000, 1>());
-    addRecordToTree(middleTree, "rtlib-cvector", calculateRtlibCustomVectorMiddle<16, 10000000, 1>());
-    addRecordToTree(middleTree, "rtlib-slist", calculateRtlibStaticListMiddle<16, 10000000, 1>());
-    addRecordToTree(middleTree, "rtlib-clist", calculateRtlibCustomListMiddle<16, 10000000, 1>());
-    addRecordToTree(middleTree, "rtlib-sdeque", calculateRtlibStaticDequeMiddle<16, 10000000, 1>());
-    addRecordToTree(middleTree, "stl-vector", calculateSTLVectorMiddle<16, 10000000, 1>());
-    addRecordToTree(middleTree, "stl-list", calculateSTLListMiddle<16, 10000000, 1>());
-    generateFile(middleTree, "middle.json");
-
-    boost::property_tree::ptree noQueueTree{};
-    std::cout << "No queue container: " << std::endl;
-    addRecordToTree(noQueueTree, "rtlib-shashtable", calculateRtlibStaticHashTable<16, 10000000>());
-    addRecordToTree(noQueueTree, "rtlib-chashtable", calculateRtlibCustomHashTable<16, 10000000>());
-    addRecordToTree(noQueueTree, "rtlib-sbinarytree", calculateRtlibStaticBinaryTree<16, 10000000>());
-    addRecordToTree(noQueueTree, "rtlib-cbinarytree", calculateRtlibCustomBinaryTree<16, 10000000>());
-    addRecordToTree(noQueueTree, "stl-set", calculateStlSet<16, 10000000>());
-    addRecordToTree(noQueueTree, "stl-unorderedset", calculateStlUnorderedSet<16, 10000000>());
-    generateFile(noQueueTree, "non-queue-tree.json");
-
-    boost::property_tree::ptree find16{};
-    std::cout << "Find - 16: " << std::endl;
-    addRecordToTree(find16, "rtlib-svector", calculateRtlibStaticVectorFind<16, 10000000>());
-    addRecordToTree(find16, "rtlib-cvector", calculateRtlibCustomVectorFind<16, 10000000>());
-    addRecordToTree(find16, "rtlib-slist", calculateRtlibStaticListFind<16, 10000000>());
-    addRecordToTree(find16, "rtlib-clist", calculateRtlibCustomListFind<16, 10000000>());
-    addRecordToTree(find16, "stl-vector", calculateStlVectorFind<16, 10000000>());
-    addRecordToTree(find16, "stl-list", calculateStlListFind<16, 10000000>());
-    addRecordToTree(find16, "rtlib-shashtable", calculateRtlibStaticHashFind<16, 10000000>());
-    addRecordToTree(find16, "rtlib-chashtable", calculateRtlibCustomHashFind<16, 10000000>());
-    addRecordToTree(find16, "rtlib-sbinarytree", calculateRtlibStaticBinaryTreeFind<16, 10000000>());
-    addRecordToTree(find16, "rtlib-cbinarytree", calculateRtlibCustomBinaryTreeFind<16, 10000000>());
-    addRecordToTree(find16, "rtlib-sdeque", calculateRtlibStaticDequeFind<16, 10000000>());
-    addRecordToTree(find16, "stl-set", calculateStlSetFind<16, 10000000>());
-    addRecordToTree(find16, "stl-unorderedset", calculateStlUnorderedSetFind<16, 10000000>());
-    generateFile(find16, "find-16.json");
-
-    boost::property_tree::ptree find1024{};
-    std::cout << "Find - 1024: " << std::endl;
-    addRecordToTree(find1024, "rtlib-svector", calculateRtlibStaticVectorFind<1024, 10000>());
-    addRecordToTree(find1024, "rtlib-cvector", calculateRtlibCustomVectorFind<1024, 10000>());
-    addRecordToTree(find1024, "rtlib-slist", calculateRtlibStaticListFind<1024, 10000>());
-    addRecordToTree(find1024, "rtlib-clist", calculateRtlibCustomListFind<1024, 10000>());
-    addRecordToTree(find1024, "stl-vector", calculateStlVectorFind<1024, 10000>());
-    addRecordToTree(find1024, "stl-list", calculateStlListFind<1024, 10000>());
-    addRecordToTree(find1024, "rtlib-shashtable", calculateRtlibStaticHashFind<1024, 10000>());
-    addRecordToTree(find1024, "rtlib-chashtable", calculateRtlibCustomHashFind<1024, 10000>());
-    addRecordToTree(find1024, "rtlib-sbinarytree", calculateRtlibStaticBinaryTreeFind<1024, 10000>());
-    addRecordToTree(find1024, "rtlib-cbinarytree", calculateRtlibCustomBinaryTreeFind<1024, 10000>());
-    addRecordToTree(find16, "rtlib-sdeque", calculateRtlibStaticDequeFind<1024, 10000>());
-    addRecordToTree(find1024, "stl-set", calculateStlSetFind<1024, 10000>());
-    addRecordToTree(find1024, "stl-unorderedset", calculateStlUnorderedSetFind<1024, 10000>());
-    generateFile(find1024, "find-1024.json");
+    MAKE_SUITE(DEQUE_BACK_TEST, 30000, deque_back);
+    MAKE_SUITE(DEQUE_FRONT_TEST, 30000, deque_front);
+    MAKE_SUITE(DEQUE_MIDDLE_TEST, 10000, deque_middle);
+    MAKE_SUITE(SET_FIND_TEST, 1000, set_find);
+    MAKE_SUITE(UNORDERED_SET_FIND_TEST, 100000, unordered_set_find);
 
     return 0;
 }
