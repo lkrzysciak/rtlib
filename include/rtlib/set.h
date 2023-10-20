@@ -38,213 +38,203 @@ extern "C"
     void container_t##_Iterator_Decrement(container_t##_Iterator * const self);                 \
     const key_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self);
 
+#define __private_set_methods_c(container_t, key_t)                                                           \
+    static void __##container_t##_RotateLeft(container_t * const self, container_t##_node * x)                \
+    {                                                                                                         \
+        container_t##_node * y;                                                                               \
+                                                                                                              \
+        y = x->right;                                                                                         \
+                                                                                                              \
+        x->right = y->left;                                                                                   \
+        if(x->right != NULL)                                                                                  \
+            x->right->parent = x;                                                                             \
+                                                                                                              \
+        y->parent = x->parent;                                                                                \
+        if(x->parent && x == x->parent->left)                                                                 \
+        {                                                                                                     \
+            x->parent->left = y;                                                                              \
+        }                                                                                                     \
+        else if(x->parent && x == x->parent->right)                                                           \
+        {                                                                                                     \
+            x->parent->right = y;                                                                             \
+        }                                                                                                     \
+        else                                                                                                  \
+        {                                                                                                     \
+            self->root = y;                                                                                   \
+        }                                                                                                     \
+        y->left   = x;                                                                                        \
+        x->parent = y;                                                                                        \
+    }                                                                                                         \
+                                                                                                              \
+    static void __##container_t##_RotateRight(container_t * const self, container_t##_node * x)               \
+    {                                                                                                         \
+        container_t##_node * y;                                                                               \
+                                                                                                              \
+        y = x->left;                                                                                          \
+                                                                                                              \
+        x->left = y->right;                                                                                   \
+        if(x->left != NULL)                                                                                   \
+            x->left->parent = x;                                                                              \
+                                                                                                              \
+        y->parent = x->parent;                                                                                \
+        if(x->parent && x == x->parent->left)                                                                 \
+        {                                                                                                     \
+            x->parent->left = y;                                                                              \
+        }                                                                                                     \
+        else if(x->parent && x == x->parent->right)                                                           \
+        {                                                                                                     \
+            x->parent->right = y;                                                                             \
+        }                                                                                                     \
+        else                                                                                                  \
+        {                                                                                                     \
+            self->root = y;                                                                                   \
+        }                                                                                                     \
+        y->right  = x;                                                                                        \
+        x->parent = y;                                                                                        \
+    }                                                                                                         \
+                                                                                                              \
+    static void __##container_t##_BlackRedTreeBalance(container_t * const self, container_t##_node * current) \
+    {                                                                                                         \
+        container_t##_node * uncle;                                                                           \
+                                                                                                              \
+        do                                                                                                    \
+        {                                                                                                     \
+            /* current node is RED and parent node is RED */                                                  \
+            if(current->parent == current->parent->parent->left)                                              \
+            {                                                                                                 \
+                uncle = current->parent->parent->right;                                                       \
+                if(uncle && uncle->color == RED)                                                              \
+                {                                                                                             \
+                    /* insertion into 4-children cluster */                                                   \
+                                                                                                              \
+                    /* split */                                                                               \
+                    current->parent->color = BLACK;                                                           \
+                    uncle->color           = BLACK;                                                           \
+                                                                                                              \
+                    /* send grandparent node up the tree */                                                   \
+                    current        = current->parent->parent; /* goto loop or break */                        \
+                    current->color = RED;                                                                     \
+                }                                                                                             \
+                else                                                                                          \
+                {                                                                                             \
+                    /* insertion into 3-children cluster */                                                   \
+                                                                                                              \
+                    /* equivalent BST */                                                                      \
+                    if(current == current->parent->right)                                                     \
+                    {                                                                                         \
+                        current = current->parent;                                                            \
+                        __##container_t##_RotateLeft(self, current);                                          \
+                    }                                                                                         \
+                                                                                                              \
+                    /* 3-children cluster has two representations */                                          \
+                    current->parent->color         = BLACK; /* thus goto break */                             \
+                    current->parent->parent->color = RED;                                                     \
+                    __##container_t##_RotateRight(self, current->parent->parent);                             \
+                }                                                                                             \
+            }                                                                                                 \
+            else                                                                                              \
+            {                                                                                                 \
+                uncle = current->parent->parent->left;                                                        \
+                if(uncle && uncle->color == RED)                                                              \
+                {                                                                                             \
+                    /* insertion into 4-children cluster */                                                   \
+                                                                                                              \
+                    /* split */                                                                               \
+                    current->parent->color = BLACK;                                                           \
+                    uncle->color           = BLACK;                                                           \
+                                                                                                              \
+                    /* send grandparent node up the tree */                                                   \
+                    current        = current->parent->parent; /* goto loop or break */                        \
+                    current->color = RED;                                                                     \
+                }                                                                                             \
+                else                                                                                          \
+                {                                                                                             \
+                    /* insertion into 3-children cluster */                                                   \
+                                                                                                              \
+                    /* equivalent BST */                                                                      \
+                    if(current == current->parent->left)                                                      \
+                    {                                                                                         \
+                        current = current->parent;                                                            \
+                        __##container_t##_RotateRight(self, current);                                         \
+                    }                                                                                         \
+                                                                                                              \
+                    /* 3-children cluster has two representations */                                          \
+                    current->parent->color         = BLACK; /* thus goto break */                             \
+                    current->parent->parent->color = RED;                                                     \
+                    __##container_t##_RotateLeft(self, current->parent->parent);                              \
+                }                                                                                             \
+            }                                                                                                 \
+        } while(current->parent && current->parent->color == RED);                                            \
+    }                                                                                                         \
+                                                                                                              \
+    static container_t##_node * __##container_t##_GetNextNode(container_t##_node * node)                      \
+    {                                                                                                         \
+        if(!node)                                                                                             \
+        {                                                                                                     \
+            return NULL;                                                                                      \
+        }                                                                                                     \
+        if(node->right != NULL)                                                                               \
+        {                                                                                                     \
+            node = node->right;                                                                               \
+            while(node->left != NULL)                                                                         \
+            {                                                                                                 \
+                node = node->left;                                                                            \
+            }                                                                                                 \
+            return node;                                                                                      \
+        }                                                                                                     \
+                                                                                                              \
+        while(1)                                                                                              \
+        {                                                                                                     \
+            if(node->parent == NULL)                                                                          \
+            {                                                                                                 \
+                node = NULL;                                                                                  \
+                return node;                                                                                  \
+            }                                                                                                 \
+            if(node->parent->left == node)                                                                    \
+            {                                                                                                 \
+                node = node->parent;                                                                          \
+                return node;                                                                                  \
+            }                                                                                                 \
+            node = node->parent;                                                                              \
+        }                                                                                                     \
+        return node;                                                                                          \
+    }                                                                                                         \
+                                                                                                              \
+    static container_t##_node * __##container_t##_GetPrevNode(container_t##_node * node)                      \
+    {                                                                                                         \
+        if(!node)                                                                                             \
+        {                                                                                                     \
+            return NULL;                                                                                      \
+        }                                                                                                     \
+        if(node->left != NULL)                                                                                \
+        {                                                                                                     \
+            node = node->left;                                                                                \
+            while(node->right != NULL)                                                                        \
+            {                                                                                                 \
+                node = node->right;                                                                           \
+            }                                                                                                 \
+            return node;                                                                                      \
+        }                                                                                                     \
+                                                                                                              \
+        while(1)                                                                                              \
+        {                                                                                                     \
+            if(node->parent == NULL)                                                                          \
+            {                                                                                                 \
+                node = NULL;                                                                                  \
+                return node;                                                                                  \
+            }                                                                                                 \
+            if(node->parent->right == node)                                                                   \
+            {                                                                                                 \
+                node = node->parent;                                                                          \
+                return node;                                                                                  \
+            }                                                                                                 \
+            node = node->parent;                                                                              \
+        }                                                                                                     \
+        return node;                                                                                          \
+    }
+
 #define __static_binary_tree_methods_c(container_t, key_t, container_capacity)                                  \
-    static void __##container_t##_RotateLeft(container_t * const self, container_t##_node * x)                  \
-    {                                                                                                           \
-        printf("rotate left x: %p, parent: %p\n", x, x->parent);                                                \
-        container_t##_node * y;                                                                                 \
-                                                                                                                \
-        y = x->right;                                                                                           \
-                                                                                                                \
-        x->right = y->left;                                                                                     \
-        if(x->right != NULL)                                                                                    \
-            x->right->parent = x;                                                                               \
-                                                                                                                \
-        y->parent = x->parent;                                                                                  \
-        if(x->parent && x == x->parent->left)                                                                   \
-        {                                                                                                       \
-            x->parent->left = y;                                                                                \
-        }                                                                                                       \
-        else if(x->parent && x == x->parent->right)                                                             \
-        {                                                                                                       \
-            x->parent->right = y;                                                                               \
-        }                                                                                                       \
-        else                                                                                                    \
-        {                                                                                                       \
-            self->root = y;                                                                                     \
-        }                                                                                                       \
-        y->left   = x;                                                                                          \
-        x->parent = y;                                                                                          \
-    }                                                                                                           \
-                                                                                                                \
-    static void __##container_t##_RotateRight(container_t * const self, container_t##_node * x)                 \
-    {                                                                                                           \
-        printf("rotate right x:%p, parent:%p\n", x, x->parent);                                                 \
-        container_t##_node * y;                                                                                 \
-                                                                                                                \
-        y = x->left;                                                                                            \
-                                                                                                                \
-        x->left = y->right;                                                                                     \
-        if(x->left != NULL)                                                                                     \
-            x->left->parent = x;                                                                                \
-                                                                                                                \
-        y->parent = x->parent;                                                                                  \
-        if(x->parent && x == x->parent->left)                                                                   \
-        {                                                                                                       \
-            x->parent->left = y;                                                                                \
-        }                                                                                                       \
-        else if(x->parent && x == x->parent->right)                                                             \
-        {                                                                                                       \
-            x->parent->right = y;                                                                               \
-        }                                                                                                       \
-        else                                                                                                    \
-        {                                                                                                       \
-            self->root = y;                                                                                     \
-        }                                                                                                       \
-        y->right  = x;                                                                                          \
-        x->parent = y;                                                                                          \
-    }                                                                                                           \
-                                                                                                                \
-    static void __##container_t##_BlackRedTreeBalance(container_t * const self, container_t##_node * current)   \
-    {                                                                                                           \
-        container_t##_node * uncle;                                                                             \
-                                                                                                                \
-        do                                                                                                      \
-        {                                                                                                       \
-            /* current node is RED and parent node is RED */                                                    \
-            printf("_BlackRedTreeBalance loop\n");                                                              \
-            if(current->parent == current->parent->parent->left)                                                \
-            {                                                                                                   \
-                printf("Parent is left child\n");                                                               \
-                uncle = current->parent->parent->right;                                                         \
-                if(uncle && uncle->color == RED)                                                                \
-                {                                                                                               \
-                    printf("Uncle is red\n");                                                                   \
-                    /* insertion into 4-children cluster */                                                     \
-                                                                                                                \
-                    /* split */                                                                                 \
-                    current->parent->color = BLACK;                                                             \
-                    uncle->color           = BLACK;                                                             \
-                                                                                                                \
-                    /* send grandparent node up the tree */                                                     \
-                    current        = current->parent->parent; /* goto loop or break */                          \
-                    current->color = RED;                                                                       \
-                }                                                                                               \
-                else                                                                                            \
-                {                                                                                               \
-                    printf("Unclde is black\n");                                                                \
-                    /* insertion into 3-children cluster */                                                     \
-                                                                                                                \
-                    /* equivalent BST */                                                                        \
-                    if(current == current->parent->right)                                                       \
-                    {                                                                                           \
-                        current = current->parent;                                                              \
-                        __##container_t##_RotateLeft(self, current);                                            \
-                    }                                                                                           \
-                                                                                                                \
-                    /* 3-children cluster has two representations */                                            \
-                    current->parent->color         = BLACK; /* thus goto break */                               \
-                    current->parent->parent->color = RED;                                                       \
-                    __##container_t##_RotateRight(self, current->parent->parent);                               \
-                }                                                                                               \
-            }                                                                                                   \
-            else                                                                                                \
-            {                                                                                                   \
-                printf("Parent is right child\n");                                                              \
-                uncle = current->parent->parent->left;                                                          \
-                if(uncle && uncle->color == RED)                                                                \
-                {                                                                                               \
-                    printf("Uncle is red\n");                                                                   \
-                    /* insertion into 4-children cluster */                                                     \
-                                                                                                                \
-                    /* split */                                                                                 \
-                    current->parent->color = BLACK;                                                             \
-                    uncle->color           = BLACK;                                                             \
-                                                                                                                \
-                    /* send grandparent node up the tree */                                                     \
-                    current        = current->parent->parent; /* goto loop or break */                          \
-                    current->color = RED;                                                                       \
-                }                                                                                               \
-                else                                                                                            \
-                {                                                                                               \
-                    printf("Uncle is black\n");                                                                 \
-                    /* insertion into 3-children cluster */                                                     \
-                                                                                                                \
-                    /* equivalent BST */                                                                        \
-                    if(current == current->parent->left)                                                        \
-                    {                                                                                           \
-                        current = current->parent;                                                              \
-                        __##container_t##_RotateRight(self, current);                                           \
-                    }                                                                                           \
-                    printf("1\n");                                                                              \
-                                                                                                                \
-                    /* 3-children cluster has two representations */                                            \
-                    current->parent->color = BLACK; /* thus goto break */                                       \
-                    printf("2\n");                                                                              \
-                    current->parent->parent->color = RED;                                                       \
-                    printf("3\n");                                                                              \
-                    __##container_t##_RotateLeft(self, current->parent->parent);                                \
-                    printf("4\n");                                                                              \
-                }                                                                                               \
-            }                                                                                                   \
-        } while(current->parent && current->parent->color == RED);                                              \
-    }                                                                                                           \
-                                                                                                                \
-    static container_t##_node * __##container_t##_GetNextNode(container_t##_node * node)                        \
-    {                                                                                                           \
-        if(!node)                                                                                               \
-        {                                                                                                       \
-            return NULL;                                                                                        \
-        }                                                                                                       \
-        if(node->right != NULL)                                                                                 \
-        {                                                                                                       \
-            node = node->right;                                                                                 \
-            while(node->left != NULL)                                                                           \
-            {                                                                                                   \
-                node = node->left;                                                                              \
-            }                                                                                                   \
-            return node;                                                                                        \
-        }                                                                                                       \
-                                                                                                                \
-        while(1)                                                                                                \
-        {                                                                                                       \
-            if(node->parent == NULL)                                                                            \
-            {                                                                                                   \
-                node = NULL;                                                                                    \
-                return node;                                                                                    \
-            }                                                                                                   \
-            if(node->parent->left == node)                                                                      \
-            {                                                                                                   \
-                node = node->parent;                                                                            \
-                return node;                                                                                    \
-            }                                                                                                   \
-            node = node->parent;                                                                                \
-        }                                                                                                       \
-        return node;                                                                                            \
-    }                                                                                                           \
-                                                                                                                \
-    static container_t##_node * __##container_t##_GetPrevNode(container_t##_node * node)                        \
-    {                                                                                                           \
-        if(!node)                                                                                               \
-        {                                                                                                       \
-            return NULL;                                                                                        \
-        }                                                                                                       \
-        if(node->left != NULL)                                                                                  \
-        {                                                                                                       \
-            node = node->left;                                                                                  \
-            while(node->right != NULL)                                                                          \
-            {                                                                                                   \
-                node = node->right;                                                                             \
-            }                                                                                                   \
-            return node;                                                                                        \
-        }                                                                                                       \
-                                                                                                                \
-        while(1)                                                                                                \
-        {                                                                                                       \
-            if(node->parent == NULL)                                                                            \
-            {                                                                                                   \
-                node = NULL;                                                                                    \
-                return node;                                                                                    \
-            }                                                                                                   \
-            if(node->parent->right == node)                                                                     \
-            {                                                                                                   \
-                node = node->parent;                                                                            \
-                return node;                                                                                    \
-            }                                                                                                   \
-            node = node->parent;                                                                                \
-        }                                                                                                       \
-        return node;                                                                                            \
-    }                                                                                                           \
+    __private_set_methods_c(container_t, key_t);                                                                \
                                                                                                                 \
     void container_t##_Construct(container_t * const self)                                                      \
     {                                                                                                           \
@@ -301,7 +291,6 @@ extern "C"
                         if(!child_node)                                                                         \
                         {                                                                                       \
                             parent_node->left = node;                                                           \
-                            printf("insert left\n");                                                            \
                             break;                                                                              \
                         }                                                                                       \
                     }                                                                                           \
@@ -311,7 +300,6 @@ extern "C"
                         if(!child_node)                                                                         \
                         {                                                                                       \
                             parent_node->right = node;                                                          \
-                            printf("insert right\n");                                                           \
                             break;                                                                              \
                         }                                                                                       \
                     }                                                                                           \
@@ -328,7 +316,6 @@ extern "C"
                 node->color = RED;                                                                              \
                 if(node->parent && node->parent->parent && node->parent->color == RED)                          \
                 {                                                                                               \
-                    printf("Parent is red (size: %d)\n", self->size);                                           \
                     __##container_t##_BlackRedTreeBalance(self, node);                                          \
                 }                                                                                               \
             }                                                                                                   \
@@ -338,24 +325,9 @@ extern "C"
                 node->left   = NULL;                                                                            \
                 node->parent = NULL;                                                                            \
                 self->root   = node;                                                                            \
-                printf("insert root\n");                                                                        \
             }                                                                                                   \
             self->root->color = BLACK;                                                                          \
             ++self->size;                                                                                       \
-            container_t##_node * minleft  = self->root;                                                         \
-            container_t##_node * minright = self->root;                                                         \
-            int l = 0, r = 0;                                                                                   \
-            while(minleft->left)                                                                                \
-            {                                                                                                   \
-                l++;                                                                                            \
-                minleft = minleft->left;                                                                        \
-            }                                                                                                   \
-            while(minright->right)                                                                              \
-            {                                                                                                   \
-                r++;                                                                                            \
-                minright = minright->right;                                                                     \
-            }                                                                                                   \
-            printf("L: %d, R: %d\n", l, r);                                                                     \
             return self->size;                                                                                  \
         }                                                                                                       \
         else                                                                                                    \
@@ -579,72 +551,7 @@ extern "C"
     }
 
 #define __custom_allocator_binary_tree_methods_c(container_t, key_t, allocator_t)                               \
-                                                                                                                \
-    static container_t##_node * __##container_t##_GetNextNode(container_t##_node * node)                        \
-    {                                                                                                           \
-        if(!node)                                                                                               \
-        {                                                                                                       \
-            return NULL;                                                                                        \
-        }                                                                                                       \
-        if(node->right != NULL)                                                                                 \
-        {                                                                                                       \
-            node = node->right;                                                                                 \
-            while(node->left != NULL)                                                                           \
-            {                                                                                                   \
-                node = node->left;                                                                              \
-            }                                                                                                   \
-            return node;                                                                                        \
-        }                                                                                                       \
-                                                                                                                \
-        while(1)                                                                                                \
-        {                                                                                                       \
-            if(node->parent == NULL)                                                                            \
-            {                                                                                                   \
-                node = NULL;                                                                                    \
-                return node;                                                                                    \
-            }                                                                                                   \
-            if(node->parent->left == node)                                                                      \
-            {                                                                                                   \
-                node = node->parent;                                                                            \
-                return node;                                                                                    \
-            }                                                                                                   \
-            node = node->parent;                                                                                \
-        }                                                                                                       \
-        return node;                                                                                            \
-    }                                                                                                           \
-                                                                                                                \
-    static container_t##_node * __##container_t##_GetPrevNode(container_t##_node * node)                        \
-    {                                                                                                           \
-        if(!node)                                                                                               \
-        {                                                                                                       \
-            return NULL;                                                                                        \
-        }                                                                                                       \
-        if(node->left != NULL)                                                                                  \
-        {                                                                                                       \
-            node = node->left;                                                                                  \
-            while(node->right != NULL)                                                                          \
-            {                                                                                                   \
-                node = node->right;                                                                             \
-            }                                                                                                   \
-            return node;                                                                                        \
-        }                                                                                                       \
-                                                                                                                \
-        while(1)                                                                                                \
-        {                                                                                                       \
-            if(node->parent == NULL)                                                                            \
-            {                                                                                                   \
-                node = NULL;                                                                                    \
-                return node;                                                                                    \
-            }                                                                                                   \
-            if(node->parent->right == node)                                                                     \
-            {                                                                                                   \
-                node = node->parent;                                                                            \
-                return node;                                                                                    \
-            }                                                                                                   \
-            node = node->parent;                                                                                \
-        }                                                                                                       \
-        return node;                                                                                            \
-    }                                                                                                           \
+    __private_set_methods_c(container_t, key_t);                                                                \
                                                                                                                 \
     void container_t##_Construct(container_t * const self)                                                      \
     {                                                                                                           \
@@ -726,6 +633,11 @@ extern "C"
                 node->right  = NULL;                                                                            \
                 node->left   = NULL;                                                                            \
                 node->parent = parent_node;                                                                     \
+                node->color  = RED;                                                                             \
+                if(node->parent && node->parent->parent && node->parent->color == RED)                          \
+                {                                                                                               \
+                    __##container_t##_BlackRedTreeBalance(self, node);                                          \
+                }                                                                                               \
             }                                                                                                   \
             else                                                                                                \
             {                                                                                                   \
@@ -734,6 +646,7 @@ extern "C"
                 node->parent = NULL;                                                                            \
                 self->root   = node;                                                                            \
             }                                                                                                   \
+            self->root->color = BLACK;                                                                          \
             ++self->size;                                                                                       \
                                                                                                                 \
             return self->size;                                                                                  \
@@ -1005,6 +918,7 @@ extern "C"
         container_t##_node * right;                                       \
         container_t##_node * left;                                        \
         container_t##_node * parent;                                      \
+        int color;                                                        \
         key_t key;                                                        \
     };                                                                    \
                                                                           \

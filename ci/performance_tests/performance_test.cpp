@@ -701,7 +701,7 @@ int main()
     MAKE_SUITE(DEQUE_BACK_TEST, 30000, deque_back);
     MAKE_SUITE(DEQUE_FRONT_TEST, 30000, deque_front);
     MAKE_SUITE(DEQUE_MIDDLE_TEST, 10000, deque_middle);
-    MAKE_SUITE(SET_FIND_TEST, 1000, set_find);
+    MAKE_SUITE(SET_FIND_TEST, 100000, set_find);
     MAKE_SUITE(UNORDERED_SET_FIND_TEST, 100000, unordered_set_find);
 
     return 0;
