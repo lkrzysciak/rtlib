@@ -617,6 +617,15 @@ TYPED_TEST(SetTest, Permutations)
         receivedSet.insert(*CRef(&it));
     }
     ASSERT_EQ(expectedSet, receivedSet);
+
+    std::vector<int> testPermutation_2{ 254, -8,  8756, 51,  4,    5,    1024, 85,    697,
+                                        843, 628, 762,  384, 6969, 5454, 8514, 74569, 8546 };
+
+    for(size_t idx = 0; idx < testPermutation_2.size(); ++idx)
+    {
+        auto it = Find(&this->container, testPermutation_2[idx]);
+        ASSERT_EQ((testPermutation.size() - idx - 1), Erase(&this->container, &it));
+    }
 }
 
 TYPED_TEST(SetTest, Clear)
