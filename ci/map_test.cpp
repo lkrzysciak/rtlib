@@ -611,6 +611,45 @@ TYPED_TEST(MapTest, Permutations)
     ASSERT_EQ(expectedSet, receivedSet);
 }
 
+TYPED_TEST(MapTest, AddAndEraseMultipleTimes)
+{
+    for(int idx = 0; idx < 100; idx++)
+    {
+        ASSERT_EQ((idx + 1), Insert(&this->container, idx, 0));
+    }
+
+    // delete first 25 records
+    for(int idx = 0; idx < 25; idx++)
+    {
+        auto it = Find(&this->container, idx);
+        ASSERT_EQ((100 - idx - 1), Erase(&this->container, &it));
+    }
+
+    // delete last 25 records
+    for(int idx = 0; idx < 25; idx++)
+    {
+        auto it = Find(&this->container, idx + 75);
+        ASSERT_EQ((75 - idx - 1), Erase(&this->container, &it));
+    }
+
+    for(int idx = 0; idx < 25; idx++)
+    {
+        auto it = Find(&this->container, 2 * idx + 25);
+        ASSERT_EQ((50 - idx - 1), Erase(&this->container, &it));
+    }
+
+    std::set<int> expectedSet{ 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50,
+                               52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74 };
+    std::set<int> receivedSet{};
+    auto endIt = End(&this->container);
+    for(auto it = Begin(&this->container); !Iterator_Equal(&it, &endIt); IteratorInc(&it))
+    {
+        auto val = *CRef(&it).first;
+        receivedSet.insert(val);
+    }
+    ASSERT_EQ(expectedSet, receivedSet);
+}
+
 TYPED_TEST(MapTest, Clear)
 {
     uint32_t temp1{ 3215 };

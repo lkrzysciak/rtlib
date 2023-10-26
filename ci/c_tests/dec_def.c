@@ -73,5 +73,21 @@ int main()
     DynamicMap_Iterator dynamicMapIt = DynamicMap_Begin(&dynamicMap);
     DynamicMap_Destruct(&dynamicMap);
 
+    StaticUnorderedMap staticUnorderedMap;
+    StaticUnorderedMap_Construct(&staticUnorderedMap);
+    StaticUnorderedMap_Iterator staticUnorderedMapIt = StaticUnorderedMap_Begin(&staticUnorderedMap);
+    StaticUnorderedMap_Destruct(&staticUnorderedMap);
+
+    CustomAllocatorUnorderedMap customAllocatorUnorderedMap;
+    CustomAllocatorUnorderedMap_Construct(&customAllocatorUnorderedMap);
+    CustomAllocatorUnorderedMap_Iterator customAllocatorUnorderedMapIt =
+        CustomAllocatorUnorderedMap_Begin(&customAllocatorUnorderedMap);
+    CustomAllocatorUnorderedMap_Destruct(&customAllocatorUnorderedMap);
+
+    DynamicUnorderedMap dynamicUnorderedMap;
+    DynamicUnorderedMap_Construct(&dynamicUnorderedMap);
+    DynamicUnorderedMap_Iterator dynamicUnorderedMapIt = DynamicUnorderedMap_Begin(&dynamicUnorderedMap);
+    DynamicUnorderedMap_Destruct(&dynamicUnorderedMap);
+
     return 0;
 }

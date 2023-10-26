@@ -27,6 +27,7 @@ set(TESTS
 
 add_executable(ut ut.cpp ${TESTS})
 target_link_libraries(ut gtest gtest_main gmock gmock_main rtlib)
+target_compile_options(ut PUBLIC -g)
 
 add_executable(performance_tests_Os ${TESTED_FILES} performance_tests/performance_test.cpp)
 target_link_libraries(performance_tests_Os rtlib)

@@ -39,3 +39,7 @@ custom_allocator_unordered_set_impl(CustomAllocatorUnorderedSet, int, DynamicMem
 static_map_impl(StaticMap, int, int, 10);
 custom_allocator_map_impl(CustomAllocatorMap, int, int, DynamicMemory);
 dynamic_map_impl(DynamicMap, int, int);
+
+static_unordered_map_impl(StaticUnorderedMap, int, int, 10);
+custom_allocator_unordered_map_impl(CustomAllocatorUnorderedMap, int, int, DynamicMemory);
+dynamic_unordered_map_impl(DynamicUnorderedMap, int, int);

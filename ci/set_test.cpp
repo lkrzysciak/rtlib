@@ -603,7 +603,6 @@ TYPED_TEST(SetTest, Permutations)
         10,   20,  50,  1,   158, 78,  254, -8,  8756, 51,  4,    5,    1024, 85,    697,
         4587, 123, 258, 741, 963, 951, 843, 628, 762,  384, 6969, 5454, 8514, 74569, 8546
     };
-
     for(size_t idx = 0; idx < testPermutation.size(); ++idx)
     {
         ASSERT_EQ((idx + 1), Insert(&this->container, testPermutation[idx]));
@@ -614,18 +613,49 @@ TYPED_TEST(SetTest, Permutations)
     auto endIt = End(&this->container);
     for(auto it = Begin(&this->container); !Iterator_Equal(&it, &endIt); IteratorInc(&it))
     {
-        receivedSet.insert(*CRef(&it));
+        auto val = *CRef(&it);
+        receivedSet.insert(val);
     }
     ASSERT_EQ(expectedSet, receivedSet);
+}
 
-    std::vector<int> testPermutation_2{ 254, -8,  8756, 51,  4,    5,    1024, 85,    697,
-                                        843, 628, 762,  384, 6969, 5454, 8514, 74569, 8546 };
-
-    for(size_t idx = 0; idx < testPermutation_2.size(); ++idx)
+TYPED_TEST(SetTest, AddAndEraseMultipleTimes)
+{
+    for(int idx = 0; idx < 100; idx++)
     {
-        auto it = Find(&this->container, testPermutation_2[idx]);
-        ASSERT_EQ((testPermutation.size() - idx - 1), Erase(&this->container, &it));
+        ASSERT_EQ((idx + 1), Insert(&this->container, idx));
     }
+
+    // delete first 25 records
+    for(int idx = 0; idx < 25; idx++)
+    {
+        auto it = Find(&this->container, idx);
+        ASSERT_EQ((100 - idx - 1), Erase(&this->container, &it));
+    }
+
+    // delete last 25 records
+    for(int idx = 0; idx < 25; idx++)
+    {
+        auto it = Find(&this->container, idx + 75);
+        ASSERT_EQ((75 - idx - 1), Erase(&this->container, &it));
+    }
+
+    for(int idx = 0; idx < 25; idx++)
+    {
+        auto it = Find(&this->container, 2 * idx + 25);
+        ASSERT_EQ((50 - idx - 1), Erase(&this->container, &it));
+    }
+
+    std::set<int> expectedSet{ 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50,
+                               52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74 };
+    std::set<int> receivedSet{};
+    auto endIt = End(&this->container);
+    for(auto it = Begin(&this->container); !Iterator_Equal(&it, &endIt); IteratorInc(&it))
+    {
+        auto val = *CRef(&it);
+        receivedSet.insert(val);
+    }
+    ASSERT_EQ(expectedSet, receivedSet);
 }
 
 TYPED_TEST(SetTest, Clear)
