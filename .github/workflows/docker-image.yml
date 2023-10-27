@@ -60,6 +60,12 @@ jobs:
         docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json unordered_set_find_100.json --output reports/unordered_set_find_100.png
         docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json unordered_set_find_1000.json --output reports/unordered_set_find_1000.png
         docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json unordered_set_find_10000.json --output reports/unordered_set_find_10000.png
+        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json map_find_100.json --output reports/map_find_100.png
+        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json map_find_1000.json --output reports/map_find_1000.png
+        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json map_find_10000.json --output reports/map_find_10000.png
+        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json unordered_map_find_100.json --output reports/unordered_map_find_100.png
+        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json unordered_map_find_1000.json --output reports/unordered_map_find_1000.png
+        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json unordered_map_find_10000.json --output reports/unordered_map_find_10000.png
 
     - name: Archive results
       uses: actions/upload-artifact@v2
