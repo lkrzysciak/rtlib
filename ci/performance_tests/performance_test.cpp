@@ -799,7 +799,7 @@ void addRecordToTree2(boost::property_tree::ptree & array, std::string container
     MAKE_100_SAMPLES(TEST, 0, 100, MULTIPLIER / 100, OUTPUT##_10000) \
     generateFile(OUTPUT##_10000, #OUTPUT "_10000.json");
 
-int main()
+static void runQueueTests()
 {
     MAKE_SUITE(VECTOR_BACK_TEST, 300000, vec_back);
     MAKE_SUITE(LIST_BACK_TEST, 30000, list_back);
@@ -808,10 +808,24 @@ int main()
     MAKE_SUITE(DEQUE_BACK_TEST, 300000, deque_back);
     MAKE_SUITE(DEQUE_FRONT_TEST, 300000, deque_front);
     MAKE_SUITE(DEQUE_MIDDLE_TEST, 10000, deque_middle);
+}
+
+static void runSetTests()
+{
     MAKE_SUITE(SET_FIND_TEST, 100000, set_find);
     MAKE_SUITE(UNORDERED_SET_FIND_TEST, 100000, unordered_set_find);
+}
+
+static void runMapTests()
+{
     MAKE_SUITE(MAP_FIND_TEST, 100000, map_find);
     MAKE_SUITE(UNORDERED_MAP_FIND_TEST, 100000, unordered_map_find);
+}
 
+int main()
+{
+    runQueueTests();
+    runSetTests();
+    runMapTests();
     return 0;
 }
