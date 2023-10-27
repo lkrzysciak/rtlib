@@ -16,6 +16,8 @@
 #include "rtlib/set.h"
 #include "rtlib/pool.h"
 #include "rtlib/deque.h"
+#include "rtlib/map.h"
+#include "rtlib/unordered_map.h"
 
 #include "rtlib/memory.h"
 
@@ -52,6 +54,10 @@ static_set(TestBinaryTree, int, STATIC_CONTAINER_SIZE);
 static_set_impl(TestBinaryTree, int, STATIC_CONTAINER_SIZE);
 static_deque(TestDeque, int, STATIC_CONTAINER_SIZE);
 static_deque_impl(TestDeque, int, STATIC_CONTAINER_SIZE);
+static_map(TestMap, int, int, STATIC_CONTAINER_SIZE);
+static_map_impl(TestMap, int, int, STATIC_CONTAINER_SIZE);
+static_unordered_map(TestUnorderedMap, int, int, STATIC_CONTAINER_SIZE);
+static_unordered_map_impl(TestUnorderedMap, int, int, STATIC_CONTAINER_SIZE);
 
 dynamic_memory(DynamicAllocator);
 dynamic_memory_impl(DynamicAllocator);
@@ -63,6 +69,10 @@ custom_allocator_unordered_set(DynamicAllocatorHashTable, int, DynamicAllocator)
 custom_allocator_unordered_set_impl(DynamicAllocatorHashTable, int, DynamicAllocator);
 custom_allocator_set(DynamicAllocatorBinaryTree, int, DynamicAllocator);
 custom_allocator_set_impl(DynamicAllocatorBinaryTree, int, DynamicAllocator);
+custom_allocator_map(DynamicAllocatorMap, int, int, DynamicAllocator);
+custom_allocator_map_impl(DynamicAllocatorMap, int, int, DynamicAllocator);
+custom_allocator_unordered_map(DynamicUnorderedMap, int, int, DynamicAllocator);
+custom_allocator_unordered_map_impl(DynamicUnorderedMap, int, int, DynamicAllocator);
 
 #define cCall(object, addMethod, deleteMethod, oneIterationSize, iterations) \
     for(int i = 0; i < iterations; ++i)                                      \
@@ -131,6 +141,54 @@ custom_allocator_set_impl(DynamicAllocatorBinaryTree, int, DynamicAllocator);
         for(int j = 0; j < oneIterationSize; ++j)                                        \
         {                                                                                \
             volatile auto it = rtlibType##_Find(&rtlibObject, j);                        \
+            (void)it;                                                                    \
+        }                                                                                \
+    }                                                                                    \
+                                                                                         \
+    auto stop     = std::chrono::high_resolution_clock::now();                           \
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
+    return duration.count();
+
+#define rtlibMapFind(rtlibType, oneIterationSize, iterations)                            \
+    rtlibType rtlibObject;                                                               \
+    rtlibType##_Construct(&rtlibObject);                                                 \
+                                                                                         \
+    for(int j = 0; j < oneIterationSize; ++j)                                            \
+    {                                                                                    \
+        rtlibType##_Insert(&rtlibObject, j, 0);                                          \
+    }                                                                                    \
+                                                                                         \
+    auto start = std::chrono::high_resolution_clock::now();                              \
+                                                                                         \
+    for(int i = 0; i < iterations; ++i)                                                  \
+    {                                                                                    \
+        for(int j = 0; j < oneIterationSize; ++j)                                        \
+        {                                                                                \
+            volatile auto it = rtlibType##_Find(&rtlibObject, j);                        \
+            (void)it;                                                                    \
+        }                                                                                \
+    }                                                                                    \
+                                                                                         \
+    auto stop     = std::chrono::high_resolution_clock::now();                           \
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
+    return duration.count();
+
+#define stlMapFind(stlType, oneIterationSize, iterations)                                \
+    stlType stlObject;                                                                   \
+                                                                                         \
+    for(int j = 0; j < oneIterationSize; ++j)                                            \
+    {                                                                                    \
+        auto begin_it = std::begin(stlObject);                                           \
+        stlObject.insert({ j, 0 });                                                      \
+    }                                                                                    \
+                                                                                         \
+    auto start = std::chrono::high_resolution_clock::now();                              \
+                                                                                         \
+    for(int i = 0; i < iterations; ++i)                                                  \
+    {                                                                                    \
+        for(int j = 0; j < oneIterationSize; ++j)                                        \
+        {                                                                                \
+            volatile auto it = stlObject.find(j);                                        \
             (void)it;                                                                    \
         }                                                                                \
     }                                                                                    \
@@ -563,15 +621,54 @@ unsigned int calculateRtlibCustomHashFind()
 }
 
 template<int onIterationSize, int iterations>
+unsigned int calculateRtlibUnorderedMapFind()
+{
+    rtlibMapFind(TestUnorderedMap, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibCustomUnorderedMapFind()
+{
+    rtlibMapFind(DynamicUnorderedMap, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibMapFind()
+{
+    rtlibMapFind(TestMap, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibCustomMapFind()
+{
+    rtlibMapFind(DynamicAllocatorMap, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
 unsigned int calculateStlSetFind()
 {
     stlSetFind(std::set<int>, onIterationSize, iterations);
+}
+
+using StdMap          = std::map<int, int>;
+using StdUnorderedMap = std::unordered_map<int, int>;
+
+template<int onIterationSize, int iterations>
+unsigned int calculateStlMapFind()
+{
+    stlMapFind(StdMap, onIterationSize, iterations);
 }
 
 template<int onIterationSize, int iterations>
 unsigned int calculateStlUnorderedSetFind()
 {
     stlSetFind(std::unordered_set<int>, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateStlUnorderedMapFind()
+{
+    stlMapFind(StdUnorderedMap, onIterationSize, iterations);
 }
 
 static_pool(TestPool, int, 20);
@@ -655,6 +752,16 @@ void addRecordToTree2(boost::property_tree::ptree & array, std::string container
     addRecordToTree2(output, "rtlib dynamic unordered set", x, calculateRtlibCustomHashFind<x, multiplier>()); \
     addRecordToTree2(output, "stl unordered set", x, calculateStlUnorderedSetFind<x, multiplier>());
 
+#define MAP_FIND_TEST(x, multiplier, output)                                                        \
+    addRecordToTree2(output, "rtlib static map", x, calculateRtlibMapFind<x, multiplier>());        \
+    addRecordToTree2(output, "rtlib dynamic map", x, calculateRtlibCustomMapFind<x, multiplier>()); \
+    addRecordToTree2(output, "stl map", x, calculateStlMapFind<x, multiplier>());
+
+#define UNORDERED_MAP_FIND_TEST(x, multiplier, output)                                                                 \
+    addRecordToTree2(output, "rtlib static unordered map", x, calculateRtlibUnorderedMapFind<x, multiplier>());        \
+    addRecordToTree2(output, "rtlib dynamic unordered map", x, calculateRtlibCustomUnorderedMapFind<x, multiplier>()); \
+    addRecordToTree2(output, "stl unordered map", x, calculateStlUnorderedMapFind<x, multiplier>());
+
 #define MAKE_10_SAMPLES(TEST, INIT, X, MULTIPLIER, TREE) \
     TEST(1 * X + INIT, MULTIPLIER, TREE)                 \
     TEST(2 * X + INIT, MULTIPLIER, TREE)                 \
@@ -698,11 +805,13 @@ int main()
     MAKE_SUITE(LIST_BACK_TEST, 30000, list_back);
     MAKE_SUITE(LIST_FRONT_TEST, 30000, list_front);
     MAKE_SUITE(LIST_MIDDLE_TEST, 30000, list_middle);
-    MAKE_SUITE(DEQUE_BACK_TEST, 30000, deque_back);
-    MAKE_SUITE(DEQUE_FRONT_TEST, 30000, deque_front);
+    MAKE_SUITE(DEQUE_BACK_TEST, 300000, deque_back);
+    MAKE_SUITE(DEQUE_FRONT_TEST, 300000, deque_front);
     MAKE_SUITE(DEQUE_MIDDLE_TEST, 10000, deque_middle);
     MAKE_SUITE(SET_FIND_TEST, 100000, set_find);
     MAKE_SUITE(UNORDERED_SET_FIND_TEST, 100000, unordered_set_find);
+    MAKE_SUITE(MAP_FIND_TEST, 100000, map_find);
+    MAKE_SUITE(UNORDERED_MAP_FIND_TEST, 100000, unordered_map_find);
 
     return 0;
 }

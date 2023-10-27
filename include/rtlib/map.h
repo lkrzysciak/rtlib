@@ -695,7 +695,6 @@ extern "C"
             }                                                                                                      \
         }                                                                                                          \
         it.node = node;                                                                                            \
-        it.next = __##container_t##_GetNextNode(node);                                                             \
         return it;                                                                                                 \
     }                                                                                                              \
                                                                                                                    \
@@ -1030,7 +1029,6 @@ extern "C"
             }                                                                                                      \
         }                                                                                                          \
         it.node = node;                                                                                            \
-        it.next = __##container_t##_GetNextNode(node);                                                             \
         return it;                                                                                                 \
     }                                                                                                              \
                                                                                                                    \
