@@ -9,6 +9,12 @@
     {                                                                                  \
         Type##_Construct(container);                                                   \
     }                                                                                  \
+                                                                                       \
+    void Init2(Type * const container, const char * data, size_t size)                 \
+    {                                                                                  \
+        Type##_Construct2(container, data, size);                                      \
+    }                                                                                  \
+                                                                                       \
     void Deinit(Type * const container)                                                \
     {                                                                                  \
         Type##_Destruct(container);                                                    \
@@ -116,6 +122,16 @@
     void Clear(Type * const container)                                                 \
     {                                                                                  \
         Type##_Clear(container);                                                       \
+    }                                                                                  \
+                                                                                       \
+    int Compare(const Type * const container, const Type * const second)               \
+    {                                                                                  \
+        return Type##_Compare(container, second);                                      \
+    }                                                                                  \
+                                                                                       \
+    unsigned int Hash(Type * const container)                                          \
+    {                                                                                  \
+        return Type##_Hash(container);                                                 \
     }
 
 #define CONTAINER_CAPACITY 100
@@ -127,6 +143,12 @@ create_wrappers_for_type(SString);
 create_wrappers_for_type(DString);
 
 template<typename T>
+struct StringNotInitializedTest : public testing::Test
+{
+    T container;
+};
+
+template<typename T>
 struct StringTest : public testing::Test
 {
     void SetUp() override { Init(&container); }
@@ -134,6 +156,8 @@ struct StringTest : public testing::Test
     void TearDown() override { Deinit(&container); }
 
     T container;
+
+    using MyParamType = T;
 };
 
 template<typename T>
@@ -160,9 +184,19 @@ using AllStringTypes     = testing::Types<SString, DString>;
 using StaticStringTypes  = testing::Types<SString>;
 using DynamicStringTypes = testing::Types<DString>;
 
+TYPED_TEST_SUITE(StringNotInitializedTest, AllStringTypes);
 TYPED_TEST_SUITE(StringTest, AllStringTypes);
 TYPED_TEST_SUITE(StaticStringTest, StaticStringTypes);
 TYPED_TEST_SUITE(DynamicStringTest, DynamicStringTypes);
+
+TYPED_TEST(StringNotInitializedTest, WithValue)
+{
+    const char data[] = "Hello world";
+    Init2(&this->container, data, 11);
+
+    ASSERT_EQ(strlen(Ref(&this->container, 0)), 11);
+    ASSERT_EQ(strcmp(Ref(&this->container, 0), data), 0);
+}
 
 TYPED_TEST(StringTest, IsEmptyAfterInit)
 {
@@ -566,6 +600,55 @@ TYPED_TEST(StringTest, Clear)
 
     ASSERT_EQ(Size(&this->container), 0);
     ASSERT_EQ(strlen(Ref(&this->container, 0)), Size(&this->container));
+}
+
+TYPED_TEST(StringTest, CompareNE)
+{
+    using MyParamType = typename TestFixture::MyParamType;
+
+    char temp1{ 'a' };
+    char temp2{ 'b' };
+    char temp3{ 'c' };
+
+    PushBack(&this->container, temp1);
+    PushBack(&this->container, temp2);
+    PushBack(&this->container, temp3);
+
+    MyParamType second{};
+    Init(&second);
+
+    ASSERT_NE(Compare(&this->container, &second), 0);
+}
+
+TYPED_TEST(StringTest, CompareEQ)
+{
+    using MyParamType = typename TestFixture::MyParamType;
+
+    char temp1{ 'a' };
+    char temp2{ 'b' };
+    char temp3{ 'c' };
+
+    PushBack(&this->container, temp1);
+    PushBack(&this->container, temp2);
+    PushBack(&this->container, temp3);
+
+    MyParamType second{};
+    Init2(&second, "abc", 3);
+
+    ASSERT_EQ(Compare(&this->container, &second), 0);
+}
+
+TYPED_TEST(StringTest, Hash)
+{
+    char temp1{ 'a' };
+    char temp2{ 'b' };
+    char temp3{ 'c' };
+
+    PushBack(&this->container, temp1);
+    PushBack(&this->container, temp2);
+    PushBack(&this->container, temp3);
+
+    ASSERT_EQ(Hash(&this->container), 193485963);
 }
 
 TYPED_TEST(StaticStringTest, PushBackOverLimit)

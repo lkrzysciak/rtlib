@@ -24,6 +24,7 @@ set(TESTS
     set_test.cpp
     map_test.cpp
     string_test.cpp
+    nested_test.cpp
     )
 
 add_executable(ut ut.cpp ${TESTS})

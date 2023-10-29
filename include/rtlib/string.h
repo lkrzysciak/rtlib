@@ -15,6 +15,7 @@ extern "C"
 
 #define __string_methods_h(container_t)                                                                     \
     void container_t##_Construct(container_t * const self);                                                 \
+    void container_t##_Construct2(container_t * const self, const char * data, size_t size);                \
     void container_t##_Destruct(container_t * const self);                                                  \
     size_t container_t##_Size(const container_t * const self);                                              \
     bool container_t##_Empty(const container_t * const self);                                               \
@@ -38,7 +39,10 @@ extern "C"
     void container_t##_Iterator_Increment(container_t##_Iterator * const self);                             \
     void container_t##_Iterator_Decrement(container_t##_Iterator * const self);                             \
     char * container_t##_Iterator_Ref(container_t##_Iterator * const self);                                 \
-    const char * container_t##_Iterator_CRef(const container_t##_Iterator * const self);
+    const char * container_t##_Iterator_CRef(const container_t##_Iterator * const self);                    \
+                                                                                                            \
+    int container_t##_Compare(const container_t * const self, const container_t * const second);            \
+    unsigned int container_t##_Hash(const container_t * const self);
 
 #define __static_string_methods_c(container_t)                                                             \
     void container_t##_Construct(container_t * const self)                                                 \
@@ -48,6 +52,15 @@ extern "C"
         self->size     = 0;                                                                                \
         self->capacity = sizeof(self->data) / sizeof(char) - 1;                                            \
         self->data[0]  = 0;                                                                                \
+    }                                                                                                      \
+                                                                                                           \
+    void container_t##_Construct2(container_t * const self, const char * data, size_t size)                \
+    {                                                                                                      \
+        container_t##_Construct(self);                                                                     \
+        for(size_t idx = 0; idx < size; idx++)                                                             \
+        {                                                                                                  \
+            container_t##_PushBack(self, data[idx]);                                                       \
+        }                                                                                                  \
     }                                                                                                      \
                                                                                                            \
     void container_t##_Destruct(container_t * const self)                                                  \
@@ -266,6 +279,23 @@ extern "C"
             container_t##_Iterator begin = container_t##_Begin(self);                                      \
             container_t##_Erase(self, &begin);                                                             \
         }                                                                                                  \
+    }                                                                                                      \
+                                                                                                           \
+    int container_t##_Compare(const container_t * const self, const container_t * const second)            \
+    {                                                                                                      \
+        return strcmp(self->data, second->data);                                                           \
+    }                                                                                                      \
+                                                                                                           \
+    unsigned int container_t##_Hash(const container_t * const self)                                        \
+    {                                                                                                      \
+        unsigned long hash = 5381;                                                                         \
+        int c;                                                                                             \
+        const char * str = self->data;                                                                     \
+                                                                                                           \
+        while(c = *str++)                                                                                  \
+            hash = ((hash << 5) + hash) + c;                                                               \
+                                                                                                           \
+        return hash;                                                                                       \
     }
 
 #define __custom_string_methods_c(container_t, allocator_t)                                                    \
@@ -279,6 +309,15 @@ extern "C"
         assert(self->data);                                                                                    \
         self->data[0] = 0;                                                                                     \
         self->size    = 0;                                                                                     \
+    }                                                                                                          \
+                                                                                                               \
+    void container_t##_Construct2(container_t * const self, const char * data, size_t size)                    \
+    {                                                                                                          \
+        container_t##_Construct(self);                                                                         \
+        for(size_t idx = 0; idx < size; idx++)                                                                 \
+        {                                                                                                      \
+            container_t##_PushBack(self, data[idx]);                                                           \
+        }                                                                                                      \
     }                                                                                                          \
                                                                                                                \
     void container_t##_Destruct(container_t * const self)                                                      \
@@ -545,6 +584,23 @@ extern "C"
             container_t##_Iterator begin = container_t##_Begin(self);                                          \
             container_t##_Erase(self, &begin);                                                                 \
         }                                                                                                      \
+    }                                                                                                          \
+                                                                                                               \
+    int container_t##_Compare(const container_t * const self, const container_t * const second)                \
+    {                                                                                                          \
+        return strcmp(self->data, second->data);                                                               \
+    }                                                                                                          \
+                                                                                                               \
+    unsigned int container_t##_Hash(const container_t * const self)                                            \
+    {                                                                                                          \
+        unsigned long hash = 5381;                                                                             \
+        int c;                                                                                                 \
+        const char * str = self->data;                                                                         \
+                                                                                                               \
+        while(c = *str++)                                                                                      \
+            hash = ((hash << 5) + hash) + c;                                                                   \
+                                                                                                               \
+        return hash;                                                                                           \
     }
 
 #define static_string(container_t, container_capacity)                  \
