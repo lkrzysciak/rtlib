@@ -746,38 +746,8 @@ TYPED_TEST(ContainerTest, Fifo)
 
         ASSERT_EQ(PushBack(&this->container, i + 10), 11);
         ASSERT_EQ(PopFront(&this->container), 10);
-
-        // for(int j = 0; j < 10; j++)
-        // {
-        //     ASSERT_EQ(*CRef(&this->container, j), j + i + 1);
-        // }
     }
 }
-
-// TYPED_TEST(ContainerTest, Fifo2)
-// {
-//     for(int i = 0; i < 10; i++)
-//     {
-//         auto end = End(&this->container);
-//         ASSERT_EQ(Insert(&this->container, i, &end), i + 1);
-//     }
-
-//     for(int i = 0; i < 10001; i++)
-//     {
-//         ASSERT_EQ(Front(&this->container), i);
-//         ASSERT_EQ(Back(&this->container), i + 9);
-
-//         auto end = End(&this->container);
-//         ASSERT_EQ(Insert(&this->container, i + 10, &end), 11);
-//         auto begin = Begin(&this->container);
-//         ASSERT_EQ(Erase(&this->container, &begin), 10);
-
-//         for(int j = 0; j < 10; j++)
-//         {
-//             ASSERT_EQ(*CRef(&this->container, j), j + i + 1);
-//         }
-//     }
-// }
 
 TYPED_TEST(ContainerTest, InsertEraseMultipleTimes)
 {

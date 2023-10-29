@@ -23,6 +23,7 @@ set(TESTS
     queue_containers_test.cpp
     set_test.cpp
     map_test.cpp
+    string_test.cpp
     )
 
 add_executable(ut ut.cpp ${TESTS})
