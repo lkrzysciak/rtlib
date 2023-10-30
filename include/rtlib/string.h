@@ -16,6 +16,7 @@ extern "C"
 #define __string_methods_h(container_t)                                                                     \
     void container_t##_Construct(container_t * const self);                                                 \
     void container_t##_Construct2(container_t * const self, const char * data, size_t size);                \
+    void container_t##_Construct3(container_t * const self, const char * data);                             \
     void container_t##_Destruct(container_t * const self);                                                  \
     size_t container_t##_Size(const container_t * const self);                                              \
     bool container_t##_Empty(const container_t * const self);                                               \
@@ -57,6 +58,16 @@ extern "C"
     void container_t##_Construct2(container_t * const self, const char * data, size_t size)                \
     {                                                                                                      \
         container_t##_Construct(self);                                                                     \
+        for(size_t idx = 0; idx < size; idx++)                                                             \
+        {                                                                                                  \
+            container_t##_PushBack(self, data[idx]);                                                       \
+        }                                                                                                  \
+    }                                                                                                      \
+                                                                                                           \
+    void container_t##_Construct3(container_t * const self, const char * data)                             \
+    {                                                                                                      \
+        container_t##_Construct(self);                                                                     \
+        size_t size = strlen(data);                                                                        \
         for(size_t idx = 0; idx < size; idx++)                                                             \
         {                                                                                                  \
             container_t##_PushBack(self, data[idx]);                                                       \
@@ -314,6 +325,16 @@ extern "C"
     void container_t##_Construct2(container_t * const self, const char * data, size_t size)                    \
     {                                                                                                          \
         container_t##_Construct(self);                                                                         \
+        for(size_t idx = 0; idx < size; idx++)                                                                 \
+        {                                                                                                      \
+            container_t##_PushBack(self, data[idx]);                                                           \
+        }                                                                                                      \
+    }                                                                                                          \
+                                                                                                               \
+    void container_t##_Construct3(container_t * const self, const char * data)                                 \
+    {                                                                                                          \
+        container_t##_Construct(self);                                                                         \
+        size_t size = strlen(data);                                                                            \
         for(size_t idx = 0; idx < size; idx++)                                                                 \
         {                                                                                                      \
             container_t##_PushBack(self, data[idx]);                                                           \

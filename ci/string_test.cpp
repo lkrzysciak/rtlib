@@ -15,6 +15,11 @@
         Type##_Construct2(container, data, size);                                      \
     }                                                                                  \
                                                                                        \
+    void Init3(Type * const container, const char * data)                              \
+    {                                                                                  \
+        Type##_Construct3(container, data);                                            \
+    }                                                                                  \
+                                                                                       \
     void Deinit(Type * const container)                                                \
     {                                                                                  \
         Type##_Destruct(container);                                                    \
@@ -193,6 +198,15 @@ TYPED_TEST(StringNotInitializedTest, WithValue)
 {
     const char data[] = "Hello world";
     Init2(&this->container, data, 11);
+
+    ASSERT_EQ(strlen(Ref(&this->container, 0)), 11);
+    ASSERT_EQ(strcmp(Ref(&this->container, 0), data), 0);
+}
+
+TYPED_TEST(StringNotInitializedTest, WithValue2)
+{
+    const char data[] = "Hello world";
+    Init3(&this->container, data);
 
     ASSERT_EQ(strlen(Ref(&this->container, 0)), 11);
     ASSERT_EQ(strcmp(Ref(&this->container, 0), data), 0);
