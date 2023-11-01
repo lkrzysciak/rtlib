@@ -8,71 +8,89 @@
 
 #define CONTAINER_CAPACITY 100
 
-extern "C"
+typedef struct
 {
-    vector_t(VectorTestType, int);
-    static_vector_t(VectorTestType, int, CONTAINER_CAPACITY);
-    list_t(ListTestType, int);
-    static_list_t(ListTestType, int, CONTAINER_CAPACITY);
-    deque_t(DequeTestType, int);
-    static_deque_t(DequeTestType, int, CONTAINER_CAPACITY);
+    double doubleVar;
+    int intVar;
+    bool boolVar;
+    uint64_t id;
+} StructType;
 
-    memory_t(DynamicAllocator);
-    dynamic_memory_t(DynamicAllocator);
-    vector_t(CustomAllocatorVector, int);
-    custom_allocator_vector_t(CustomAllocatorVector, int, DynamicAllocator);
-    list_t(CustomAllocatorList, int);
-    custom_allocator_list_t(CustomAllocatorList, int, DynamicAllocator);
-
-    vector_t(SVectorWithPointers, int *);
-    static_vector_t(SVectorWithPointers, int *, CONTAINER_CAPACITY);
-    list_t(SListWithPointers, int *);
-    static_list_t(SListWithPointers, int *, CONTAINER_CAPACITY);
-    vector_t(CVectorWithPointers, int *);
-    custom_allocator_vector_t(CVectorWithPointers, int *, DynamicAllocator);
-    list_t(CListWithPointers, int *);
-    custom_allocator_list_t(CListWithPointers, int *, DynamicAllocator);
-
-    vector_t(DynamicVector, int);
-    dynamic_vector_t(DynamicVector, int);
-    list_t(DynamicList, int);
-    dynamic_list_t(DynamicList, int);
-
-    typedef struct
+static int int_Compare(const int * v1, const int * v2)
+{
+    if(*v1 > *v2)
     {
-        double doubleVar;
-        int intVar;
-        bool boolVar;
-        uint64_t id;
-    } StructType;
-
-    vector_t(StructTypeStaticVector, StructType);
-    static_vector_t(StructTypeStaticVector, StructType, CONTAINER_CAPACITY);
-    list_t(StructTypeStaticList, StructType);
-    static_list_t(StructTypeStaticList, StructType, CONTAINER_CAPACITY);
-    vector_t(StructTypeDynamicVector, StructType);
-    dynamic_vector_t(StructTypeDynamicVector, StructType);
-    list_t(StructTypeDynamicList, StructType);
-    dynamic_list_t(StructTypeDynamicList, StructType);
+        return 1;
+    }
+    else if(*v1 < *v2)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
-// v3 api
-static_vector(VectorTestTypeV3, int, CONTAINER_CAPACITY);
-custom_allocator_vector(CustomAllocatorVectorV3, int, DynamicAllocator);
-dynamic_vector(DynamicVectorV3, int);
-static_vector(VectorTestTypeV3NullCmp, int, CONTAINER_CAPACITY);
-custom_allocator_vector(CustomAllocatorVectorV3NullCmp, int, DynamicAllocator);
-dynamic_vector(DynamicVectorV3NullCmp, int);
+static int StructType_Compare(const StructType * v1, const StructType * v2)
+{
+    if(v1->id > v2->id)
+    {
+        return 1;
+    }
+    else if(v1->id < v2->id)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
 
-static_deque(StaticDequeV3, int, CONTAINER_CAPACITY);
-static_deque(StaticDequeV3NullCmp, int, CONTAINER_CAPACITY);
+typedef int * IntPtr;
 
-static_list(StaticListV3, int, CONTAINER_CAPACITY);
-custom_allocator_list(CustomAllocatorListV3, int, DynamicAllocator);
-dynamic_list(DynamicListV3, int);
-static_list(StaticListV3NullCmp, int, CONTAINER_CAPACITY);
-custom_allocator_list(CustomAllocatorListV3NullCmp, int, DynamicAllocator);
-dynamic_list(DynamicListV3NullCmp, int);
+static int IntPtr_Compare(const IntPtr * v1, const IntPtr * v2)
+{
+    if(*v1 > *v2)
+    {
+        return 1;
+    }
+    else if(*v1 < *v2)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+dynamic_memory(DynamicAllocator);
+
+static_vector(SVectorWithInt, int, CONTAINER_CAPACITY);
+custom_allocator_vector(CVectorWithInt, int, DynamicAllocator);
+dynamic_vector(DVectorWithInt, int);
+static_vector(SVectorWithPointers, IntPtr, CONTAINER_CAPACITY);
+custom_allocator_vector(CVectorWithPointers, IntPtr, DynamicAllocator);
+dynamic_vector(DVectorWithPointers, IntPtr);
+static_vector(SVectorWithStruct, StructType, CONTAINER_CAPACITY);
+custom_allocator_vector(CVectorWithStruct, StructType, DynamicAllocator);
+dynamic_vector(DVectorWithStruct, StructType);
+
+static_deque(SDequeWithInt, int, CONTAINER_CAPACITY);
+static_deque(SDequeWithPointers, IntPtr, CONTAINER_CAPACITY);
+static_deque(SDequeWithStruct, StructType, CONTAINER_CAPACITY);
+
+static_list(SListWithInt, int, CONTAINER_CAPACITY);
+custom_allocator_list(CListWithInt, int, DynamicAllocator);
+dynamic_list(DListWithInt, int);
+static_list(SListWithPointers, IntPtr, CONTAINER_CAPACITY);
+custom_allocator_list(CListWithPointers, IntPtr, DynamicAllocator);
+dynamic_list(DListWithPointers, IntPtr);
+static_list(SListWithStruct, StructType, CONTAINER_CAPACITY);
+custom_allocator_list(CListWithStruct, StructType, DynamicAllocator);
+dynamic_list(DListWithStruct, StructType);
 
 static int compare_set_ints(const int * v1, const int * v2)
 {
@@ -139,176 +157,144 @@ static int compare_struct_type(const StructType * v1, const StructType * v2)
     }
 }
 
-#define create_wrappers_for_type(Type, CompareFunction, MemberType)                                  \
-                                                                                                     \
-    void Init(Type * const container)                                                                \
-    {                                                                                                \
-        Type##_Construct(container, CompareFunction);                                                \
-    }                                                                                                \
-    void Deinit(Type * const container)                                                              \
-    {                                                                                                \
-        Type##_Destroy(container);                                                                   \
-    }                                                                                                \
-                                                                                                     \
-    size_t Size(Type * const container)                                                              \
-    {                                                                                                \
-        return Type##_Size(container);                                                               \
-    }                                                                                                \
-                                                                                                     \
-    bool Empty(Type * const container)                                                               \
-    {                                                                                                \
-        return Type##_Empty(container);                                                              \
-    }                                                                                                \
-                                                                                                     \
-    int PushBack(Type * const container, MemberType value)                                           \
-    {                                                                                                \
-        return Type##_PushBack(container, value);                                                    \
-    }                                                                                                \
-                                                                                                     \
-    int PushFront(Type * const container, MemberType value)                                          \
-    {                                                                                                \
-        return Type##_PushFront(container, value);                                                   \
-    }                                                                                                \
-                                                                                                     \
-    int Insert(Type * const container, MemberType value, Type##_Iterator * it)                       \
-    {                                                                                                \
-        return Type##_Insert(container, it, value);                                                  \
-    }                                                                                                \
-    int PopBack(Type * const container)                                                              \
-    {                                                                                                \
-        return Type##_PopBack(container);                                                            \
-    }                                                                                                \
-                                                                                                     \
-    int PopFront(Type * const container)                                                             \
-    {                                                                                                \
-        return Type##_PopFront(container);                                                           \
-    }                                                                                                \
-                                                                                                     \
-    int Erase(Type * const container, Type##_Iterator * it)                                          \
-    {                                                                                                \
-        return Type##_Erase(container, it);                                                          \
-    }                                                                                                \
-                                                                                                     \
-    MemberType Back(Type * const container)                                                          \
-    {                                                                                                \
-        return Type##_Back(container);                                                               \
-    }                                                                                                \
-                                                                                                     \
-    MemberType Front(Type * const container)                                                         \
-    {                                                                                                \
-        return Type##_Front(container);                                                              \
-    }                                                                                                \
-                                                                                                     \
-    auto Begin(Type * const container)                                                               \
-    {                                                                                                \
-        return Type##_Begin(container);                                                              \
-    }                                                                                                \
-                                                                                                     \
-    auto End(Type * const container)                                                                 \
-    {                                                                                                \
-        return Type##_End(container);                                                                \
-    }                                                                                                \
-                                                                                                     \
-    auto GetValue(Type * const container, size_t index)                                              \
-    {                                                                                                \
-        return Type##_GetValue(container, index);                                                    \
-    }                                                                                                \
-                                                                                                     \
-    void SetValue(Type * const container, size_t index, MemberType value)                            \
-    {                                                                                                \
-        Type##_SetValue(container, index, value);                                                    \
-    }                                                                                                \
-                                                                                                     \
-    auto Ref(Type * const container, size_t index)                                                   \
-    {                                                                                                \
-        return Type##_Ref(container, index);                                                         \
-    }                                                                                                \
-                                                                                                     \
-    auto CRef(const Type * const container, size_t index)                                            \
-    {                                                                                                \
-        return Type##_CRef(container, index);                                                        \
-    }                                                                                                \
-                                                                                                     \
-    auto IteratorValue(Type##_Iterator * const it)                                                   \
-    {                                                                                                \
-        return Type##_Iterator_GetValue(it);                                                         \
-    }                                                                                                \
-                                                                                                     \
-    void IteratorInc(Type##_Iterator * const it)                                                     \
-    {                                                                                                \
-        return Type##_Iterator_Increment(it);                                                        \
-    }                                                                                                \
-                                                                                                     \
-    void IteratorDec(Type##_Iterator * const it)                                                     \
-    {                                                                                                \
-        return Type##_Iterator_Decrement(it);                                                        \
-    }                                                                                                \
-                                                                                                     \
-    void IteratorSetValue(Type##_Iterator * const it, MemberType value)                              \
-    {                                                                                                \
-        Type##_Iterator_SetValue(it, value);                                                         \
-    }                                                                                                \
-                                                                                                     \
-    bool Iterator_Equal(Type##_Iterator * const first, Type##_Iterator * const second)               \
-    {                                                                                                \
-        return Type##_Iterator_Equal(first, second);                                                 \
-    }                                                                                                \
-                                                                                                     \
-    /*auto Iterator_Ref(Type##_Iterator * const it)                                                  \
-     {                                                                                               \
-         return Type##_Iterator_Ref(it);                                                             \
-     }                                                                                               \
-                                                                                                   \ \
-     auto Iterator_CRef(Type##_Iterator * const it)                                                  \
-     {                                                                                               \
-         return Type##_Iterator_CRef(it);                                                            \
-     }   */                                                                                          \
-                                                                                                     \
-    auto Find(Type * const container, MemberType value)                                              \
-    {                                                                                                \
-        return Type##_Find(container, value);                                                        \
-    }                                                                                                \
-                                                                                                     \
-    auto CustomFind(Type * const container, MemberType value, Type##_compare_t custom_comparator)    \
-    {                                                                                                \
-        return Type##_CustomFind(container, value, custom_comparator);                               \
-    }                                                                                                \
-                                                                                                     \
-    void Clear(Type * const container)                                                               \
-    {                                                                                                \
-        Type##_Clear(container);                                                                     \
+#define create_wrappers_for_type(Type, MemberType)                                     \
+                                                                                       \
+    void Init(Type * const container)                                                  \
+    {                                                                                  \
+        Type##_Construct(container);                                                   \
+    }                                                                                  \
+    void Deinit(Type * const container)                                                \
+    {                                                                                  \
+        Type##_Destruct(container);                                                    \
+    }                                                                                  \
+                                                                                       \
+    size_t Size(Type * const container)                                                \
+    {                                                                                  \
+        return Type##_Size(container);                                                 \
+    }                                                                                  \
+                                                                                       \
+    bool Empty(Type * const container)                                                 \
+    {                                                                                  \
+        return Type##_Empty(container);                                                \
+    }                                                                                  \
+                                                                                       \
+    int PushBack(Type * const container, MemberType value)                             \
+    {                                                                                  \
+        return Type##_PushBack(container, value);                                      \
+    }                                                                                  \
+                                                                                       \
+    int PushFront(Type * const container, MemberType value)                            \
+    {                                                                                  \
+        return Type##_PushFront(container, value);                                     \
+    }                                                                                  \
+                                                                                       \
+    int Insert(Type * const container, MemberType value, Type##_Iterator * it)         \
+    {                                                                                  \
+        return Type##_Insert(container, it, value);                                    \
+    }                                                                                  \
+    int PopBack(Type * const container)                                                \
+    {                                                                                  \
+        return Type##_PopBack(container);                                              \
+    }                                                                                  \
+                                                                                       \
+    int PopFront(Type * const container)                                               \
+    {                                                                                  \
+        return Type##_PopFront(container);                                             \
+    }                                                                                  \
+                                                                                       \
+    int Erase(Type * const container, Type##_Iterator * it)                            \
+    {                                                                                  \
+        return Type##_Erase(container, it);                                            \
+    }                                                                                  \
+                                                                                       \
+    MemberType Back(Type * const container)                                            \
+    {                                                                                  \
+        return Type##_Back(container);                                                 \
+    }                                                                                  \
+                                                                                       \
+    MemberType Front(Type * const container)                                           \
+    {                                                                                  \
+        return Type##_Front(container);                                                \
+    }                                                                                  \
+                                                                                       \
+    auto Begin(Type * const container)                                                 \
+    {                                                                                  \
+        return Type##_Begin(container);                                                \
+    }                                                                                  \
+                                                                                       \
+    auto End(Type * const container)                                                   \
+    {                                                                                  \
+        return Type##_End(container);                                                  \
+    }                                                                                  \
+                                                                                       \
+    auto Ref(Type * const container, size_t index)                                     \
+    {                                                                                  \
+        return Type##_Ref(container, index);                                           \
+    }                                                                                  \
+                                                                                       \
+    auto CRef(const Type * const container, size_t index)                              \
+    {                                                                                  \
+        return Type##_CRef(container, index);                                          \
+    }                                                                                  \
+                                                                                       \
+    auto Iterator_Ref(Type##_Iterator * const it)                                      \
+    {                                                                                  \
+        return Type##_Iterator_Ref(it);                                                \
+    }                                                                                  \
+                                                                                       \
+    auto Iterator_CRef(Type##_Iterator * const it)                                     \
+    {                                                                                  \
+        return Type##_Iterator_CRef(it);                                               \
+    }                                                                                  \
+                                                                                       \
+    void IteratorInc(Type##_Iterator * const it)                                       \
+    {                                                                                  \
+        return Type##_Iterator_Increment(it);                                          \
+    }                                                                                  \
+                                                                                       \
+    void IteratorDec(Type##_Iterator * const it)                                       \
+    {                                                                                  \
+        return Type##_Iterator_Decrement(it);                                          \
+    }                                                                                  \
+                                                                                       \
+    bool Iterator_Equal(Type##_Iterator * const first, Type##_Iterator * const second) \
+    {                                                                                  \
+        return Type##_Iterator_Equal(first, second);                                   \
+    }                                                                                  \
+                                                                                       \
+    auto Find(Type * const container, MemberType value)                                \
+    {                                                                                  \
+        return Type##_Find(container, value);                                          \
+    }                                                                                  \
+                                                                                       \
+    void Clear(Type * const container)                                                 \
+    {                                                                                  \
+        Type##_Clear(container);                                                       \
     }
 
-create_wrappers_for_type(VectorTestType, compare_set_ints, int);
-create_wrappers_for_type(ListTestType, compare_set_ints, int);
-create_wrappers_for_type(DequeTestType, compare_set_ints, int);
-create_wrappers_for_type(CustomAllocatorVector, compare_set_ints, int);
-create_wrappers_for_type(CustomAllocatorList, compare_set_ints, int);
-create_wrappers_for_type(DynamicVector, compare_set_ints, int);
-create_wrappers_for_type(DynamicList, compare_set_ints, int);
+create_wrappers_for_type(SVectorWithInt, int);
+create_wrappers_for_type(CVectorWithInt, int);
+create_wrappers_for_type(DVectorWithInt, int);
+create_wrappers_for_type(SVectorWithPointers, IntPtr);
+create_wrappers_for_type(CVectorWithPointers, IntPtr);
+create_wrappers_for_type(DVectorWithPointers, IntPtr);
+create_wrappers_for_type(SVectorWithStruct, StructType);
+create_wrappers_for_type(CVectorWithStruct, StructType);
+create_wrappers_for_type(DVectorWithStruct, StructType);
 
-// Verifies if compiles
-create_wrappers_for_type(SVectorWithPointers, compare_set_ints_ptr, int *);
-create_wrappers_for_type(StructTypeStaticVector, compare_struct_type, StructType);
-create_wrappers_for_type(StructTypeStaticList, compare_struct_type, StructType);
-create_wrappers_for_type(StructTypeDynamicVector, compare_struct_type, StructType);
-create_wrappers_for_type(StructTypeDynamicList, compare_struct_type, StructType);
+create_wrappers_for_type(SDequeWithInt, int);
+create_wrappers_for_type(SDequeWithPointers, IntPtr);
+create_wrappers_for_type(SDequeWithStruct, StructType);
 
-create_wrappers_for_type(VectorTestTypeV3, compare_set_ints, int);
-create_wrappers_for_type(CustomAllocatorVectorV3, compare_set_ints, int);
-create_wrappers_for_type(DynamicVectorV3, compare_set_ints, int);
-create_wrappers_for_type(StaticDequeV3, compare_set_ints, int);
-create_wrappers_for_type(StaticListV3, compare_set_ints, int);
-create_wrappers_for_type(CustomAllocatorListV3, compare_set_ints, int);
-create_wrappers_for_type(DynamicListV3, compare_set_ints, int);
-
-create_wrappers_for_type(VectorTestTypeV3NullCmp, NULL, int);
-create_wrappers_for_type(CustomAllocatorVectorV3NullCmp, NULL, int);
-create_wrappers_for_type(DynamicVectorV3NullCmp, NULL, int);
-create_wrappers_for_type(StaticDequeV3NullCmp, NULL, int);
-create_wrappers_for_type(StaticListV3NullCmp, NULL, int);
-create_wrappers_for_type(CustomAllocatorListV3NullCmp, NULL, int);
-create_wrappers_for_type(DynamicListV3NullCmp, NULL, int);
+create_wrappers_for_type(SListWithInt, int);
+create_wrappers_for_type(CListWithInt, int);
+create_wrappers_for_type(DListWithInt, int);
+create_wrappers_for_type(SListWithPointers, IntPtr);
+create_wrappers_for_type(CListWithPointers, IntPtr);
+create_wrappers_for_type(DListWithPointers, IntPtr);
+create_wrappers_for_type(SListWithStruct, StructType);
+create_wrappers_for_type(CListWithStruct, StructType);
+create_wrappers_for_type(DListWithStruct, StructType);
 
 template<typename T>
 struct ContainerTest : public testing::Test
@@ -351,46 +337,33 @@ struct StructTypeTest : public testing::Test
 };
 
 template<typename T>
-struct CompareFuncNotRequiredTest : public testing::Test
+struct QueuePointerTest : public testing::Test
 {
+    void SetUp() override { Init(&container); }
+
+    void TearDown() override { Deinit(&container); }
+
     T container;
 };
 
-using MyTypes = testing::Types<VectorTestType, ListTestType, DequeTestType, CustomAllocatorVector, CustomAllocatorList,
-                               DynamicVector, DynamicList, VectorTestTypeV3, CustomAllocatorVectorV3, DynamicVectorV3,
-                               StaticDequeV3, StaticListV3, CustomAllocatorListV3, DynamicListV3>;
+using IntTypes = testing::Types<SVectorWithInt, CVectorWithInt, DVectorWithInt, SListWithInt, CListWithInt,
+                                DListWithInt, SDequeWithInt>;
 
-using StaticContainerTypes =
-    testing::Types<VectorTestType, ListTestType, DequeTestType, VectorTestTypeV3, StaticDequeV3, StaticListV3>;
+using StaticContainerTypes = testing::Types<SVectorWithInt, SListWithInt, SDequeWithInt>;
 
-using CustomContainerTypes =
-    testing::Types<CustomAllocatorVector, CustomAllocatorList, CustomAllocatorVectorV3, CustomAllocatorListV3>;
+using CustomContainerTypes = testing::Types<CVectorWithInt, CListWithInt>;
 
-using StructContainerTypes =
-    testing::Types<StructTypeStaticVector, StructTypeStaticList, StructTypeDynamicVector, StructTypeDynamicList>;
+using StructContainerTypes = testing::Types<SVectorWithStruct, CVectorWithStruct, DVectorWithStruct, SListWithStruct,
+                                            CListWithStruct, DListWithStruct, SDequeWithStruct>;
 
-using CompareFuncNotrequiredTypes =
-    testing::Types<VectorTestTypeV3NullCmp, CustomAllocatorVectorV3NullCmp, DynamicVectorV3NullCmp,
-                   StaticDequeV3NullCmp, StaticListV3NullCmp, CustomAllocatorListV3NullCmp, DynamicListV3NullCmp>;
+using TypesWithPointer = testing::Types<SVectorWithPointers, CVectorWithPointers, DVectorWithPointers,
+                                        SListWithPointers, CListWithPointers, DListWithPointers, SDequeWithPointers>;
 
-TYPED_TEST_SUITE(ContainerTest, MyTypes);
+TYPED_TEST_SUITE(ContainerTest, IntTypes);
 TYPED_TEST_SUITE(StaticContainerTest, StaticContainerTypes);
 TYPED_TEST_SUITE(CustomContainerTest, CustomContainerTypes);
 TYPED_TEST_SUITE(StructTypeTest, StructContainerTypes);
-TYPED_TEST_SUITE(CompareFuncNotRequiredTest, CompareFuncNotrequiredTypes);
-
-TYPED_TEST(CompareFuncNotRequiredTest, HasNoAssert)
-{
-    Init(&this->container);
-    Deinit(&this->container);
-}
-
-TYPED_TEST(CompareFuncNotRequiredTest, AssertIfTryFind)
-{
-    Init(&this->container);
-    EXPECT_DEATH(Find(&this->container, 0), "");
-    Deinit(&this->container);
-}
+TYPED_TEST_SUITE(QueuePointerTest, TypesWithPointer);
 
 TYPED_TEST(ContainerTest, IsEmptyAfterInit)
 {
@@ -414,11 +387,11 @@ TYPED_TEST(ContainerTest, PushBack)
 
     ASSERT_EQ(PushBack(&this->container, temp3), 3);
     auto it = Begin(&this->container);
-    ASSERT_EQ(IteratorValue(&it), temp1);
+    ASSERT_EQ(*Iterator_CRef(&it), temp1);
     IteratorInc(&it);
-    ASSERT_EQ(IteratorValue(&it), temp2);
+    ASSERT_EQ(*Iterator_CRef(&it), temp2);
     IteratorInc(&it);
-    ASSERT_EQ(IteratorValue(&it), temp3);
+    ASSERT_EQ(*Iterator_CRef(&it), temp3);
 
     ASSERT_EQ(Size(&this->container), 3);
     ASSERT_FALSE(Empty(&this->container));
@@ -440,11 +413,11 @@ TYPED_TEST(ContainerTest, PushFront)
 
     ASSERT_EQ(PushFront(&this->container, temp3), 3);
     auto it = Begin(&this->container);
-    ASSERT_EQ(IteratorValue(&it), temp3);
+    ASSERT_EQ(*Iterator_CRef(&it), temp3);
     IteratorInc(&it);
-    ASSERT_EQ(IteratorValue(&it), temp2);
+    ASSERT_EQ(*Iterator_CRef(&it), temp2);
     IteratorInc(&it);
-    ASSERT_EQ(IteratorValue(&it), temp1);
+    ASSERT_EQ(*Iterator_CRef(&it), temp1);
 
     ASSERT_EQ(Size(&this->container), 3);
     ASSERT_FALSE(Empty(&this->container));
@@ -468,11 +441,11 @@ TYPED_TEST(ContainerTest, Insert)
     ASSERT_EQ(Insert(&this->container, temp3, &it), 3);
 
     it = Begin(&this->container);
-    ASSERT_EQ(IteratorValue(&it), temp1);
+    ASSERT_EQ(*Iterator_CRef(&it), temp1);
     IteratorInc(&it);
-    ASSERT_EQ(IteratorValue(&it), temp3);
+    ASSERT_EQ(*Iterator_CRef(&it), temp3);
     IteratorInc(&it);
-    ASSERT_EQ(IteratorValue(&it), temp2);
+    ASSERT_EQ(*Iterator_CRef(&it), temp2);
 
     ASSERT_EQ(Size(&this->container), 3);
     ASSERT_FALSE(Empty(&this->container));
@@ -579,8 +552,8 @@ TYPED_TEST(ContainerTest, BeginEndIterator)
 
     IteratorDec(&it);
 
-    ASSERT_EQ(IteratorValue(&it_begin), temp1);
-    ASSERT_EQ(IteratorValue(&it), temp2);
+    ASSERT_EQ(*Iterator_CRef(&it_begin), temp1);
+    ASSERT_EQ(*Iterator_CRef(&it), temp2);
 }
 
 TYPED_TEST(ContainerTest, IteratorIncrementation)
@@ -595,9 +568,9 @@ TYPED_TEST(ContainerTest, IteratorIncrementation)
     auto it_end   = End(&this->container);
     auto it       = it_begin;
 
-    ASSERT_EQ(IteratorValue(&it), temp1);
+    ASSERT_EQ(*Iterator_CRef(&it), temp1);
     IteratorInc(&it);
-    ASSERT_EQ(IteratorValue(&it), temp2);
+    ASSERT_EQ(*Iterator_CRef(&it), temp2);
     IteratorInc(&it);
     ASSERT_TRUE(Iterator_Equal(&it, &it_end));
 }
@@ -615,9 +588,9 @@ TYPED_TEST(ContainerTest, IteratorDecrementation)
 
     auto it = it_end;
     IteratorDec(&it);
-    ASSERT_EQ(IteratorValue(&it), temp2);
+    ASSERT_EQ(*Iterator_CRef(&it), temp2);
     IteratorDec(&it);
-    ASSERT_EQ(IteratorValue(&it), temp1);
+    ASSERT_EQ(*Iterator_CRef(&it), temp1);
     ASSERT_TRUE(Iterator_Equal(&it_begin, &it));
 }
 
@@ -629,7 +602,7 @@ TYPED_TEST(ContainerTest, IteratorAfterInit)
     ASSERT_TRUE(Iterator_Equal(&it_begin, &it_end));
 }
 
-TYPED_TEST(ContainerTest, IteratorValues)
+TYPED_TEST(ContainerTest, Iterator_CRefs)
 {
     uint32_t temp1{ 3215 };
     uint32_t temp2{ 23587 };
@@ -643,12 +616,12 @@ TYPED_TEST(ContainerTest, IteratorValues)
     auto it = it_end;
     IteratorDec(&it);
     uint32_t newTemp2{ 2468 };
-    IteratorSetValue(&it, newTemp2);
-    ASSERT_EQ(IteratorValue(&it), newTemp2);
+    *Iterator_Ref(&it) = newTemp2;
+    ASSERT_EQ(*Iterator_CRef(&it), newTemp2);
     IteratorDec(&it);
     uint32_t newTemp1{ 1357 };
-    IteratorSetValue(&it, newTemp1);
-    ASSERT_EQ(IteratorValue(&it), newTemp1);
+    *Iterator_Ref(&it) = newTemp1;
+    ASSERT_EQ(*Iterator_CRef(&it), newTemp1);
     ASSERT_TRUE(Iterator_Equal(&it_begin, &it));
 }
 
@@ -660,19 +633,19 @@ TYPED_TEST(ContainerTest, IndexValues)
     PushBack(&this->container, temp1);
     PushBack(&this->container, temp2);
 
-    ASSERT_EQ(GetValue(&this->container, 0), temp1);
-    ASSERT_EQ(GetValue(&this->container, 1), temp2);
+    ASSERT_EQ(*CRef(&this->container, 0), temp1);
+    ASSERT_EQ(*CRef(&this->container, 1), temp2);
 
     uint32_t newTemp1{ 1357 };
     uint32_t newTemp2{ 2468 };
 
-    SetValue(&this->container, 0, newTemp1);
-    ASSERT_EQ(GetValue(&this->container, 0), newTemp1);
-    ASSERT_EQ(GetValue(&this->container, 1), temp2);
+    *Ref(&this->container, 0) = newTemp1;
+    ASSERT_EQ(*CRef(&this->container, 0), newTemp1);
+    ASSERT_EQ(*CRef(&this->container, 1), temp2);
 
-    SetValue(&this->container, 1, newTemp2);
-    ASSERT_EQ(GetValue(&this->container, 0), newTemp1);
-    ASSERT_EQ(GetValue(&this->container, 1), newTemp2);
+    *Ref(&this->container, 1) = newTemp2;
+    ASSERT_EQ(*CRef(&this->container, 0), newTemp1);
+    ASSERT_EQ(*CRef(&this->container, 1), newTemp2);
 }
 
 TYPED_TEST(ContainerTest, Ref)
@@ -726,41 +699,14 @@ TYPED_TEST(ContainerTest, FindAllValues)
     auto end_it = End(&this->container);
 
     auto it_1 = Find(&this->container, temp1);
-    ASSERT_EQ(IteratorValue(&it_1), temp1);
+    ASSERT_EQ(*Iterator_CRef(&it_1), temp1);
     auto it_2 = Find(&this->container, temp2);
-    ASSERT_EQ(IteratorValue(&it_2), temp2);
+    ASSERT_EQ(*Iterator_CRef(&it_2), temp2);
     auto it_3 = Find(&this->container, temp3);
-    ASSERT_EQ(IteratorValue(&it_3), temp3);
+    ASSERT_EQ(*Iterator_CRef(&it_3), temp3);
 
     auto it_4 = Find(&this->container, temp3 + 1);
     ASSERT_TRUE(Iterator_Equal(&it_4, &end_it));
-}
-
-TYPED_TEST(ContainerTest, CustomFinder)
-{
-    uint32_t temp1{ 3215 };
-    uint32_t temp2{ 23587 };
-    uint32_t temp3{ 582 };
-
-    PushBack(&this->container, temp1);
-    PushBack(&this->container, temp2);
-    PushBack(&this->container, temp3);
-
-    auto end_it = End(&this->container);
-
-    auto it_1 = CustomFind(&this->container, temp1 + 1, compare_custom_ints);
-    ASSERT_EQ(IteratorValue(&it_1), temp1);
-    auto it_2 = CustomFind(&this->container, temp2 + 1, compare_custom_ints);
-    ASSERT_EQ(IteratorValue(&it_2), temp2);
-    auto it_3 = CustomFind(&this->container, temp3 + 1, compare_custom_ints);
-    ASSERT_EQ(IteratorValue(&it_3), temp3);
-
-    auto it_4 = CustomFind(&this->container, temp1, compare_custom_ints);
-    ASSERT_TRUE(Iterator_Equal(&it_4, &end_it));
-    auto it_5 = CustomFind(&this->container, temp2, compare_custom_ints);
-    ASSERT_TRUE(Iterator_Equal(&it_5, &end_it));
-    auto it_6 = CustomFind(&this->container, temp3, compare_custom_ints);
-    ASSERT_TRUE(Iterator_Equal(&it_6, &end_it));
 }
 
 TYPED_TEST(ContainerTest, Permutations)
@@ -781,7 +727,7 @@ TYPED_TEST(ContainerTest, Permutations)
     auto endIt = End(&this->container);
     for(auto it = Begin(&this->container); !Iterator_Equal(&it, &endIt); IteratorInc(&it))
     {
-        receivedSet.insert(IteratorValue(&it));
+        receivedSet.insert(*Iterator_CRef(&it));
     }
     ASSERT_EQ(expectedSet, receivedSet);
 }
@@ -800,38 +746,8 @@ TYPED_TEST(ContainerTest, Fifo)
 
         ASSERT_EQ(PushBack(&this->container, i + 10), 11);
         ASSERT_EQ(PopFront(&this->container), 10);
-
-        // for(int j = 0; j < 10; j++)
-        // {
-        //     ASSERT_EQ(*CRef(&this->container, j), j + i + 1);
-        // }
     }
 }
-
-// TYPED_TEST(ContainerTest, Fifo2)
-// {
-//     for(int i = 0; i < 10; i++)
-//     {
-//         auto end = End(&this->container);
-//         ASSERT_EQ(Insert(&this->container, i, &end), i + 1);
-//     }
-
-//     for(int i = 0; i < 10001; i++)
-//     {
-//         ASSERT_EQ(Front(&this->container), i);
-//         ASSERT_EQ(Back(&this->container), i + 9);
-
-//         auto end = End(&this->container);
-//         ASSERT_EQ(Insert(&this->container, i + 10, &end), 11);
-//         auto begin = Begin(&this->container);
-//         ASSERT_EQ(Erase(&this->container, &begin), 10);
-
-//         for(int j = 0; j < 10; j++)
-//         {
-//             ASSERT_EQ(*CRef(&this->container, j), j + i + 1);
-//         }
-//     }
-// }
 
 TYPED_TEST(ContainerTest, InsertEraseMultipleTimes)
 {
@@ -1063,14 +979,14 @@ TYPED_TEST(StructTypeTest, StructMembersPushBack)
 
     auto it = Begin(&this->container);
 
-    auto receivedVar1 = IteratorValue(&it);
+    auto receivedVar1 = *Iterator_CRef(&it);
     ASSERT_DOUBLE_EQ(var1.doubleVar, receivedVar1.doubleVar);
     ASSERT_EQ(var1.intVar, receivedVar1.intVar);
     ASSERT_EQ(var1.boolVar, receivedVar1.boolVar);
     ASSERT_EQ(var1.id, receivedVar1.id);
 
     IteratorInc(&it);
-    auto receivedVar2 = IteratorValue(&it);
+    auto receivedVar2 = *Iterator_CRef(&it);
     ASSERT_DOUBLE_EQ(var2.doubleVar, receivedVar2.doubleVar);
     ASSERT_EQ(var2.intVar, receivedVar2.intVar);
     ASSERT_EQ(var2.boolVar, receivedVar2.boolVar);
@@ -1087,14 +1003,14 @@ TYPED_TEST(StructTypeTest, StructMembersPushFront)
 
     auto it = Begin(&this->container);
 
-    auto receivedVar2 = IteratorValue(&it);
+    auto receivedVar2 = *Iterator_CRef(&it);
     ASSERT_DOUBLE_EQ(var2.doubleVar, receivedVar2.doubleVar);
     ASSERT_EQ(var2.intVar, receivedVar2.intVar);
     ASSERT_EQ(var2.boolVar, receivedVar2.boolVar);
     ASSERT_EQ(var2.id, receivedVar2.id);
 
     IteratorInc(&it);
-    auto receivedVar1 = IteratorValue(&it);
+    auto receivedVar1 = *Iterator_CRef(&it);
     ASSERT_DOUBLE_EQ(var1.doubleVar, receivedVar1.doubleVar);
     ASSERT_EQ(var1.intVar, receivedVar1.intVar);
     ASSERT_EQ(var1.boolVar, receivedVar1.boolVar);
@@ -1113,32 +1029,62 @@ TYPED_TEST(StructTypeTest, StructMembersInsert)
 
     auto it = Begin(&this->container);
 
-    auto receivedVar2 = IteratorValue(&it);
+    auto receivedVar2 = *Iterator_CRef(&it);
     ASSERT_DOUBLE_EQ(var2.doubleVar, receivedVar2.doubleVar);
     ASSERT_EQ(var2.intVar, receivedVar2.intVar);
     ASSERT_EQ(var2.boolVar, receivedVar2.boolVar);
     ASSERT_EQ(var2.id, receivedVar2.id);
 
     IteratorInc(&it);
-    auto receivedVar1 = IteratorValue(&it);
+    auto receivedVar1 = *Iterator_CRef(&it);
     ASSERT_DOUBLE_EQ(var1.doubleVar, receivedVar1.doubleVar);
     ASSERT_EQ(var1.intVar, receivedVar1.intVar);
     ASSERT_EQ(var1.boolVar, receivedVar1.boolVar);
     ASSERT_EQ(var1.id, receivedVar1.id);
 }
 
+TYPED_TEST(QueuePointerTest, Insert)
+{
+    int * a = new int(5);
+    int * b = new int(11);
+
+    ASSERT_EQ(PushBack(&this->container, a), 1);
+    ASSERT_EQ(PushBack(&this->container, b), 2);
+
+    auto it = Begin(&this->container);
+    ASSERT_EQ(a, *Iterator_CRef(&it));
+    IteratorInc(&it);
+    ASSERT_EQ(b, *Iterator_CRef(&it));
+
+    Clear(&this->container);
+
+    delete a;
+    delete b;
+}
+
 // must to at the end to verify if we have valid declarations
-static_vector_impl(VectorTestTypeV3, int, CONTAINER_CAPACITY);
-custom_allocator_vector_impl(CustomAllocatorVectorV3, int, DynamicAllocator);
-dynamic_vector_impl(DynamicVectorV3, int);
-static_vector_impl(VectorTestTypeV3NullCmp, int, CONTAINER_CAPACITY);
-custom_allocator_vector_impl(CustomAllocatorVectorV3NullCmp, int, DynamicAllocator);
-dynamic_vector_impl(DynamicVectorV3NullCmp, int);
-static_deque_impl(StaticDequeV3, int, CONTAINER_CAPACITY);
-static_deque_impl(StaticDequeV3NullCmp, int, CONTAINER_CAPACITY);
-static_list_impl(StaticListV3, int, CONTAINER_CAPACITY);
-custom_allocator_list_impl(CustomAllocatorListV3, int, DynamicAllocator);
-dynamic_list_impl(DynamicListV3, int);
-static_list_impl(StaticListV3NullCmp, int, CONTAINER_CAPACITY);
-custom_allocator_list_impl(CustomAllocatorListV3NullCmp, int, DynamicAllocator);
-dynamic_list_impl(DynamicListV3NullCmp, int);
+dynamic_memory_impl(DynamicAllocator);
+
+static_vector_impl(SVectorWithInt, int, CONTAINER_CAPACITY);
+custom_allocator_vector_impl(CVectorWithInt, int, DynamicAllocator);
+dynamic_vector_impl(DVectorWithInt, int);
+static_vector_impl(SVectorWithPointers, IntPtr, CONTAINER_CAPACITY);
+custom_allocator_vector_impl(CVectorWithPointers, IntPtr, DynamicAllocator);
+dynamic_vector_impl(DVectorWithPointers, IntPtr);
+static_vector_impl(SVectorWithStruct, StructType, CONTAINER_CAPACITY);
+custom_allocator_vector_impl(CVectorWithStruct, StructType, DynamicAllocator);
+dynamic_vector_impl(DVectorWithStruct, StructType);
+
+static_deque_impl(SDequeWithInt, int, CONTAINER_CAPACITY);
+static_deque_impl(SDequeWithPointers, IntPtr, CONTAINER_CAPACITY);
+static_deque_impl(SDequeWithStruct, StructType, CONTAINER_CAPACITY);
+
+static_list_impl(SListWithInt, int, CONTAINER_CAPACITY);
+custom_allocator_list_impl(CListWithInt, int, DynamicAllocator);
+dynamic_list_impl(DListWithInt, int);
+static_list_impl(SListWithPointers, IntPtr, CONTAINER_CAPACITY);
+custom_allocator_list_impl(CListWithPointers, IntPtr, DynamicAllocator);
+dynamic_list_impl(DListWithPointers, IntPtr);
+static_list_impl(SListWithStruct, StructType, CONTAINER_CAPACITY);
+custom_allocator_list_impl(CListWithStruct, StructType, DynamicAllocator);
+dynamic_list_impl(DListWithStruct, StructType);

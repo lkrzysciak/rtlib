@@ -5,9 +5,15 @@
 #include <stdbool.h>
 #include "error_codes.h"
 #include "rtlib/pool.h"
+#include "rtlib/memory.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 #define __list_methods_h(container_t, member_t)                                                                 \
-    void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function);           \
+    void container_t##_Construct(container_t * const self);                                                     \
     void container_t##_Destruct(container_t * const self);                                                      \
     size_t container_t##_Size(const container_t * const self);                                                  \
     bool container_t##_Empty(const container_t * const self);                                                   \
@@ -31,33 +37,23 @@
     void container_t##_Iterator_Increment(container_t##_Iterator * const self);                                 \
     void container_t##_Iterator_Decrement(container_t##_Iterator * const self);                                 \
     member_t * container_t##_Iterator_Ref(container_t##_Iterator * const self);                                 \
-    const member_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self);                    \
-                                                                                                                \
-    /* will be deleted in v3*/                                                                                  \
-    void container_t##_Destroy(container_t * const self);                                                       \
-    member_t container_t##_GetValue(const container_t * const self, size_t index);                              \
-    void container_t##_SetValue(container_t * const self, size_t index, member_t value);                        \
-    member_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self);                        \
-    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, member_t value);                  \
-    container_t##_Iterator container_t##_CustomFind(container_t * const self, const member_t data,              \
-                                                    container_t##_compare_t compare_function);
+    const member_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self);
 
 #define __static_list_methods_c(container_t, member_t, container_capacity)                                      \
-    void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function)            \
+    void container_t##_Construct(container_t * const self)                                                      \
     {                                                                                                           \
         assert(self);                                                                                           \
                                                                                                                 \
         container_t##_pool_Construct(&self->pool);                                                              \
         self->end = container_t##_pool_Allocate(&self->pool);                                                   \
         assert(self->end);                                                                                      \
-        self->begin            = self->end;                                                                     \
-        self->begin->prev      = NULL;                                                                          \
-        self->begin->next      = NULL;                                                                          \
-        self->size             = 0;                                                                             \
-        self->compare_function = compare_function;                                                              \
+        self->begin       = self->end;                                                                          \
+        self->begin->prev = NULL;                                                                               \
+        self->begin->next = NULL;                                                                               \
+        self->size        = 0;                                                                                  \
     }                                                                                                           \
                                                                                                                 \
-    void container_t##_Destroy(container_t * const self)                                                        \
+    void container_t##_Destruct(container_t * const self)                                                       \
     {}                                                                                                          \
                                                                                                                 \
     size_t container_t##_Size(const container_t * const self)                                                   \
@@ -248,29 +244,6 @@
         return self->end->prev->value;                                                                          \
     }                                                                                                           \
                                                                                                                 \
-    member_t container_t##_GetValue(const container_t * const self, size_t index)                               \
-    {                                                                                                           \
-        container_t##_Iterator it = container_t##_Begin(self);                                                  \
-                                                                                                                \
-        while(index--)                                                                                          \
-        {                                                                                                       \
-            container_t##_Iterator_Increment(&it);                                                              \
-        }                                                                                                       \
-        member_t value = container_t##_Iterator_GetValue(&it);                                                  \
-        return value;                                                                                           \
-    }                                                                                                           \
-                                                                                                                \
-    void container_t##_SetValue(container_t * const self, size_t index, member_t value)                         \
-    {                                                                                                           \
-        container_t##_Iterator it = container_t##_Begin(self);                                                  \
-                                                                                                                \
-        while(index--)                                                                                          \
-        {                                                                                                       \
-            container_t##_Iterator_Increment(&it);                                                              \
-        }                                                                                                       \
-        container_t##_Iterator_SetValue(&it, value);                                                            \
-    }                                                                                                           \
-                                                                                                                \
     member_t * container_t##_Ref(container_t * const self, size_t index)                                        \
     {                                                                                                           \
         container_t##_Iterator it = container_t##_Begin(self);                                                  \
@@ -313,20 +286,6 @@
         return it;                                                                                              \
     }                                                                                                           \
                                                                                                                 \
-    member_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self)                         \
-    {                                                                                                           \
-        assert(self);                                                                                           \
-                                                                                                                \
-        return self->node->value;                                                                               \
-    }                                                                                                           \
-                                                                                                                \
-    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, member_t value)                   \
-    {                                                                                                           \
-        assert(self);                                                                                           \
-                                                                                                                \
-        self->node->value = value;                                                                              \
-    }                                                                                                           \
-                                                                                                                \
     bool container_t##_Iterator_Equal(const container_t##_Iterator * const first,                               \
                                       const container_t##_Iterator * const second)                              \
     {                                                                                                           \
@@ -347,39 +306,29 @@
                                                                                                                 \
         self->node = self->node->prev;                                                                          \
     }                                                                                                           \
+    member_t * container_t##_Iterator_Ref(container_t##_Iterator * const self)                                  \
+    {                                                                                                           \
+        assert(self);                                                                                           \
+        return &self->node->value;                                                                              \
+    }                                                                                                           \
+                                                                                                                \
+    const member_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self)                     \
+    {                                                                                                           \
+        assert(self);                                                                                           \
+        return &self->node->value;                                                                              \
+    }                                                                                                           \
                                                                                                                 \
     container_t##_Iterator container_t##_Find(container_t * const self, const member_t data)                    \
     {                                                                                                           \
         assert(self);                                                                                           \
-        assert(self->compare_function);                                                                         \
                                                                                                                 \
         container_t##_Iterator end = container_t##_End(self);                                                   \
         container_t##_Iterator it  = container_t##_Begin(self);                                                 \
                                                                                                                 \
         for(; !container_t##_Iterator_Equal(&it, &end); container_t##_Iterator_Increment(&it))                  \
         {                                                                                                       \
-            const member_t it_value = container_t##_Iterator_GetValue(&it);                                     \
-            if(self->compare_function(&data, &it_value) == 0)                                                   \
-            {                                                                                                   \
-                break;                                                                                          \
-            }                                                                                                   \
-        }                                                                                                       \
-        return it;                                                                                              \
-    }                                                                                                           \
-                                                                                                                \
-    container_t##_Iterator container_t##_CustomFind(container_t * const self, const member_t data,              \
-                                                    container_t##_compare_t compare_function)                   \
-    {                                                                                                           \
-        assert(self);                                                                                           \
-        assert(compare_function);                                                                               \
-                                                                                                                \
-        container_t##_Iterator end = container_t##_End(self);                                                   \
-        container_t##_Iterator it  = container_t##_Begin(self);                                                 \
-        for(; !container_t##_Iterator_Equal(&it, &end); container_t##_Iterator_Increment(&it))                  \
-                                                                                                                \
-        {                                                                                                       \
-            const member_t it_value = container_t##_Iterator_GetValue(&it);                                     \
-            if(compare_function(&data, &it_value) == 0)                                                         \
+            const member_t it_value = *container_t##_Iterator_CRef(&it);                                        \
+            if(member_t##_Compare(&data, &it_value) == 0)                                                       \
             {                                                                                                   \
                 break;                                                                                          \
             }                                                                                                   \
@@ -400,21 +349,20 @@
 
 #define __custom_allocator_list_methods_c(container_t, member_t, allocator_t)                                   \
                                                                                                                 \
-    void container_t##_Construct(container_t * const self, container_t##_compare_t compare_function)            \
+    void container_t##_Construct(container_t * const self)                                                      \
     {                                                                                                           \
         assert(self);                                                                                           \
                                                                                                                 \
         allocator_t##_Construct(&self->allocator);                                                              \
         self->end = (container_t##_node *)allocator_t##_Allocate(&self->allocator, sizeof(container_t##_node)); \
         assert(self->end);                                                                                      \
-        self->begin            = self->end;                                                                     \
-        self->begin->prev      = NULL;                                                                          \
-        self->begin->next      = NULL;                                                                          \
-        self->size             = 0;                                                                             \
-        self->compare_function = compare_function;                                                              \
+        self->begin       = self->end;                                                                          \
+        self->begin->prev = NULL;                                                                               \
+        self->begin->next = NULL;                                                                               \
+        self->size        = 0;                                                                                  \
     }                                                                                                           \
                                                                                                                 \
-    void container_t##_Destroy(container_t * const self)                                                        \
+    void container_t##_Destruct(container_t * const self)                                                       \
     {                                                                                                           \
         while(container_t##_Size(self) != 0)                                                                    \
         {                                                                                                       \
@@ -614,29 +562,6 @@
         return self->end->prev->value;                                                                          \
     }                                                                                                           \
                                                                                                                 \
-    member_t container_t##_GetValue(const container_t * const self, size_t index)                               \
-    {                                                                                                           \
-        container_t##_Iterator it = container_t##_Begin(self);                                                  \
-                                                                                                                \
-        while(index--)                                                                                          \
-        {                                                                                                       \
-            container_t##_Iterator_Increment(&it);                                                              \
-        }                                                                                                       \
-        member_t value = container_t##_Iterator_GetValue(&it);                                                  \
-        return value;                                                                                           \
-    }                                                                                                           \
-                                                                                                                \
-    void container_t##_SetValue(container_t * const self, size_t index, member_t value)                         \
-    {                                                                                                           \
-        container_t##_Iterator it = container_t##_Begin(self);                                                  \
-                                                                                                                \
-        while(index--)                                                                                          \
-        {                                                                                                       \
-            container_t##_Iterator_Increment(&it);                                                              \
-        }                                                                                                       \
-        container_t##_Iterator_SetValue(&it, value);                                                            \
-    }                                                                                                           \
-                                                                                                                \
     member_t * container_t##_Ref(container_t * const self, size_t index)                                        \
     {                                                                                                           \
         container_t##_Iterator it = container_t##_Begin(self);                                                  \
@@ -679,20 +604,6 @@
         return it;                                                                                              \
     }                                                                                                           \
                                                                                                                 \
-    member_t container_t##_Iterator_GetValue(const container_t##_Iterator * const self)                         \
-    {                                                                                                           \
-        assert(self);                                                                                           \
-                                                                                                                \
-        return self->node->value;                                                                               \
-    }                                                                                                           \
-                                                                                                                \
-    void container_t##_Iterator_SetValue(container_t##_Iterator * const self, member_t value)                   \
-    {                                                                                                           \
-        assert(self);                                                                                           \
-                                                                                                                \
-        self->node->value = value;                                                                              \
-    }                                                                                                           \
-                                                                                                                \
     bool container_t##_Iterator_Equal(const container_t##_Iterator * const first,                               \
                                       const container_t##_Iterator * const second)                              \
     {                                                                                                           \
@@ -714,38 +625,29 @@
         self->node = self->node->prev;                                                                          \
     }                                                                                                           \
                                                                                                                 \
+    member_t * container_t##_Iterator_Ref(container_t##_Iterator * const self)                                  \
+    {                                                                                                           \
+        assert(self);                                                                                           \
+        return &self->node->value;                                                                              \
+    }                                                                                                           \
+                                                                                                                \
+    const member_t * container_t##_Iterator_CRef(const container_t##_Iterator * const self)                     \
+    {                                                                                                           \
+        assert(self);                                                                                           \
+        return &self->node->value;                                                                              \
+    }                                                                                                           \
+                                                                                                                \
     container_t##_Iterator container_t##_Find(container_t * const self, const member_t data)                    \
     {                                                                                                           \
         assert(self);                                                                                           \
-        assert(self->compare_function);                                                                         \
                                                                                                                 \
         container_t##_Iterator end = container_t##_End(self);                                                   \
         container_t##_Iterator it  = container_t##_Begin(self);                                                 \
                                                                                                                 \
         for(; !container_t##_Iterator_Equal(&it, &end); container_t##_Iterator_Increment(&it))                  \
         {                                                                                                       \
-            const member_t it_value = container_t##_Iterator_GetValue(&it);                                     \
-            if(self->compare_function(&data, &it_value) == 0)                                                   \
-            {                                                                                                   \
-                break;                                                                                          \
-            }                                                                                                   \
-        }                                                                                                       \
-        return it;                                                                                              \
-    }                                                                                                           \
-                                                                                                                \
-    container_t##_Iterator container_t##_CustomFind(container_t * const self, const member_t data,              \
-                                                    container_t##_compare_t compare_function)                   \
-    {                                                                                                           \
-        assert(self);                                                                                           \
-        assert(compare_function);                                                                               \
-                                                                                                                \
-        container_t##_Iterator end = container_t##_End(self);                                                   \
-        container_t##_Iterator it  = container_t##_Begin(self);                                                 \
-        for(; !container_t##_Iterator_Equal(&it, &end); container_t##_Iterator_Increment(&it))                  \
-                                                                                                                \
-        {                                                                                                       \
-            const member_t it_value = container_t##_Iterator_GetValue(&it);                                     \
-            if(compare_function(&data, &it_value) == 0)                                                         \
+            const member_t it_value = *container_t##_Iterator_CRef(&it);                                        \
+            if(member_t##_Compare(&data, &it_value) == 0)                                                       \
             {                                                                                                   \
                 break;                                                                                          \
             }                                                                                                   \
@@ -763,69 +665,6 @@
             container_t##_Erase(self, &begin);                                                                  \
         }                                                                                                       \
     }
-
-#include "rtlib/memory.h"
-
-#define list_t(container_t, member_t)                                           \
-    typedef struct container_t container_t;                                     \
-    typedef struct container_t##_Iterator container_t##_Iterator;               \
-    typedef struct container_t##_node container_t##_node;                       \
-    typedef int (*container_t##_compare_t)(const member_t *, const member_t *); \
-    __list_methods_h(container_t, member_t)
-
-#define static_list_t(container_t, member_t, container_capacity)                   \
-    struct container_t##_node                                                      \
-    {                                                                              \
-        container_t##_node * prev;                                                 \
-        container_t##_node * next;                                                 \
-        member_t value;                                                            \
-    };                                                                             \
-                                                                                   \
-    struct container_t##_Iterator                                                  \
-    {                                                                              \
-        container_t##_node * node;                                                 \
-    };                                                                             \
-                                                                                   \
-    pool_t(container_t##_pool, container_t##_node);                                \
-    static_pool_t(container_t##_pool, container_t##_node, container_capacity + 1); \
-                                                                                   \
-    struct container_t                                                             \
-    {                                                                              \
-        container_t##_node * begin;                                                \
-        container_t##_node * end;                                                  \
-        container_t##_pool pool;                                                   \
-        size_t size;                                                               \
-        container_t##_compare_t compare_function;                                  \
-    };                                                                             \
-    __static_list_methods_c(container_t, member_t, container_capacity)
-
-#define custom_allocator_list_t(container_t, member_t, allocator_t) \
-    struct container_t##_node                                       \
-    {                                                               \
-        container_t##_node * prev;                                  \
-        container_t##_node * next;                                  \
-        member_t value;                                             \
-    };                                                              \
-                                                                    \
-    struct container_t##_Iterator                                   \
-    {                                                               \
-        container_t##_node * node;                                  \
-    };                                                              \
-                                                                    \
-    struct container_t                                              \
-    {                                                               \
-        container_t##_node * begin;                                 \
-        container_t##_node * end;                                   \
-        allocator_t allocator;                                      \
-        size_t size;                                                \
-        container_t##_compare_t compare_function;                   \
-    };                                                              \
-    __custom_allocator_list_methods_c(container_t, member_t, allocator_t)
-
-#define dynamic_list_t(container_t, member_t)         \
-    memory_t(container_t##_DynamicAllocator);         \
-    dynamic_memory_t(container_t##_DynamicAllocator); \
-    custom_allocator_list_t(container_t, member_t, container_t##_DynamicAllocator);
 
 #define static_list(container_t, member_t, container_capacity)                   \
     typedef struct container_t container_t;                                      \
@@ -852,7 +691,6 @@
         container_t##_node * end;                                                \
         container_t##_pool pool;                                                 \
         size_t size;                                                             \
-        container_t##_compare_t compare_function;                                \
     };                                                                           \
     __list_methods_h(container_t, member_t);
 
@@ -883,7 +721,6 @@
         container_t##_node * end;                                               \
         allocator_t allocator;                                                  \
         size_t size;                                                            \
-        container_t##_compare_t compare_function;                               \
     };                                                                          \
     __list_methods_h(container_t, member_t);
 
@@ -897,3 +734,7 @@
 #define dynamic_list_impl(container_t, member_t)         \
     dynamic_memory_impl(container_t##_DynamicAllocator); \
     custom_allocator_list_impl(container_t, member_t, container_t##_DynamicAllocator);
+
+#ifdef __cplusplus
+}
+#endif

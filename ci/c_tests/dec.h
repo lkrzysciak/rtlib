@@ -5,6 +5,7 @@
 #include <rtlib/set.h>
 #include <rtlib/unordered_set.h>
 #include <rtlib/map.h>
+#include <rtlib/unordered_map.h>
 
 dynamic_memory(DynamicMemory);
 
@@ -24,3 +25,6 @@ custom_allocator_unordered_set(CustomAllocatorUnorderedSet, int, DynamicMemory);
 static_map(StaticMap, int, int, 10);
 custom_allocator_map(CustomAllocatorMap, int, int, DynamicMemory);
 dynamic_map(DynamicMap, int, int);
+static_unordered_map(StaticUnorderedMap, int, int, 10);
+custom_allocator_unordered_map(CustomAllocatorUnorderedMap, int, int, DynamicMemory);
+dynamic_unordered_map(DynamicUnorderedMap, int, int);

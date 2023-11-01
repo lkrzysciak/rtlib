@@ -45,7 +45,7 @@ extern "C"
     {                                                                                                         \
         assert(self);                                                                                         \
                                                                                                               \
-        container_t##_pool_Destroy(&self->pool);                                                              \
+        container_t##_pool_Destruct(&self->pool);                                                             \
     }                                                                                                         \
                                                                                                               \
     size_t container_t##_Size(const container_t * const self)                                                 \
@@ -366,7 +366,7 @@ extern "C"
             container_t##_Erase(self, &begin);                                                                      \
         }                                                                                                           \
         allocator_t##_Deallocate(&self->allocator, self->nodes_table);                                              \
-        allocator_t##_Destroy(&self->allocator);                                                                    \
+        allocator_t##_Destruct(&self->allocator);                                                                   \
     }                                                                                                               \
                                                                                                                     \
     size_t container_t##_Size(const container_t * const self)                                                       \
