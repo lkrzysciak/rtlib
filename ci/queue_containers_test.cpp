@@ -92,71 +92,6 @@ static_list(SListWithStruct, StructType, CONTAINER_CAPACITY);
 custom_allocator_list(CListWithStruct, StructType, DynamicAllocator);
 dynamic_list(DListWithStruct, StructType);
 
-static int compare_set_ints(const int * v1, const int * v2)
-{
-    if(*v1 > *v2)
-    {
-        return 1;
-    }
-    else if(*v1 < *v2)
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-static int compare_set_ints_ptr(const int ** v1, const int ** v2)
-{
-    if(*v1 > *v2)
-    {
-        return 1;
-    }
-    else if(*v1 < *v2)
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-static int compare_custom_ints(const int * v1, const int * v2)
-{
-    /* We are looking for x+1 value - for test only */
-    if(*v1 > (*v2 + 1))
-    {
-        return 1;
-    }
-    else if(*v1 < (*v2 + 1))
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-static int compare_struct_type(const StructType * v1, const StructType * v2)
-{
-    if(v1->id > v2->id)
-    {
-        return 1;
-    }
-    else if(v1->id < v2->id)
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
 #define create_wrappers_for_type(Type, MemberType)                                     \
                                                                                        \
     void Init(Type * const container)                                                  \
@@ -681,9 +616,6 @@ TYPED_TEST(ContainerTest, CRef)
 
     ASSERT_EQ(*CRef(&this->container, 0), temp1);
     ASSERT_EQ(*CRef(&this->container, 1), temp2);
-
-    uint32_t newTemp1{ 1357 };
-    uint32_t newTemp2{ 2468 };
 }
 
 TYPED_TEST(ContainerTest, FindAllValues)

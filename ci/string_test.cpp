@@ -366,7 +366,6 @@ TYPED_TEST(StringTest, PopBack)
 {
     char temp1{ 'a' };
     char temp2{ 'b' };
-    char temp3{ 'c' };
 
     ASSERT_EQ(PushBack(&this->container, temp1), 1);
     ASSERT_EQ(PushBack(&this->container, temp2), 2);
@@ -392,7 +391,6 @@ TYPED_TEST(StringTest, PopFront)
 {
     char temp1{ 'a' };
     char temp2{ 'b' };
-    char temp3{ 'c' };
 
     ASSERT_EQ(PushBack(&this->container, temp1), 1);
     ASSERT_EQ(PushBack(&this->container, temp2), 2);
@@ -416,7 +414,6 @@ TYPED_TEST(StringTest, BeginEndIterator)
 {
     char temp1{ 'a' };
     char temp2{ 'b' };
-    char temp3{ 'c' };
 
     PushBack(&this->container, temp1);
     PushBack(&this->container, temp2);
@@ -436,7 +433,6 @@ TYPED_TEST(StringTest, IteratorIncrementation)
 {
     char temp1{ 'a' };
     char temp2{ 'b' };
-    char temp3{ 'c' };
 
     PushBack(&this->container, temp1);
     PushBack(&this->container, temp2);
@@ -458,7 +454,6 @@ TYPED_TEST(StringTest, IteratorDecrementation)
 {
     char temp1{ 'a' };
     char temp2{ 'b' };
-    char temp3{ 'c' };
 
     PushBack(&this->container, temp1);
     PushBack(&this->container, temp2);
@@ -487,7 +482,6 @@ TYPED_TEST(StringTest, Iterator_CRefs)
 {
     char temp1{ 'a' };
     char temp2{ 'b' };
-    char temp3{ 'c' };
 
     PushBack(&this->container, temp1);
     PushBack(&this->container, temp2);
@@ -513,7 +507,6 @@ TYPED_TEST(StringTest, IndexValues)
 {
     char temp1{ 'a' };
     char temp2{ 'b' };
-    char temp3{ 'c' };
 
     PushBack(&this->container, temp1);
     PushBack(&this->container, temp2);
@@ -539,7 +532,6 @@ TYPED_TEST(StringTest, Ref)
 {
     char temp1{ 'a' };
     char temp2{ 'b' };
-    char temp3{ 'c' };
 
     PushBack(&this->container, temp1);
     PushBack(&this->container, temp2);
@@ -565,7 +557,6 @@ TYPED_TEST(StringTest, CRef)
 {
     char temp1{ 'a' };
     char temp2{ 'b' };
-    char temp3{ 'c' };
 
     PushBack(&this->container, temp1);
     PushBack(&this->container, temp2);

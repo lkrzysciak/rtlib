@@ -226,7 +226,7 @@ extern "C"
                                                                                                                  \
     container_t##_Iterator container_t##_End(const container_t * const self)                                     \
     {                                                                                                            \
-        container_t##_Iterator tmp = { (int)container_t##_Size(self), self };                                    \
+        container_t##_Iterator tmp = { container_t##_Size(self), self };                                         \
         return tmp;                                                                                              \
     }                                                                                                            \
                                                                                                                  \
@@ -285,16 +285,16 @@ extern "C"
     typedef int (*container_t##_compare_t)(const member_t *, const member_t *); \
     struct container_t##_Iterator                                               \
     {                                                                           \
-        int index;                                                              \
+        size_t index;                                                           \
         const container_t * owner;                                              \
     };                                                                          \
                                                                                 \
     struct container_t                                                          \
     {                                                                           \
         member_t data[container_capacity + 1];                                  \
-        int begin;                                                              \
-        int end;                                                                \
-        int size;                                                               \
+        size_t begin;                                                           \
+        size_t end;                                                             \
+        size_t size;                                                            \
     };                                                                          \
     __deque_methods_h(container_t, member_t)
 
