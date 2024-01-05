@@ -191,11 +191,11 @@ extern "C"
                                                                                                               \
             while(!*ptr_to_next_node_ptr)                                                                     \
             {                                                                                                 \
-                ptr_to_next_node_ptr++;                                                                       \
                 if(ptr_to_next_node_ptr == ptr_to_end_node_ptr)                                               \
                 {                                                                                             \
                     break;                                                                                    \
                 }                                                                                             \
+                ptr_to_next_node_ptr++;                                                                       \
             }                                                                                                 \
             self->node = *ptr_to_next_node_ptr;                                                               \
         }                                                                                                     \

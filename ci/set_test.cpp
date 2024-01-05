@@ -683,6 +683,15 @@ TYPED_TEST(StaticSetTest, InsertOverLimit)
         ASSERT_EQ(Insert(&this->container, temp1 + i), i + 1);
     }
     ASSERT_EQ(Insert(&this->container, temp1), ALLOCATION_ERROR);
+
+    auto it  = Begin(&this->container);
+    auto end = End(&this->container);
+    int i    = 0;
+    for(; !Iterator_Equal(&it, &end); IteratorInc(&it))
+    {
+        i++;
+    }
+    ASSERT_EQ(i, CONTAINER_CAPACITY);
 }
 
 TYPED_TEST(StaticSetTest, InsertOverLimitExistingElements)

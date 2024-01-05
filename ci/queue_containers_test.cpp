@@ -863,6 +863,15 @@ TYPED_TEST(StaticContainerTest, PushBackOverLimit)
         ASSERT_EQ(PushBack(&this->container, temp1), i + 1);
     }
     ASSERT_EQ(PushBack(&this->container, temp1), ALLOCATION_ERROR);
+
+    auto it  = Begin(&this->container);
+    auto end = End(&this->container);
+    int i    = 0;
+    for(; !Iterator_Equal(&it, &end); IteratorInc(&it))
+    {
+        i++;
+    }
+    ASSERT_EQ(i, CONTAINER_CAPACITY);
 }
 
 TYPED_TEST(StaticContainerTest, PushFrontOverLimit)
@@ -874,6 +883,15 @@ TYPED_TEST(StaticContainerTest, PushFrontOverLimit)
         ASSERT_EQ(PushFront(&this->container, temp1), i + 1);
     }
     ASSERT_EQ(PushFront(&this->container, temp1), ALLOCATION_ERROR);
+
+    auto it  = Begin(&this->container);
+    auto end = End(&this->container);
+    int i    = 0;
+    for(; !Iterator_Equal(&it, &end); IteratorInc(&it))
+    {
+        i++;
+    }
+    ASSERT_EQ(i, CONTAINER_CAPACITY);
 }
 
 TYPED_TEST(StaticContainerTest, InsertOverLimit)
@@ -887,6 +905,15 @@ TYPED_TEST(StaticContainerTest, InsertOverLimit)
     }
     auto it = Begin(&this->container);
     ASSERT_EQ(Insert(&this->container, temp1, &it), ALLOCATION_ERROR);
+
+    it       = Begin(&this->container);
+    auto end = End(&this->container);
+    int i    = 0;
+    for(; !Iterator_Equal(&it, &end); IteratorInc(&it))
+    {
+        i++;
+    }
+    ASSERT_EQ(i, CONTAINER_CAPACITY);
 }
 
 TYPED_TEST(CustomContainerTest, AddALotOfElementsToMakeManyReallocations)
