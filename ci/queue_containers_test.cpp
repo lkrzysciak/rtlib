@@ -92,71 +92,6 @@ static_list(SListWithStruct, StructType, CONTAINER_CAPACITY);
 custom_allocator_list(CListWithStruct, StructType, DynamicAllocator);
 dynamic_list(DListWithStruct, StructType);
 
-static int compare_set_ints(const int * v1, const int * v2)
-{
-    if(*v1 > *v2)
-    {
-        return 1;
-    }
-    else if(*v1 < *v2)
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-static int compare_set_ints_ptr(const int ** v1, const int ** v2)
-{
-    if(*v1 > *v2)
-    {
-        return 1;
-    }
-    else if(*v1 < *v2)
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-static int compare_custom_ints(const int * v1, const int * v2)
-{
-    /* We are looking for x+1 value - for test only */
-    if(*v1 > (*v2 + 1))
-    {
-        return 1;
-    }
-    else if(*v1 < (*v2 + 1))
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-static int compare_struct_type(const StructType * v1, const StructType * v2)
-{
-    if(v1->id > v2->id)
-    {
-        return 1;
-    }
-    else if(v1->id < v2->id)
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
 #define create_wrappers_for_type(Type, MemberType)                                     \
                                                                                        \
     void Init(Type * const container)                                                  \
@@ -681,9 +616,6 @@ TYPED_TEST(ContainerTest, CRef)
 
     ASSERT_EQ(*CRef(&this->container, 0), temp1);
     ASSERT_EQ(*CRef(&this->container, 1), temp2);
-
-    uint32_t newTemp1{ 1357 };
-    uint32_t newTemp2{ 2468 };
 }
 
 TYPED_TEST(ContainerTest, FindAllValues)
@@ -931,6 +863,15 @@ TYPED_TEST(StaticContainerTest, PushBackOverLimit)
         ASSERT_EQ(PushBack(&this->container, temp1), i + 1);
     }
     ASSERT_EQ(PushBack(&this->container, temp1), ALLOCATION_ERROR);
+
+    auto it  = Begin(&this->container);
+    auto end = End(&this->container);
+    int i    = 0;
+    for(; !Iterator_Equal(&it, &end); IteratorInc(&it))
+    {
+        i++;
+    }
+    ASSERT_EQ(i, CONTAINER_CAPACITY);
 }
 
 TYPED_TEST(StaticContainerTest, PushFrontOverLimit)
@@ -942,6 +883,15 @@ TYPED_TEST(StaticContainerTest, PushFrontOverLimit)
         ASSERT_EQ(PushFront(&this->container, temp1), i + 1);
     }
     ASSERT_EQ(PushFront(&this->container, temp1), ALLOCATION_ERROR);
+
+    auto it  = Begin(&this->container);
+    auto end = End(&this->container);
+    int i    = 0;
+    for(; !Iterator_Equal(&it, &end); IteratorInc(&it))
+    {
+        i++;
+    }
+    ASSERT_EQ(i, CONTAINER_CAPACITY);
 }
 
 TYPED_TEST(StaticContainerTest, InsertOverLimit)
@@ -955,6 +905,15 @@ TYPED_TEST(StaticContainerTest, InsertOverLimit)
     }
     auto it = Begin(&this->container);
     ASSERT_EQ(Insert(&this->container, temp1, &it), ALLOCATION_ERROR);
+
+    it       = Begin(&this->container);
+    auto end = End(&this->container);
+    int i    = 0;
+    for(; !Iterator_Equal(&it, &end); IteratorInc(&it))
+    {
+        i++;
+    }
+    ASSERT_EQ(i, CONTAINER_CAPACITY);
 }
 
 TYPED_TEST(CustomContainerTest, AddALotOfElementsToMakeManyReallocations)

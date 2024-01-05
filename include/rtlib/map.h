@@ -488,9 +488,6 @@ extern "C"
         assert(self);                                                                                              \
         container_t##_node * node = iterator->node;                                                                \
         container_t##_node *target, *child;                                                                        \
-        key_t * data;                                                                                              \
-                                                                                                                   \
-        data = &node->key;                                                                                         \
                                                                                                                    \
         /* choose node's in-order successor if it has two children */                                              \
                                                                                                                    \
@@ -822,9 +819,6 @@ extern "C"
         assert(self);                                                                                              \
         container_t##_node * node = iterator->node;                                                                \
         container_t##_node *target, *child;                                                                        \
-        key_t * data;                                                                                              \
-                                                                                                                   \
-        data = &node->key;                                                                                         \
                                                                                                                    \
         /* choose node's in-order successor if it has two children */                                              \
                                                                                                                    \

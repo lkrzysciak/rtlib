@@ -303,7 +303,7 @@ extern "C"
         int c;                                                                                             \
         const char * str = self->data;                                                                     \
                                                                                                            \
-        while(c = *str++)                                                                                  \
+        while((c = *str++))                                                                                \
             hash = ((hash << 5) + hash) + c;                                                               \
                                                                                                            \
         return hash;                                                                                       \
@@ -618,7 +618,7 @@ extern "C"
         int c;                                                                                                 \
         const char * str = self->data;                                                                         \
                                                                                                                \
-        while(c = *str++)                                                                                      \
+        while((c = *str++))                                                                                    \
             hash = ((hash << 5) + hash) + c;                                                                   \
                                                                                                                \
         return hash;                                                                                           \

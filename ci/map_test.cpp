@@ -677,6 +677,26 @@ TYPED_TEST(StaticMapTest, InsertOverLimit)
     ASSERT_EQ(Insert(&this->container, temp1, 0), ALLOCATION_ERROR);
 }
 
+TYPED_TEST(StaticMapTest, InsertOverLimitAndIterate)
+{
+    uint32_t temp1{ 3215 };
+
+    for(int i = 0; i < CONTAINER_CAPACITY; ++i)
+    {
+        ASSERT_EQ(Insert(&this->container, temp1 + i, i), i + 1);
+    }
+    ASSERT_EQ(Insert(&this->container, temp1, 0), ALLOCATION_ERROR);
+
+    auto it  = Begin(&this->container);
+    auto end = End(&this->container);
+    int i    = 0;
+    for(; !Iterator_Equal(&it, &end); IteratorInc(&it))
+    {
+        i++;
+    }
+    ASSERT_EQ(i, CONTAINER_CAPACITY);
+}
+
 TYPED_TEST(StaticMapTest, InsertOverLimitExistingElements)
 {
     uint32_t temp1{ 3215 };
