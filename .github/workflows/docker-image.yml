@@ -68,7 +68,7 @@ jobs:
         docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json unordered_map_find_10000.json --output reports/unordered_map_find_10000.png
 
     - name: Archive results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: performance-reports
         path: reports
