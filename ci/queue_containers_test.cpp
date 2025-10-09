@@ -5,6 +5,7 @@
 #include "rtlib/list.h"
 #include "rtlib/deque.h"
 #include "rtlib/memory.h"
+#include "rtlib/comparator.h"
 
 #define CONTAINER_CAPACITY 100
 
@@ -16,22 +17,10 @@ typedef struct
     uint64_t id;
 } StructType;
 
-static int int_Compare(const int * v1, const int * v2)
-{
-    if(*v1 > *v2)
-    {
-        return 1;
-    }
-    else if(*v1 < *v2)
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-}
+private_comparator(int);
+private_comparator_impl(int);
 
+// custom comparator for StructType
 static int StructType_Compare(const StructType * v1, const StructType * v2)
 {
     if(v1->id > v2->id)

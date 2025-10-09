@@ -1,6 +1,8 @@
 #include "gtest/gtest.h"
 #include "rtlib/map.h"
 #include "rtlib/unordered_map.h"
+#include "rtlib/comparator.h"
+#include "rtlib/hash.h"
 #include <map>
 #include <set>
 #include <list>
@@ -13,26 +15,11 @@ dynamic_map(DynamicMapV3, int, int);
 static_unordered_map(StaticUnorderedMapV3, int, int, CONTAINER_CAPACITY);
 dynamic_unordered_map(DynamicUnorderedMapV3, int, int);
 
-static unsigned int int_Hash(const int * value)
-{
-    return *value;
-}
+private_hash(int);
+private_hash_impl(int);
 
-static int int_Compare(const int * v1, const int * v2)
-{
-    if(*v1 > *v2)
-    {
-        return 1;
-    }
-    else if(*v1 < *v2)
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-}
+private_comparator(int);
+private_comparator_impl(int);
 
 #define create_wrappers_for_type(Type, Key, Value)                                     \
     void Init(Type * const container)                                                  \
@@ -600,7 +587,6 @@ TYPED_TEST(MapTest, Permutations)
     {
         ASSERT_EQ((idx + 1), Insert(&this->container, testPermutation[idx], idx));
     }
-
     std::set<int> expectedSet{ testPermutation.begin(), testPermutation.end() };
     std::set<int> receivedSet{};
     auto endIt = End(&this->container);

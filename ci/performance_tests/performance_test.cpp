@@ -6,6 +6,8 @@
 #include <unordered_set>
 #include <algorithm>
 #include <deque>
+#include <map>
+#include <unordered_map>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/preprocessor/repetition/repeat.hpp>

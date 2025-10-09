@@ -2,6 +2,8 @@
 #include "rtlib/memory.h"
 #include "rtlib/set.h"
 #include "rtlib/unordered_set.h"
+#include "rtlib/comparator.h"
+#include "rtlib/hash.h"
 #include <map>
 #include <set>
 #include <list>
@@ -13,56 +15,24 @@ typedef struct
     int intVar;
     bool boolVar;
     uint64_t id;
-} StructType;
+} __attribute__((packed)) StructType;  // use packed to avoid any padding issues (e.g. with random hashes)
 
 typedef int * IntPtr;
 
-static unsigned int int_Hash(const int * value)
-{
-    return *value;
-}
+private_hash(int);
+private_hash_impl(int);
 
-static int int_Compare(const int * v1, const int * v2)
-{
-    if(*v1 > *v2)
-    {
-        return 1;
-    }
-    else if(*v1 < *v2)
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-}
+private_comparator(int);
+private_comparator_impl(int);
 
-static unsigned int IntPtr_Hash(const IntPtr * value)
-{
-    return (unsigned int)**value;
-}
+private_hash(IntPtr);
+private_hash_impl(IntPtr);
 
-static int IntPtr_Compare(const IntPtr * v1, const IntPtr * v2)
-{
-    if(*v1 > *v2)
-    {
-        return 1;
-    }
-    else if(*v1 < *v2)
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-}
+private_comparator(IntPtr);
+private_comparator_impl(IntPtr);
 
-static unsigned int StructType_Hash(const StructType * value)
-{
-    return value->id;
-}
+private_hash(StructType);
+private_hash_impl(StructType);
 
 static int StructType_Compare(const StructType * v1, const StructType * v2)
 {
