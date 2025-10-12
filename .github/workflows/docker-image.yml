@@ -79,7 +79,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     steps:
     - name: Downlaod artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: performance-reports
         path: performance-reports
