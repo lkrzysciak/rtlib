@@ -125,6 +125,14 @@ extern "C"
 #define custom_allocator_pool_impl(type_t, member_t, allocator_t) \
     __custom_allocator_pool_methods_c(type_t, member_t, allocator_t)
 
+#define dynamic_pool(type_t, member_t)         \
+    dynamic_memory(type_t##_DynamicAllocator); \
+    custom_allocator_pool(type_t, member_t, type_t##_DynamicAllocator);
+
+#define dynamic_pool_impl(type_t, member_t)         \
+    dynamic_memory_impl(type_t##_DynamicAllocator); \
+    custom_allocator_pool_impl(type_t, member_t, type_t##_DynamicAllocator);
+
 #ifdef __cplusplus
 }
 #endif

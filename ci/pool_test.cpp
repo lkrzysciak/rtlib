@@ -12,6 +12,9 @@ extern "C"
     dynamic_memory_impl(PoolDynamicAllocator);
     custom_allocator_pool(CustomAllocatorPoolInt, int, PoolDynamicAllocator);
     custom_allocator_pool_impl(CustomAllocatorPoolInt, int, PoolDynamicAllocator);
+
+    dynamic_pool(DynamicPoolInt, int);
+    dynamic_pool_impl(DynamicPoolInt, int);
 }
 
 #define create_wrappers_for_type(Type, MemberType)            \
@@ -37,6 +40,7 @@ extern "C"
 
 create_wrappers_for_type(StaticPoolInt, int);
 create_wrappers_for_type(CustomAllocatorPoolInt, int);
+create_wrappers_for_type(DynamicPoolInt, int);
 
 template<typename T>
 struct PoolTest : public testing::Test
@@ -48,7 +52,7 @@ struct PoolTest : public testing::Test
     T pool;
 };
 
-using MyTypes = testing::Types<StaticPoolInt, CustomAllocatorPoolInt>;
+using MyTypes = testing::Types<StaticPoolInt, CustomAllocatorPoolInt, DynamicPoolInt>;
 TYPED_TEST_SUITE(PoolTest, MyTypes);
 
 TYPED_TEST(PoolTest, AllocAndRelease)
