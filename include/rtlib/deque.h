@@ -56,7 +56,7 @@ extern "C"
                                                                                                                  \
     bool container_t##_Empty(const container_t * const self)                                                     \
     {                                                                                                            \
-        return self->begin == self->end;                                                                         \
+        return self->size == 0;                                                                                  \
     }                                                                                                            \
                                                                                                                  \
     int container_t##_PushBack(container_t * const self, member_t data)                                          \
