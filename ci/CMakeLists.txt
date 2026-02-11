@@ -32,7 +32,35 @@ add_executable(ut ut.cpp ${TESTS})
 target_link_libraries(ut gtest gtest_main gmock gmock_main rtlib)
 target_compile_options(ut PUBLIC -g -Wall -Werror)
 
-add_executable(performance_tests_Os ${TESTED_FILES} performance_tests/performance_test.cpp)
+add_library(perf_common OBJECT performance_tests/perf_common.cpp)
+target_link_libraries(perf_common rtlib)
+target_compile_options(perf_common PUBLIC -Os)
+target_compile_definitions(perf_common PUBLIC -DNDEBUG)
+
+add_library(perf_suites OBJECT
+  performance_tests/perf_vec_back.cpp
+  performance_tests/perf_list_back.cpp
+  performance_tests/perf_list_front.cpp
+  performance_tests/perf_list_middle.cpp
+  performance_tests/perf_deque_back.cpp
+  performance_tests/perf_deque_front.cpp
+  performance_tests/perf_deque_middle.cpp
+  performance_tests/perf_set_find.cpp
+  performance_tests/perf_unordered_set_find.cpp
+  performance_tests/perf_map_find.cpp
+  performance_tests/perf_unordered_map_find.cpp
+)
+target_link_libraries(perf_suites rtlib)
+target_compile_options(perf_suites PUBLIC -Os)
+target_compile_definitions(perf_suites PUBLIC -DNDEBUG)
+
+add_executable(
+  performance_tests_Os
+  ${TESTED_FILES}
+  performance_tests/performance_test.cpp
+  $<TARGET_OBJECTS:perf_common>
+  $<TARGET_OBJECTS:perf_suites>
+)
 target_link_libraries(performance_tests_Os rtlib)
 target_compile_options(performance_tests_Os PUBLIC -Os)
 target_compile_definitions(performance_tests_Os PUBLIC -DNDEBUG)
