@@ -67,6 +67,10 @@ custom_allocator_vector(DynamicAllocatorVector, int, DynamicAllocator);
 custom_allocator_vector_impl(DynamicAllocatorVector, int, DynamicAllocator);
 custom_allocator_list(DynamicAllocatorList, int, DynamicAllocator);
 custom_allocator_list_impl(DynamicAllocatorList, int, DynamicAllocator);
+custom_allocator_deque(DynamicAllocatorDeque, int, DynamicAllocator);
+custom_allocator_deque_impl(DynamicAllocatorDeque, int, DynamicAllocator);
+dynamic_deque(DynamicDeque, int);
+dynamic_deque_impl(DynamicDeque, int);
 custom_allocator_unordered_set(DynamicAllocatorHashTable, int, DynamicAllocator);
 custom_allocator_unordered_set_impl(DynamicAllocatorHashTable, int, DynamicAllocator);
 custom_allocator_set(DynamicAllocatorBinaryTree, int, DynamicAllocator);
@@ -414,6 +418,19 @@ unsigned int calculateRtlibStaticDequeBack()
 }
 
 template<int onIterationSize, int iterations>
+unsigned int calculateRtlibDynamicAllocatorDequeBack()
+{
+    rtlibTest(DynamicAllocatorDeque, DynamicAllocatorDeque_PushBack, DynamicAllocatorDeque_PopBack, onIterationSize,
+              iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibDynamicDequeBack()
+{
+    rtlibTest(DynamicDeque, DynamicDeque_PushBack, DynamicDeque_PopBack, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
 unsigned int calculateRtlibDynamicAllocatorVectorBack()
 {
     rtlibTest(DynamicAllocatorVector, DynamicAllocatorVector_PushBack, DynamicAllocatorVector_PopBack, onIterationSize,
@@ -464,6 +481,19 @@ unsigned int calculateRtlibStaticDequeFront()
 }
 
 template<int onIterationSize, int iterations>
+unsigned int calculateRtlibDynamicAllocatorDequeFront()
+{
+    rtlibTest(DynamicAllocatorDeque, DynamicAllocatorDeque_PushFront, DynamicAllocatorDeque_PopFront, onIterationSize,
+              iterations);
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibDynamicDequeFront()
+{
+    rtlibTest(DynamicDeque, DynamicDeque_PushFront, DynamicDeque_PopFront, onIterationSize, iterations);
+}
+
+template<int onIterationSize, int iterations>
 unsigned int calculateRtlibDynamicAllocatorVectorFront()
 {
     rtlibTest(DynamicAllocatorVector, DynamicAllocatorVector_PushFront, DynamicAllocatorVector_PopFront,
@@ -504,6 +534,18 @@ template<int onIterationSize, int iterations, int position>
 unsigned int calculateRtlibStaticDequeMiddle()
 {
     rtlibWithIteratorTest(TestDeque, Insert, Erase, onIterationSize, iterations, position);
+}
+
+template<int onIterationSize, int iterations, int position>
+unsigned int calculateRtlibDynamicAllocatorDequeMiddle()
+{
+    rtlibWithIteratorTest(DynamicAllocatorDeque, Insert, Erase, onIterationSize, iterations, position);
+}
+
+template<int onIterationSize, int iterations, int position>
+unsigned int calculateRtlibDynamicDequeMiddle()
+{
+    rtlibWithIteratorTest(DynamicDeque, Insert, Erase, onIterationSize, iterations, position);
 }
 
 template<int onIterationSize, int iterations, int position>
@@ -732,16 +774,22 @@ void addRecordToTree2(boost::property_tree::ptree & array, std::string container
     addRecordToTree2(output, "rtlib dynamic list", x, calculateRtlibCustomListMiddle<x, multiplier, 1>()); \
     addRecordToTree2(output, "stl list", x, calculateSTLListMiddle<x, multiplier, 1>());
 
-#define DEQUE_BACK_TEST(x, multiplier, output)                                                         \
-    addRecordToTree2(output, "rtlib static deque", x, calculateRtlibStaticDequeBack<x, multiplier>()); \
+#define DEQUE_BACK_TEST(x, multiplier, output)                                                                    \
+    addRecordToTree2(output, "rtlib static deque", x, calculateRtlibStaticDequeBack<x, multiplier>());            \
+    addRecordToTree2(output, "rtlib dynamic deque", x, calculateRtlibDynamicAllocatorDequeBack<x, multiplier>()); \
+    addRecordToTree2(output, "rtlib heap deque", x, calculateRtlibDynamicDequeBack<x, multiplier>());             \
     addRecordToTree2(output, "stl deque", x, calculateSTLDequeBack<x, multiplier>());
 
-#define DEQUE_FRONT_TEST(x, multiplier, output)                                                         \
-    addRecordToTree2(output, "rtlib static deque", x, calculateRtlibStaticDequeFront<x, multiplier>()); \
+#define DEQUE_FRONT_TEST(x, multiplier, output)                                                                    \
+    addRecordToTree2(output, "rtlib static deque", x, calculateRtlibStaticDequeFront<x, multiplier>());            \
+    addRecordToTree2(output, "rtlib dynamic deque", x, calculateRtlibDynamicAllocatorDequeFront<x, multiplier>()); \
+    addRecordToTree2(output, "rtlib heap deque", x, calculateRtlibDynamicDequeFront<x, multiplier>());             \
     addRecordToTree2(output, "stl deque", x, calculateSTLDequeFront<x, multiplier>());
 
-#define DEQUE_MIDDLE_TEST(x, multiplier, output)                                                            \
-    addRecordToTree2(output, "rtlib static deque", x, calculateRtlibStaticDequeMiddle<x, multiplier, 1>()); \
+#define DEQUE_MIDDLE_TEST(x, multiplier, output)                                                                       \
+    addRecordToTree2(output, "rtlib static deque", x, calculateRtlibStaticDequeMiddle<x, multiplier, 1>());            \
+    addRecordToTree2(output, "rtlib dynamic deque", x, calculateRtlibDynamicAllocatorDequeMiddle<x, multiplier, 1>()); \
+    addRecordToTree2(output, "rtlib heap deque", x, calculateRtlibDynamicDequeMiddle<x, multiplier, 1>());             \
     addRecordToTree2(output, "stl deque", x, calculateSTLDequeMiddle<x, multiplier, 1>());
 
 #define SET_FIND_TEST(x, multiplier, output)                                                               \

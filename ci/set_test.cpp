@@ -8,6 +8,9 @@
 #include <set>
 #include <list>
 #include <numeric>
+#include <algorithm>
+#include <array>
+#include <vector>
 
 typedef struct
 {
@@ -51,6 +54,7 @@ static int StructType_Compare(const StructType * v1, const StructType * v2)
 }
 
 #define CONTAINER_CAPACITY 100
+#define SMALL_CONTAINER_CAPACITY 4
 
 dynamic_memory(MyDynamicAllocator);
 dynamic_memory_impl(MyDynamicAllocator);
@@ -74,6 +78,8 @@ dynamic_unordered_set(DUnorderedSetWithPointer, IntPtr);
 static_unordered_set(SUnorderedSetWithStruct, StructType, CONTAINER_CAPACITY);
 custom_allocator_unordered_set(CUnorderedSetWithStruct, StructType, MyDynamicAllocator);
 dynamic_unordered_set(DUnorderedSetWithStruct, StructType);
+
+static_unordered_set(SmallStaticUnorderedSet, int, SMALL_CONTAINER_CAPACITY);
 
 #define create_wrappers_for_type(Type, MemberType)                                     \
     void Init(Type * const container)                                                  \
@@ -185,6 +191,16 @@ struct StaticSetTest : public testing::Test
 };
 
 template<typename T>
+struct OrderedSetTest : public testing::Test
+{
+    void SetUp() override { Init(&container); }
+
+    void TearDown() override { Deinit(&container); }
+
+    T container;
+};
+
+template<typename T>
 struct SetStructTypeTest : public testing::Test
 {
     void SetUp() override { Init(&container); }
@@ -209,6 +225,8 @@ using MyTypes = testing::Types<SSetWithInt, CSetWithInt, DSetWithInt, SUnordered
 
 using StaticContainerTypes = testing::Types<SSetWithInt, SUnorderedSetWithInt>;
 
+using OrderedSetTypes = testing::Types<SSetWithInt, CSetWithInt, DSetWithInt>;
+
 using StructContainerTypes = testing::Types<SSetWithStruct, CSetWithStruct, DSetWithStruct, SUnorderedSetWithStruct,
                                             CUnorderedSetWithStruct, DUnorderedSetWithStruct>;
 
@@ -219,6 +237,7 @@ TYPED_TEST_CASE(SetTest, MyTypes);
 TYPED_TEST_CASE(StaticSetTest, StaticContainerTypes);
 TYPED_TEST_CASE(SetStructTypeTest, StructContainerTypes);
 TYPED_TEST_CASE(SetPointerTest, TypesWithPointer);
+TYPED_TEST_CASE(OrderedSetTest, OrderedSetTypes);
 
 TYPED_TEST(SetTest, IsEmptyAfterInit)
 {
@@ -441,6 +460,107 @@ TYPED_TEST(SetTest, EraseVerifyFromBeginToEnd)
     }
     ASSERT_EQ(expected_set_6, to_compare_set);
     ASSERT_EQ(Size(&this->container), 1);
+}
+
+TYPED_TEST(OrderedSetTest, IterationMatchesSortedOrderAcrossPermutations)
+{
+    std::array<int, 5> values{ { 1, 2, 3, 4, 5 } };
+    std::array<int, 5> sorted = values;
+
+    do
+    {
+        Clear(&this->container);
+        for(const auto value : values)
+        {
+            Insert(&this->container, value);
+        }
+
+        std::vector<int> collected;
+        collected.reserve(values.size());
+
+        auto it  = Begin(&this->container);
+        auto end = End(&this->container);
+
+        size_t guard = 0;
+        while(!Iterator_Equal(&it, &end) && guard <= values.size())
+        {
+            collected.push_back(*CRef(&it));
+            IteratorInc(&it);
+            ++guard;
+        }
+
+        ASSERT_EQ(collected.size(), values.size());
+        ASSERT_EQ(collected, std::vector<int>(sorted.begin(), sorted.end()));
+    } while(std::next_permutation(values.begin(), values.end()));
+}
+
+TEST(StaticUnorderedSetTest, IterationDoesNotFollowStaleNextPointers)
+{
+    SmallStaticUnorderedSet container;
+    SmallStaticUnorderedSet_Construct(&container);
+
+    int key1         = 0;
+    int key2         = 0;
+    int key5         = 0;
+    bool found_two   = false;
+    bool found_three = false;
+
+    for(int a = 1; a < 500 && !found_two; ++a)
+    {
+        for(int b = a + 1; b < 500 && !found_two; ++b)
+        {
+            if(int_Hash(&a) % SMALL_CONTAINER_CAPACITY == int_Hash(&b) % SMALL_CONTAINER_CAPACITY)
+            {
+                key1      = a;
+                key2      = b;
+                found_two = true;
+            }
+        }
+    }
+
+    for(int c = 1; c < 500 && !found_three; ++c)
+    {
+        if(c != key1 && c != key2 &&
+           int_Hash(&c) % SMALL_CONTAINER_CAPACITY == int_Hash(&key1) % SMALL_CONTAINER_CAPACITY)
+        {
+            key5        = c;
+            found_three = true;
+        }
+    }
+
+    ASSERT_TRUE(found_two);
+    ASSERT_TRUE(found_three);
+
+    ASSERT_EQ(SmallStaticUnorderedSet_Insert(&container, key1), 1);
+    ASSERT_EQ(SmallStaticUnorderedSet_Insert(&container, key2), 2);
+
+    auto it_erase = SmallStaticUnorderedSet_Find(&container, key1);
+    ASSERT_EQ(SmallStaticUnorderedSet_Erase(&container, &it_erase), 1);
+
+    ASSERT_EQ(SmallStaticUnorderedSet_Insert(&container, 101), 2);
+    ASSERT_EQ(SmallStaticUnorderedSet_Insert(&container, 202), 3);
+    ASSERT_EQ(SmallStaticUnorderedSet_Insert(&container, key5), 4);
+
+    std::set<int> collected;
+    auto it  = SmallStaticUnorderedSet_Begin(&container);
+    auto end = SmallStaticUnorderedSet_End(&container);
+
+    size_t guard = 0;
+    while(!SmallStaticUnorderedSet_Iterator_Equal(&it, &end) && guard <= SMALL_CONTAINER_CAPACITY + 2)
+    {
+        collected.insert(*SmallStaticUnorderedSet_Iterator_CRef(&it));
+        SmallStaticUnorderedSet_Iterator_Increment(&it);
+        ++guard;
+    }
+
+    ASSERT_EQ(collected.size(), 4u);
+    ASSERT_TRUE(collected.find(key2) != collected.end());
+    ASSERT_TRUE(collected.find(key5) != collected.end());
+    ASSERT_TRUE(collected.find(101) != collected.end());
+    ASSERT_TRUE(collected.find(202) != collected.end());
+    ASSERT_TRUE(SmallStaticUnorderedSet_Iterator_Equal(&it, &end));
+
+    SmallStaticUnorderedSet_Destruct(&container);
 }
 
 TYPED_TEST(SetTest, FindExistedMember)
@@ -744,3 +864,4 @@ dynamic_unordered_set_impl(DUnorderedSetWithPointer, IntPtr);
 static_unordered_set_impl(SUnorderedSetWithStruct, StructType, CONTAINER_CAPACITY);
 custom_allocator_unordered_set_impl(CUnorderedSetWithStruct, StructType, MyDynamicAllocator);
 dynamic_unordered_set_impl(DUnorderedSetWithStruct, StructType);
+static_unordered_set_impl(SmallStaticUnorderedSet, int, SMALL_CONTAINER_CAPACITY);

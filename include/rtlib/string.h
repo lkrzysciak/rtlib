@@ -383,6 +383,7 @@ extern "C"
                 self->data             = new_data;                                                             \
                 self->data[self->size] = data;                                                                 \
                 ++self->size;                                                                                  \
+                self->data[self->size] = 0;                                                                    \
                                                                                                                \
                 return self->size;                                                                             \
             }                                                                                                  \
@@ -426,6 +427,7 @@ extern "C"
                 memmove(&self->data[1], &self->data[0], self->size * sizeof(char));                            \
                 self->data[0] = data;                                                                          \
                 ++self->size;                                                                                  \
+                self->data[self->size] = 0;                                                                    \
                                                                                                                \
                 return self->size;                                                                             \
             }                                                                                                  \

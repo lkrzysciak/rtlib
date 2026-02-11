@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <tuple>
 #include "rtlib/string.h"
+#include <cstring>
 
 #define create_wrappers_for_type(Type)                                                 \
                                                                                        \
@@ -144,6 +145,54 @@
 static_string(SString, CONTAINER_CAPACITY);
 dynamic_string(DString);
 
+typedef struct
+{
+    size_t last_size;
+} TrackingAllocator;
+
+static void TrackingAllocator_Construct(TrackingAllocator * const self)
+{
+    self->last_size = 0;
+}
+
+static void TrackingAllocator_Destruct(TrackingAllocator * const self)
+{
+    (void)self;
+}
+
+static void * TrackingAllocator_Allocate(TrackingAllocator * const self, size_t size)
+{
+    void * ptr = malloc(size);
+    if(ptr)
+    {
+        memset(ptr, 'X', size);
+        self->last_size = size;
+    }
+    return ptr;
+}
+
+static void * TrackingAllocator_Reallocate(TrackingAllocator * const self, void * object, size_t new_size)
+{
+    void * ptr = realloc(object, new_size);
+    if(ptr && new_size > self->last_size)
+    {
+        memset((char *)ptr + self->last_size, 'X', new_size - self->last_size);
+    }
+    if(ptr)
+    {
+        self->last_size = new_size;
+    }
+    return ptr;
+}
+
+static void TrackingAllocator_Deallocate(TrackingAllocator * const self, void * object)
+{
+    (void)self;
+    free(object);
+}
+
+custom_allocator_string(TrackingString, TrackingAllocator);
+
 create_wrappers_for_type(SString);
 create_wrappers_for_type(DString);
 
@@ -193,6 +242,36 @@ TYPED_TEST_SUITE(StringNotInitializedTest, AllStringTypes);
 TYPED_TEST_SUITE(StringTest, AllStringTypes);
 TYPED_TEST_SUITE(StaticStringTest, StaticStringTypes);
 TYPED_TEST_SUITE(DynamicStringTest, DynamicStringTypes);
+
+TEST(CustomStringTest, PushBackNullTerminatorAfterRealloc)
+{
+    TrackingString container;
+    TrackingString_Construct(&container);
+
+    TrackingString_PushBack(&container, 'a');
+    TrackingString_PushBack(&container, 'b');
+    TrackingString_PushBack(&container, 'c');
+    TrackingString_PushBack(&container, 'd');
+
+    ASSERT_EQ(*TrackingString_CRef(&container, TrackingString_Size(&container)), '\0');
+
+    TrackingString_Destruct(&container);
+}
+
+TEST(CustomStringTest, PushFrontNullTerminatorAfterRealloc)
+{
+    TrackingString container;
+    TrackingString_Construct(&container);
+
+    TrackingString_PushFront(&container, 'a');
+    TrackingString_PushFront(&container, 'b');
+    TrackingString_PushFront(&container, 'c');
+    TrackingString_PushFront(&container, 'd');
+
+    ASSERT_EQ(*TrackingString_CRef(&container, TrackingString_Size(&container)), '\0');
+
+    TrackingString_Destruct(&container);
+}
 
 TYPED_TEST(StringNotInitializedTest, WithValue)
 {
@@ -710,3 +789,4 @@ TYPED_TEST(DynamicStringTest, AddALotOfElementsToMakeManyReallocations)
 
 static_string_impl(SString, CONTAINER_CAPACITY);
 dynamic_string_impl(DString);
+custom_allocator_string_impl(TrackingString, TrackingAllocator);

@@ -7,6 +7,9 @@
 #include <set>
 #include <list>
 #include <numeric>
+#include <algorithm>
+#include <array>
+#include <vector>
 
 #define CONTAINER_CAPACITY 100
 
@@ -131,12 +134,25 @@ struct StaticMapTest : public testing::Test
     T container;
 };
 
+template<typename T>
+struct OrderedMapTest : public testing::Test
+{
+    void SetUp() override { Init(&container); }
+
+    void TearDown() override { Deinit(&container); }
+
+    T container;
+};
+
 using AllTypes = testing::Types<StaticMapV3, DynamicMapV3, StaticUnorderedMapV3, DynamicUnorderedMapV3>;
 
 using StaticTypes = testing::Types<StaticMapV3, StaticUnorderedMapV3>;
 
+using OrderedMapTypes = testing::Types<StaticMapV3, DynamicMapV3>;
+
 TYPED_TEST_CASE(MapTest, AllTypes);
 TYPED_TEST_CASE(StaticMapTest, StaticTypes);
+TYPED_TEST_CASE(OrderedMapTest, OrderedMapTypes);
 
 TYPED_TEST(MapTest, IsEmptyAfterInit)
 {
@@ -412,6 +428,56 @@ TYPED_TEST(MapTest, EraseVerifyFromBeginToEnd)
     }
     ASSERT_EQ(expected_set_6, to_compare_set);
     ASSERT_EQ(Size(&this->container), 1);
+}
+
+TYPED_TEST(OrderedMapTest, EraseTwoChildrenPreservesValue)
+{
+    ASSERT_EQ(Insert(&this->container, 2, 20), 1);
+    ASSERT_EQ(Insert(&this->container, 1, 10), 2);
+    ASSERT_EQ(Insert(&this->container, 3, 30), 3);
+
+    auto it = Find(&this->container, 2);
+    ASSERT_EQ(Erase(&this->container, &it), 2);
+
+    auto value_ptr = Ref(&this->container, 3);
+    ASSERT_NE(value_ptr, nullptr);
+    ASSERT_EQ(*value_ptr, 30);
+
+    auto end     = End(&this->container);
+    auto missing = Find(&this->container, 2);
+    ASSERT_TRUE(Iterator_Equal(&missing, &end));
+}
+
+TYPED_TEST(OrderedMapTest, IterationMatchesSortedOrderAcrossPermutations)
+{
+    std::array<int, 5> values{ { 1, 2, 3, 4, 5 } };
+    std::array<int, 5> sorted = values;
+
+    do
+    {
+        Clear(&this->container);
+        for(const auto value : values)
+        {
+            Insert(&this->container, value, value * 10);
+        }
+
+        std::vector<int> collected;
+        collected.reserve(values.size());
+
+        auto it  = Begin(&this->container);
+        auto end = End(&this->container);
+
+        size_t guard = 0;
+        while(!Iterator_Equal(&it, &end) && guard <= values.size())
+        {
+            collected.push_back(*CRef(&it).first);
+            IteratorInc(&it);
+            ++guard;
+        }
+
+        ASSERT_EQ(collected.size(), values.size());
+        ASSERT_EQ(collected, std::vector<int>(sorted.begin(), sorted.end()));
+    } while(std::next_permutation(values.begin(), values.end()));
 }
 
 TYPED_TEST(MapTest, ModifyContainerValues)

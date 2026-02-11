@@ -390,7 +390,7 @@ extern "C"
         }                                                                                                              \
         else                                                                                                           \
         {                                                                                                              \
-            const unsigned int iteratorIndex = (iterator->value - self->data) / sizeof(member_t);                      \
+            const unsigned int iteratorIndex = (unsigned int)(iterator->value - self->data);                           \
             self->capacity *= 2;                                                                                       \
             member_t * new_data =                                                                                      \
                 (member_t *)allocator_t##_Reallocate(&self->allocator, self->data, self->capacity * sizeof(member_t)); \

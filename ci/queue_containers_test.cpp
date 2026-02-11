@@ -6,8 +6,10 @@
 #include "rtlib/deque.h"
 #include "rtlib/memory.h"
 #include "rtlib/comparator.h"
+#include <vector>
 
 #define CONTAINER_CAPACITY 100
+#define SMALL_DEQUE_CAPACITY 4
 
 typedef struct
 {
@@ -19,6 +21,8 @@ typedef struct
 
 private_comparator(int);
 private_comparator_impl(int);
+private_comparator(uint32_t);
+private_comparator_impl(uint32_t);
 
 // custom comparator for StructType
 static int StructType_Compare(const StructType * v1, const StructType * v2)
@@ -70,6 +74,13 @@ dynamic_vector(DVectorWithStruct, StructType);
 static_deque(SDequeWithInt, int, CONTAINER_CAPACITY);
 static_deque(SDequeWithPointers, IntPtr, CONTAINER_CAPACITY);
 static_deque(SDequeWithStruct, StructType, CONTAINER_CAPACITY);
+static_deque(SSmallDequeWithU32, uint32_t, SMALL_DEQUE_CAPACITY);
+custom_allocator_deque(CDequeWithInt, int, DynamicAllocator);
+dynamic_deque(DDequeWithInt, int);
+custom_allocator_deque(CDequeWithPointers, IntPtr, DynamicAllocator);
+dynamic_deque(DDequeWithPointers, IntPtr);
+custom_allocator_deque(CDequeWithStruct, StructType, DynamicAllocator);
+dynamic_deque(DDequeWithStruct, StructType);
 
 static_list(SListWithInt, int, CONTAINER_CAPACITY);
 custom_allocator_list(CListWithInt, int, DynamicAllocator);
@@ -209,6 +220,12 @@ create_wrappers_for_type(DVectorWithStruct, StructType);
 create_wrappers_for_type(SDequeWithInt, int);
 create_wrappers_for_type(SDequeWithPointers, IntPtr);
 create_wrappers_for_type(SDequeWithStruct, StructType);
+create_wrappers_for_type(CDequeWithInt, int);
+create_wrappers_for_type(DDequeWithInt, int);
+create_wrappers_for_type(CDequeWithPointers, IntPtr);
+create_wrappers_for_type(DDequeWithPointers, IntPtr);
+create_wrappers_for_type(CDequeWithStruct, StructType);
+create_wrappers_for_type(DDequeWithStruct, StructType);
 
 create_wrappers_for_type(SListWithInt, int);
 create_wrappers_for_type(CListWithInt, int);
@@ -271,17 +288,19 @@ struct QueuePointerTest : public testing::Test
 };
 
 using IntTypes = testing::Types<SVectorWithInt, CVectorWithInt, DVectorWithInt, SListWithInt, CListWithInt,
-                                DListWithInt, SDequeWithInt>;
+                                DListWithInt, SDequeWithInt, CDequeWithInt, DDequeWithInt>;
 
 using StaticContainerTypes = testing::Types<SVectorWithInt, SListWithInt, SDequeWithInt>;
 
-using CustomContainerTypes = testing::Types<CVectorWithInt, CListWithInt>;
+using CustomContainerTypes = testing::Types<CVectorWithInt, CListWithInt, CDequeWithInt>;
 
-using StructContainerTypes = testing::Types<SVectorWithStruct, CVectorWithStruct, DVectorWithStruct, SListWithStruct,
-                                            CListWithStruct, DListWithStruct, SDequeWithStruct>;
+using StructContainerTypes =
+    testing::Types<SVectorWithStruct, CVectorWithStruct, DVectorWithStruct, SListWithStruct, CListWithStruct,
+                   DListWithStruct, SDequeWithStruct, CDequeWithStruct, DDequeWithStruct>;
 
-using TypesWithPointer = testing::Types<SVectorWithPointers, CVectorWithPointers, DVectorWithPointers,
-                                        SListWithPointers, CListWithPointers, DListWithPointers, SDequeWithPointers>;
+using TypesWithPointer =
+    testing::Types<SVectorWithPointers, CVectorWithPointers, DVectorWithPointers, SListWithPointers, CListWithPointers,
+                   DListWithPointers, SDequeWithPointers, CDequeWithPointers, DDequeWithPointers>;
 
 TYPED_TEST_SUITE(ContainerTest, IntTypes);
 TYPED_TEST_SUITE(StaticContainerTest, StaticContainerTypes);
@@ -421,6 +440,129 @@ TYPED_TEST(ContainerTest, Erase)
 
     ASSERT_EQ(Size(&this->container), 0);
     ASSERT_TRUE(Empty(&this->container));
+}
+
+template<typename T>
+struct VectorReallocTest : public testing::Test
+{
+    void SetUp() override { Init(&container); }
+
+    void TearDown() override { Deinit(&container); }
+
+    T container;
+};
+
+using VectorReallocTypes = testing::Types<CVectorWithInt, DVectorWithInt>;
+TYPED_TEST_SUITE(VectorReallocTest, VectorReallocTypes);
+
+TYPED_TEST(VectorReallocTest, InsertKeepsIteratorPositionAfterRealloc)
+{
+    ASSERT_EQ(PushBack(&this->container, 1), 1);
+    ASSERT_EQ(PushBack(&this->container, 2), 2);
+    ASSERT_EQ(PushBack(&this->container, 3), 3);
+    ASSERT_EQ(PushBack(&this->container, 4), 4);
+
+    auto it = Begin(&this->container);
+    IteratorInc(&it);
+    IteratorInc(&it);
+
+    ASSERT_EQ(Insert(&this->container, 99, &it), 5);
+
+    std::vector<int> expected{ 1, 2, 99, 3, 4 };
+    std::vector<int> actual;
+
+    it       = Begin(&this->container);
+    auto end = End(&this->container);
+    while(!Iterator_Equal(&it, &end))
+    {
+        actual.push_back(*Iterator_CRef(&it));
+        IteratorInc(&it);
+    }
+
+    ASSERT_EQ(expected, actual);
+}
+
+template<typename T>
+struct VectorEraseTest : public testing::Test
+{
+    void SetUp() override { Init(&container); }
+
+    void TearDown() override { Deinit(&container); }
+
+    T container;
+};
+
+using VectorEraseTypes = testing::Types<SVectorWithInt, CVectorWithInt, DVectorWithInt>;
+TYPED_TEST_SUITE(VectorEraseTest, VectorEraseTypes);
+
+TYPED_TEST(VectorEraseTest, EraseShiftsElementsWithoutStaleTail)
+{
+    for(int i = 0; i < 6; ++i)
+    {
+        ASSERT_EQ(PushBack(&this->container, i), i + 1);
+    }
+
+    ASSERT_EQ(PopBack(&this->container), 5);
+
+    auto it = Begin(&this->container);
+    IteratorInc(&it);
+    IteratorInc(&it);
+
+    ASSERT_EQ(Erase(&this->container, &it), 4);
+
+    std::vector<int> expected{ 0, 1, 3, 4 };
+    std::vector<int> actual;
+
+    it       = Begin(&this->container);
+    auto end = End(&this->container);
+    while(!Iterator_Equal(&it, &end))
+    {
+        actual.push_back(*Iterator_CRef(&it));
+        IteratorInc(&it);
+    }
+
+    ASSERT_EQ(expected, actual);
+}
+
+TEST(StaticDequeTest, EraseWithWrappedBufferMaintainsOrder)
+{
+    SSmallDequeWithU32 container{};
+    SSmallDequeWithU32_Construct(&container);
+
+    const uint32_t v1 = 0x11223344;
+    const uint32_t v2 = 0x55667788;
+    const uint32_t v3 = 0x99aabbcc;
+    const uint32_t v4 = 0x0f1e2d3c;
+    const uint32_t v5 = 0xa1b2c3d4;
+    const uint32_t v6 = 0x55aa55aa;
+
+    SSmallDequeWithU32_PushBack(&container, v1);
+    SSmallDequeWithU32_PushBack(&container, v2);
+    SSmallDequeWithU32_PushBack(&container, v3);
+    SSmallDequeWithU32_PushBack(&container, v4);
+
+    SSmallDequeWithU32_PopFront(&container);
+    SSmallDequeWithU32_PopFront(&container);
+
+    SSmallDequeWithU32_PushBack(&container, v5);
+    SSmallDequeWithU32_PushBack(&container, v6);
+
+    auto it = SSmallDequeWithU32_Begin(&container);
+    SSmallDequeWithU32_Iterator_Increment(&it);
+    SSmallDequeWithU32_Erase(&container, &it);
+
+    std::vector<uint32_t> expected{ v3, v5, v6 };
+    std::vector<uint32_t> actual;
+
+    it       = SSmallDequeWithU32_Begin(&container);
+    auto end = SSmallDequeWithU32_End(&container);
+    while(!SSmallDequeWithU32_Iterator_Equal(&it, &end))
+    {
+        actual.push_back(*SSmallDequeWithU32_Iterator_CRef(&it));
+        SSmallDequeWithU32_Iterator_Increment(&it);
+    }
+
+    ASSERT_EQ(expected, actual);
 }
 
 TYPED_TEST(ContainerTest, PopBack)
@@ -1026,6 +1168,13 @@ dynamic_vector_impl(DVectorWithStruct, StructType);
 static_deque_impl(SDequeWithInt, int, CONTAINER_CAPACITY);
 static_deque_impl(SDequeWithPointers, IntPtr, CONTAINER_CAPACITY);
 static_deque_impl(SDequeWithStruct, StructType, CONTAINER_CAPACITY);
+static_deque_impl(SSmallDequeWithU32, uint32_t, SMALL_DEQUE_CAPACITY);
+custom_allocator_deque_impl(CDequeWithInt, int, DynamicAllocator);
+dynamic_deque_impl(DDequeWithInt, int);
+custom_allocator_deque_impl(CDequeWithPointers, IntPtr, DynamicAllocator);
+dynamic_deque_impl(DDequeWithPointers, IntPtr);
+custom_allocator_deque_impl(CDequeWithStruct, StructType, DynamicAllocator);
+dynamic_deque_impl(DDequeWithStruct, StructType);
 
 static_list_impl(SListWithInt, int, CONTAINER_CAPACITY);
 custom_allocator_list_impl(CListWithInt, int, DynamicAllocator);

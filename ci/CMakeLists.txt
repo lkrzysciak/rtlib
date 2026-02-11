@@ -21,6 +21,7 @@ add_subdirectory(${gt_SOURCE_DIR})
 set(TESTS
     pool_test.cpp
     queue_containers_test.cpp
+  heap_test.cpp
     set_test.cpp
     map_test.cpp
     string_test.cpp

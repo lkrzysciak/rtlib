@@ -94,6 +94,7 @@ extern "C"
                 self->nodes_table[index] = node;                                                              \
             }                                                                                                 \
             node->prev = before_the_last_node_for_this_hash;                                                  \
+            node->next = NULL;                                                                                \
             node->key  = data;                                                                                \
         }                                                                                                     \
         else                                                                                                  \

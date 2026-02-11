@@ -499,6 +499,7 @@ extern "C"
         {                                                                                                          \
             target    = __##container_t##_Successor(self, node); /* node->right must not be NIL, thus move down */ \
             node->key = target->key;                             /* data swapped */                                \
+            node->val = target->val;                                                                               \
         }                                                                                                          \
                                                                                                                    \
         child = (target->left == NULL) ? target->right : target->left; /* child may be NIL */                      \
@@ -586,14 +587,7 @@ extern "C"
         it.node = parent_node;                                                                                     \
         if(parent_node)                                                                                            \
         {                                                                                                          \
-            if(parent_node->right)                                                                                 \
-            {                                                                                                      \
-                it.next = parent_node->right;                                                                      \
-            }                                                                                                      \
-            else                                                                                                   \
-            {                                                                                                      \
-                it.next = parent_node->parent;                                                                     \
-            }                                                                                                      \
+            it.next = __##container_t##_GetNextNode(parent_node);                                                  \
         }                                                                                                          \
         it.prev = NULL;                                                                                            \
         return it;                                                                                                 \
@@ -830,6 +824,7 @@ extern "C"
         {                                                                                                          \
             target    = __##container_t##_Successor(self, node); /* node->right must not be NIL, thus move down */ \
             node->key = target->key;                             /* data swapped */                                \
+            node->val = target->val;                                                                               \
         }                                                                                                          \
                                                                                                                    \
         child = (target->left == NULL) ? target->right : target->left; /* child may be NIL */                      \
@@ -893,14 +888,7 @@ extern "C"
         it.node = parent_node;                                                                                     \
         if(parent_node)                                                                                            \
         {                                                                                                          \
-            if(parent_node->right)                                                                                 \
-            {                                                                                                      \
-                it.next = parent_node->right;                                                                      \
-            }                                                                                                      \
-            else                                                                                                   \
-            {                                                                                                      \
-                it.next = parent_node->parent;                                                                     \
-            }                                                                                                      \
+            it.next = __##container_t##_GetNextNode(parent_node);                                                  \
         }                                                                                                          \
         it.prev = NULL;                                                                                            \
         return it;                                                                                                 \

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdint.h>
 #include <stdlib.h>
 
 #ifdef __cplusplus
@@ -17,6 +18,7 @@ extern "C"
     void container_t##_Construct(container_t * const self);                                    \
     void container_t##_Destruct(container_t * const self);                                     \
     void * container_t##_Allocate(container_t * const self, size_t size);                      \
+    void * container_t##_Callocate(container_t * const self, size_t count, size_t size);       \
     void * container_t##_Reallocate(container_t * const self, void * object, size_t new_size); \
     void container_t##_Deallocate(container_t * const self, void * object);
 
@@ -36,6 +38,18 @@ extern "C"
         assert(self);                                                                         \
                                                                                               \
         return malloc(size);                                                                  \
+    }                                                                                         \
+                                                                                              \
+    void * container_t##_Callocate(container_t * const self, size_t count, size_t size)       \
+    {                                                                                         \
+        assert(self);                                                                         \
+                                                                                              \
+        if(size != 0 && count > (SIZE_MAX / size))                                            \
+        {                                                                                     \
+            return NULL;                                                                      \
+        }                                                                                     \
+                                                                                              \
+        return calloc(count, size);                                                           \
     }                                                                                         \
                                                                                               \
     void * container_t##_Reallocate(container_t * const self, void * object, size_t new_size) \

@@ -560,14 +560,7 @@ extern "C"
         it.node = parent_node;                                                                                     \
         if(parent_node)                                                                                            \
         {                                                                                                          \
-            if(parent_node->right)                                                                                 \
-            {                                                                                                      \
-                it.next = parent_node->right;                                                                      \
-            }                                                                                                      \
-            else                                                                                                   \
-            {                                                                                                      \
-                it.next = parent_node->parent;                                                                     \
-            }                                                                                                      \
+            it.next = __##container_t##_GetNextNode(parent_node);                                                  \
         }                                                                                                          \
         it.prev = NULL;                                                                                            \
         return it;                                                                                                 \
@@ -859,14 +852,7 @@ extern "C"
         it.node = parent_node;                                                                                     \
         if(parent_node)                                                                                            \
         {                                                                                                          \
-            if(parent_node->right)                                                                                 \
-            {                                                                                                      \
-                it.next = parent_node->right;                                                                      \
-            }                                                                                                      \
-            else                                                                                                   \
-            {                                                                                                      \
-                it.next = parent_node->parent;                                                                     \
-            }                                                                                                      \
+            it.next = __##container_t##_GetNextNode(parent_node);                                                  \
         }                                                                                                          \
         it.prev = NULL;                                                                                            \
         return it;                                                                                                 \
