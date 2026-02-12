@@ -2,27 +2,6 @@
 
 #include <boost/property_tree/json_parser.hpp>
 
-int int_Compare(const int * v1, const int * v2)
-{
-    if(*v1 > *v2)
-    {
-        return 1;
-    }
-    else if(*v1 < *v2)
-    {
-        return -1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-unsigned int int_Hash(const int * value)
-{
-    return *value;
-}
-
 static_vector_impl(TestVector, int, STATIC_CONTAINER_SIZE);
 static_list_impl(TestList, int, STATIC_CONTAINER_SIZE);
 static_unordered_set_impl(TestHashTable, int, STATIC_CONTAINER_SIZE);

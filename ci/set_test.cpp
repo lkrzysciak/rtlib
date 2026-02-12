@@ -25,14 +25,12 @@ typedef int * IntPtr;
 private_hash(int);
 private_hash_impl(int);
 
-private_comparator(int);
-private_comparator_impl(int);
+comparator(int);
 
 private_hash(IntPtr);
 private_hash_impl(IntPtr);
 
-private_comparator(IntPtr);
-private_comparator_impl(IntPtr);
+comparator(IntPtr);
 
 private_hash(StructType);
 private_hash_impl(StructType);
@@ -805,21 +803,34 @@ TYPED_TEST(SetStructTypeTest, StructMembersInsert)
     ASSERT_EQ(Insert(&this->container, var1), 1);
     ASSERT_EQ(Insert(&this->container, var2), 2);
 
-    // Set test do have random queue of elements. (We know the internal implementation so we know order)
-    auto it           = Begin(&this->container);
-    auto receivedVar1 = *CRef(&it);
-    ASSERT_DOUBLE_EQ(var1.doubleVar, receivedVar1.doubleVar);
-    ASSERT_EQ(var1.intVar, receivedVar1.intVar);
-    ASSERT_EQ(var1.boolVar, receivedVar1.boolVar);
-    ASSERT_EQ(var1.id, receivedVar1.id);
-
+    // Ordered sets iterate in key order; unordered sets do not guarantee any iteration order.
+    // Validate that both inserted elements are present and intact, regardless of iteration order.
+    auto it        = Begin(&this->container);
+    auto receivedA = *CRef(&it);
     IteratorInc(&it);
+    auto receivedB = *CRef(&it);
 
-    auto receivedVar2 = *CRef(&it);
-    ASSERT_DOUBLE_EQ(var2.doubleVar, receivedVar2.doubleVar);
-    ASSERT_EQ(var2.intVar, receivedVar2.intVar);
-    ASSERT_EQ(var2.boolVar, receivedVar2.boolVar);
-    ASSERT_EQ(var2.id, receivedVar2.id);
+    auto expect_struct_eq = [](const StructType & expected, const StructType & received) {
+        EXPECT_DOUBLE_EQ(expected.doubleVar, received.doubleVar);
+        EXPECT_EQ(expected.intVar, received.intVar);
+        EXPECT_EQ(expected.boolVar, received.boolVar);
+        EXPECT_EQ(expected.id, received.id);
+    };
+
+    if(receivedA.id == var1.id)
+    {
+        expect_struct_eq(var1, receivedA);
+        expect_struct_eq(var2, receivedB);
+    }
+    else if(receivedA.id == var2.id)
+    {
+        expect_struct_eq(var2, receivedA);
+        expect_struct_eq(var1, receivedB);
+    }
+    else
+    {
+        FAIL() << "Unexpected element id in container iteration";
+    }
 }
 
 TYPED_TEST(SetPointerTest, Insert)

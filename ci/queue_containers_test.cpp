@@ -19,10 +19,8 @@ typedef struct
     uint64_t id;
 } StructType;
 
-private_comparator(int);
-private_comparator_impl(int);
-private_comparator(uint32_t);
-private_comparator_impl(uint32_t);
+comparator(int);
+comparator(uint32_t);
 
 // custom comparator for StructType
 static int StructType_Compare(const StructType * v1, const StructType * v2)

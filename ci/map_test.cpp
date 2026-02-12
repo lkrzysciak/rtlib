@@ -21,8 +21,7 @@ dynamic_unordered_map(DynamicUnorderedMapV3, int, int);
 private_hash(int);
 private_hash_impl(int);
 
-private_comparator(int);
-private_comparator_impl(int);
+comparator(int);
 
 #define create_wrappers_for_type(Type, Key, Value)                                     \
     void Init(Type * const container)                                                  \

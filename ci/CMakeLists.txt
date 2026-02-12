@@ -36,6 +36,8 @@ add_library(perf_common OBJECT performance_tests/perf_common.cpp)
 target_link_libraries(perf_common rtlib)
 target_compile_options(perf_common PUBLIC -Os)
 target_compile_definitions(perf_common PUBLIC -DNDEBUG)
+target_compile_options(perf_common PUBLIC -flto)
+target_link_options(perf_common PUBLIC -flto)
 
 add_library(perf_suites OBJECT
   performance_tests/perf_vec_back.cpp
@@ -53,6 +55,8 @@ add_library(perf_suites OBJECT
 target_link_libraries(perf_suites rtlib)
 target_compile_options(perf_suites PUBLIC -Os)
 target_compile_definitions(perf_suites PUBLIC -DNDEBUG)
+target_compile_options(perf_suites PUBLIC -flto)
+target_link_options(perf_suites PUBLIC -flto)
 
 add_executable(
   performance_tests_Os
@@ -64,6 +68,8 @@ add_executable(
 target_link_libraries(performance_tests_Os rtlib)
 target_compile_options(performance_tests_Os PUBLIC -Os)
 target_compile_definitions(performance_tests_Os PUBLIC -DNDEBUG)
+target_compile_options(performance_tests_Os PUBLIC -flto)
+target_link_options(performance_tests_Os PUBLIC -flto)
 
 add_executable(c_dec_def c_tests/dec_def.c c_tests/def.c)
 target_link_libraries(c_dec_def rtlib)

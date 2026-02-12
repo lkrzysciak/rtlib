@@ -15,6 +15,7 @@
 #include <boost/preprocessor/repetition/repeat.hpp>
 #include <boost/property_tree/ptree.hpp>
 
+#include "rtlib/comparator.h"
 #include "rtlib/deque.h"
 #include "rtlib/list.h"
 #include "rtlib/map.h"
@@ -27,8 +28,12 @@
 
 #define STATIC_CONTAINER_SIZE 100000
 
-int int_Compare(const int * v1, const int * v2);
-unsigned int int_Hash(const int * value);
+comparator(int);
+
+static inline unsigned int int_Hash(const int * value)
+{
+    return (unsigned int)(*value);
+}
 
 static_vector(TestVector, int, STATIC_CONTAINER_SIZE);
 static_list(TestList, int, STATIC_CONTAINER_SIZE);
@@ -87,7 +92,7 @@ static_pool(TestPool, int, 20);
         rtlibType##_Insert(&rtlibObject, &it, j);                                        \
     }                                                                                    \
                                                                                          \
-    auto start = std::chrono::high_resolution_clock::now();                              \
+    auto start = std::chrono::steady_clock::now();                                       \
                                                                                          \
     for(int i = 0; i < iterations; ++i)                                                  \
     {                                                                                    \
@@ -97,7 +102,7 @@ static_pool(TestPool, int, 20);
         }                                                                                \
     }                                                                                    \
                                                                                          \
-    auto stop     = std::chrono::high_resolution_clock::now();                           \
+    auto stop     = std::chrono::steady_clock::now();                                    \
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
     return duration.count();
 
@@ -110,7 +115,13 @@ static_pool(TestPool, int, 20);
         rtlibType##_Insert(&rtlibObject, j);                                             \
     }                                                                                    \
                                                                                          \
-    auto start = std::chrono::high_resolution_clock::now();                              \
+    for(int j = 0; j < oneIterationSize; ++j)                                            \
+    {                                                                                    \
+        volatile auto warmup_it = rtlibType##_Find(&rtlibObject, j);                     \
+        (void)warmup_it;                                                                 \
+    }                                                                                    \
+                                                                                         \
+    auto start = std::chrono::steady_clock::now();                                       \
                                                                                          \
     for(int i = 0; i < iterations; ++i)                                                  \
     {                                                                                    \
@@ -121,7 +132,7 @@ static_pool(TestPool, int, 20);
         }                                                                                \
     }                                                                                    \
                                                                                          \
-    auto stop     = std::chrono::high_resolution_clock::now();                           \
+    auto stop     = std::chrono::steady_clock::now();                                    \
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
     return duration.count();
 
@@ -134,7 +145,7 @@ static_pool(TestPool, int, 20);
         rtlibType##_Insert(&rtlibObject, j, 0);                                          \
     }                                                                                    \
                                                                                          \
-    auto start = std::chrono::high_resolution_clock::now();                              \
+    auto start = std::chrono::steady_clock::now();                                       \
                                                                                          \
     for(int i = 0; i < iterations; ++i)                                                  \
     {                                                                                    \
@@ -145,8 +156,35 @@ static_pool(TestPool, int, 20);
         }                                                                                \
     }                                                                                    \
                                                                                          \
-    auto stop     = std::chrono::high_resolution_clock::now();                           \
+    auto stop     = std::chrono::steady_clock::now();                                    \
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
+    return duration.count();
+
+#define rtlibUnorderedSetFind(rtlibType, oneIterationSize, iterations)                            \
+    rtlibType rtlibObject;                                                                        \
+    rtlibType##_Construct(&rtlibObject);                                                          \
+                                                                                                  \
+    for(int j = 0; j < oneIterationSize; ++j)                                                     \
+    {                                                                                             \
+        rtlibType##_Insert(&rtlibObject, j);                                                      \
+    }                                                                                             \
+                                                                                                  \
+    auto start = std::chrono::steady_clock::now();                                                \
+                                                                                                  \
+    const auto end_it = rtlibType##_End(&rtlibObject);                                            \
+    for(int i = 0; i < iterations; ++i)                                                           \
+    {                                                                                             \
+        for(int j = 0; j < oneIterationSize; ++j)                                                 \
+        {                                                                                         \
+            auto it = rtlibType##_Find(&rtlibObject, j);                                          \
+            volatile int found_value =                                                            \
+                !rtlibType##_Iterator_Equal(&it, &end_it) ? *rtlibType##_Iterator_CRef(&it) : -1; \
+            (void)found_value;                                                                    \
+        }                                                                                         \
+    }                                                                                             \
+                                                                                                  \
+    auto stop     = std::chrono::steady_clock::now();                                             \
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);          \
     return duration.count();
 
 #define stlMapFind(stlType, oneIterationSize, iterations)                                \
@@ -158,7 +196,7 @@ static_pool(TestPool, int, 20);
         stlObject.insert({ j, 0 });                                                      \
     }                                                                                    \
                                                                                          \
-    auto start = std::chrono::high_resolution_clock::now();                              \
+    auto start = std::chrono::steady_clock::now();                                       \
                                                                                          \
     for(int i = 0; i < iterations; ++i)                                                  \
     {                                                                                    \
@@ -169,7 +207,7 @@ static_pool(TestPool, int, 20);
         }                                                                                \
     }                                                                                    \
                                                                                          \
-    auto stop     = std::chrono::high_resolution_clock::now();                           \
+    auto stop     = std::chrono::steady_clock::now();                                    \
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
     return duration.count();
 
@@ -182,7 +220,13 @@ static_pool(TestPool, int, 20);
         stlObject.insert(begin_it, j);                                                   \
     }                                                                                    \
                                                                                          \
-    auto start = std::chrono::high_resolution_clock::now();                              \
+    for(int j = 0; j < oneIterationSize; ++j)                                            \
+    {                                                                                    \
+        volatile auto warmup_it = stlObject.find(j);                                     \
+        (void)warmup_it;                                                                 \
+    }                                                                                    \
+                                                                                         \
+    auto start = std::chrono::steady_clock::now();                                       \
                                                                                          \
     for(int i = 0; i < iterations; ++i)                                                  \
     {                                                                                    \
@@ -193,7 +237,33 @@ static_pool(TestPool, int, 20);
         }                                                                                \
     }                                                                                    \
                                                                                          \
-    auto stop     = std::chrono::high_resolution_clock::now();                           \
+    auto stop     = std::chrono::steady_clock::now();                                    \
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
+    return duration.count();
+
+#define stlUnorderedSetContains(oneIterationSize, iterations)                            \
+    std::unordered_set<int> stlObject;                                                   \
+                                                                                         \
+    for(int j = 0; j < oneIterationSize; ++j)                                            \
+    {                                                                                    \
+        auto begin_it = std::begin(stlObject);                                           \
+        stlObject.insert(begin_it, j);                                                   \
+    }                                                                                    \
+                                                                                         \
+    auto start = std::chrono::steady_clock::now();                                       \
+                                                                                         \
+    const auto end_it = stlObject.end();                                                 \
+    for(int i = 0; i < iterations; ++i)                                                  \
+    {                                                                                    \
+        for(int j = 0; j < oneIterationSize; ++j)                                        \
+        {                                                                                \
+            auto it                  = stlObject.find(j);                                \
+            volatile int found_value = (it != end_it) ? *it : -1;                        \
+            (void)found_value;                                                           \
+        }                                                                                \
+    }                                                                                    \
+                                                                                         \
+    auto stop     = std::chrono::steady_clock::now();                                    \
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
     return duration.count();
 
@@ -201,11 +271,11 @@ static_pool(TestPool, int, 20);
     rtlibType rtlibObject;                                                               \
     rtlibType##_Construct(&rtlibObject);                                                 \
                                                                                          \
-    auto start = std::chrono::high_resolution_clock::now();                              \
+    auto start = std::chrono::steady_clock::now();                                       \
                                                                                          \
     cCall(rtlibObject, addMethod, deleteMethod, oneIterationSize, iterations);           \
                                                                                          \
-    auto stop     = std::chrono::high_resolution_clock::now();                           \
+    auto stop     = std::chrono::steady_clock::now();                                    \
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
     return duration.count();
 
@@ -214,7 +284,7 @@ static_pool(TestPool, int, 20);
     rtlibType rtlibObject;                                                                  \
     rtlibType##_Construct(&rtlibObject);                                                    \
                                                                                             \
-    auto start = std::chrono::high_resolution_clock::now();                                 \
+    auto start = std::chrono::steady_clock::now();                                          \
                                                                                             \
     for(int i = 0; i < iterations; ++i)                                                     \
     {                                                                                       \
@@ -229,7 +299,7 @@ static_pool(TestPool, int, 20);
         }                                                                                   \
     }                                                                                       \
                                                                                             \
-    auto stop     = std::chrono::high_resolution_clock::now();                              \
+    auto stop     = std::chrono::steady_clock::now();                                       \
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);    \
     return duration.count();
 
@@ -237,7 +307,7 @@ static_pool(TestPool, int, 20);
     rtlibType rtlibObject;                                                                  \
     rtlibType##_Construct(&rtlibObject);                                                    \
                                                                                             \
-    auto start = std::chrono::high_resolution_clock::now();                                 \
+    auto start = std::chrono::steady_clock::now();                                          \
                                                                                             \
     for(int i = 0; i < iterations; ++i)                                                     \
     {                                                                                       \
@@ -252,7 +322,7 @@ static_pool(TestPool, int, 20);
         }                                                                                   \
     }                                                                                       \
                                                                                             \
-    auto stop     = std::chrono::high_resolution_clock::now();                              \
+    auto stop     = std::chrono::steady_clock::now();                                       \
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);    \
     return duration.count();
 
@@ -266,7 +336,7 @@ static_pool(TestPool, int, 20);
         rtlibType##_Insert(&object, &begin_it, 0);                                                        \
     }                                                                                                     \
                                                                                                           \
-    auto start = std::chrono::high_resolution_clock::now();                                               \
+    auto start = std::chrono::steady_clock::now();                                                        \
                                                                                                           \
     for(int i = 0; i < iterations; ++i)                                                                   \
     {                                                                                                     \
@@ -289,7 +359,7 @@ static_pool(TestPool, int, 20);
             rtlibType##_##deleteMethod(&object, &it);                                                     \
         }                                                                                                 \
     }                                                                                                     \
-    auto stop     = std::chrono::high_resolution_clock::now();                                            \
+    auto stop     = std::chrono::steady_clock::now();                                                     \
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);                  \
     return duration.count();
 
@@ -297,11 +367,11 @@ static_pool(TestPool, int, 20);
 #define stlTest(stlType, addMethod, deleteMethod, oneIterationSize, iterations)          \
     stlType stlObject;                                                                   \
                                                                                          \
-    auto start = std::chrono::high_resolution_clock::now();                              \
+    auto start = std::chrono::steady_clock::now();                                       \
                                                                                          \
     cppCall(stlObject, addMethod, deleteMethod, oneIterationSize, iterations);           \
                                                                                          \
-    auto stop     = std::chrono::high_resolution_clock::now();                           \
+    auto stop     = std::chrono::steady_clock::now();                                    \
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); \
     return duration.count();
 
@@ -313,7 +383,7 @@ static_pool(TestPool, int, 20);
         auto begin_it = std ::begin(object);                                                          \
         object.insert(begin_it, 0);                                                                   \
     }                                                                                                 \
-    auto start = std::chrono::high_resolution_clock::now();                                           \
+    auto start = std::chrono::steady_clock::now();                                                    \
                                                                                                       \
     for(int i = 0; i < iterations; ++i)                                                               \
     {                                                                                                 \
@@ -336,14 +406,14 @@ static_pool(TestPool, int, 20);
             object.erase(begin_it);                                                                   \
         }                                                                                             \
     }                                                                                                 \
-    auto stop     = std::chrono::high_resolution_clock::now();                                        \
+    auto stop     = std::chrono::steady_clock::now();                                                 \
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);              \
     return duration.count();
 
 /* Adding to stl container with iterators */
 #define stlNoQueueContainerTest(stlType, addMethod, deleteMethod, oneIterationSize, iterations) \
     stlType object{};                                                                           \
-    auto start = std::chrono::high_resolution_clock::now();                                     \
+    auto start = std::chrono::steady_clock::now();                                              \
                                                                                                 \
     for(int i = 0; i < iterations; ++i)                                                         \
     {                                                                                           \
@@ -357,7 +427,7 @@ static_pool(TestPool, int, 20);
             object.erase(begin_it);                                                             \
         }                                                                                       \
     }                                                                                           \
-    auto stop     = std::chrono::high_resolution_clock::now();                                  \
+    auto stop     = std::chrono::steady_clock::now();                                           \
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);        \
     return duration.count();
 
@@ -625,13 +695,13 @@ unsigned int calculateRtlibCustomBinaryTreeFind()
 template<int onIterationSize, int iterations>
 unsigned int calculateRtlibStaticHashFind()
 {
-    rtlibSetFind(TestHashTable, onIterationSize, iterations);
+    rtlibUnorderedSetFind(TestHashTable, onIterationSize, iterations);
 }
 
 template<int onIterationSize, int iterations>
 unsigned int calculateRtlibCustomHashFind()
 {
-    rtlibSetFind(DynamicAllocatorHashTable, onIterationSize, iterations);
+    rtlibUnorderedSetFind(DynamicAllocatorHashTable, onIterationSize, iterations);
 }
 
 template<int onIterationSize, int iterations>
@@ -676,7 +746,7 @@ unsigned int calculateStlMapFind()
 template<int onIterationSize, int iterations>
 unsigned int calculateStlUnorderedSetFind()
 {
-    stlSetFind(std::unordered_set<int>, onIterationSize, iterations);
+    stlUnorderedSetContains(onIterationSize, iterations);
 }
 
 template<int onIterationSize, int iterations>
