@@ -51,6 +51,9 @@ add_library(perf_suites OBJECT
   performance_tests/perf_unordered_set_find.cpp
   performance_tests/perf_map_find.cpp
   performance_tests/perf_unordered_map_find.cpp
+  performance_tests/perf_heap_malloc_free.cpp
+  performance_tests/perf_heap_calloc_free.cpp
+  performance_tests/perf_heap_realloc_free.cpp
 )
 target_link_libraries(perf_suites rtlib)
 target_compile_options(perf_suites PUBLIC -Os)

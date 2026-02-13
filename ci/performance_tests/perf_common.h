@@ -17,6 +17,7 @@
 
 #include "rtlib/comparator.h"
 #include "rtlib/deque.h"
+#include "rtlib/heap.h"
 #include "rtlib/list.h"
 #include "rtlib/map.h"
 #include "rtlib/memory.h"
@@ -27,6 +28,7 @@
 #include "rtlib/vector.h"
 
 #define STATIC_CONTAINER_SIZE 100000
+#define HEAP_CAPACITY_BYTES 4096
 
 comparator(int);
 
@@ -42,6 +44,8 @@ static_set(TestBinaryTree, int, STATIC_CONTAINER_SIZE);
 static_deque(TestDeque, int, STATIC_CONTAINER_SIZE);
 static_map(TestMap, int, int, STATIC_CONTAINER_SIZE);
 static_unordered_map(TestUnorderedMap, int, int, STATIC_CONTAINER_SIZE);
+static_heap(TestStaticHeapPerf, HEAP_CAPACITY_BYTES);
+dynamic_heap(TestDynamicHeapPerf, HEAP_CAPACITY_BYTES);
 
 dynamic_memory(DynamicAllocator);
 custom_allocator_vector(DynamicAllocatorVector, int, DynamicAllocator);
@@ -755,6 +759,270 @@ unsigned int calculateStlUnorderedMapFind()
     stlMapFind(StdUnorderedMap, onIterationSize, iterations);
 }
 
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibStaticHeapMallocFree()
+{
+    TestStaticHeapPerf heap{};
+    TestStaticHeapPerf_Construct(&heap);
+    volatile uintptr_t sink = 0;
+
+    auto start = std::chrono::steady_clock::now();
+    for(int i = 0; i < iterations; ++i)
+    {
+        for(int j = 0; j < onIterationSize; ++j)
+        {
+            void * ptr = TestStaticHeapPerf_Allocate(&heap, 32);
+            if(ptr)
+            {
+                sink ^= (uintptr_t)ptr;
+                TestStaticHeapPerf_Deallocate(&heap, ptr);
+            }
+        }
+    }
+    auto stop = std::chrono::steady_clock::now();
+    TestStaticHeapPerf_Destruct(&heap);
+    (void)sink;
+    return std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibDynamicHeapMallocFree()
+{
+    TestDynamicHeapPerf heap{};
+    TestDynamicHeapPerf_Construct(&heap);
+    volatile uintptr_t sink = 0;
+
+    auto start = std::chrono::steady_clock::now();
+    for(int i = 0; i < iterations; ++i)
+    {
+        for(int j = 0; j < onIterationSize; ++j)
+        {
+            void * ptr = TestDynamicHeapPerf_Allocate(&heap, 32);
+            if(ptr)
+            {
+                sink ^= (uintptr_t)ptr;
+                TestDynamicHeapPerf_Deallocate(&heap, ptr);
+            }
+        }
+    }
+    auto stop = std::chrono::steady_clock::now();
+    TestDynamicHeapPerf_Destruct(&heap);
+    (void)sink;
+    return std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateStdMallocFree()
+{
+    volatile uintptr_t sink = 0;
+    auto start              = std::chrono::steady_clock::now();
+    for(int i = 0; i < iterations; ++i)
+    {
+        for(int j = 0; j < onIterationSize; ++j)
+        {
+            void * ptr = malloc(32);
+            if(ptr)
+            {
+                sink ^= (uintptr_t)ptr;
+                free(ptr);
+            }
+        }
+    }
+    auto stop = std::chrono::steady_clock::now();
+    (void)sink;
+    return std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibStaticHeapCallocFree()
+{
+    TestStaticHeapPerf heap{};
+    TestStaticHeapPerf_Construct(&heap);
+    volatile uintptr_t sink = 0;
+
+    auto start = std::chrono::steady_clock::now();
+    for(int i = 0; i < iterations; ++i)
+    {
+        for(int j = 0; j < onIterationSize; ++j)
+        {
+            void * ptr = TestStaticHeapPerf_Callocate(&heap, 32, 8);
+            if(ptr)
+            {
+                unsigned char * bytes = (unsigned char *)ptr;
+                for(size_t k = 0; k < 256; ++k)
+                {
+                    sink ^= bytes[k];
+                }
+                TestStaticHeapPerf_Deallocate(&heap, ptr);
+            }
+        }
+    }
+    auto stop = std::chrono::steady_clock::now();
+    TestStaticHeapPerf_Destruct(&heap);
+    (void)sink;
+    return std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibDynamicHeapCallocFree()
+{
+    TestDynamicHeapPerf heap{};
+    TestDynamicHeapPerf_Construct(&heap);
+    volatile uintptr_t sink = 0;
+
+    auto start = std::chrono::steady_clock::now();
+    for(int i = 0; i < iterations; ++i)
+    {
+        for(int j = 0; j < onIterationSize; ++j)
+        {
+            void * ptr = TestDynamicHeapPerf_Callocate(&heap, 32, 8);
+            if(ptr)
+            {
+                unsigned char * bytes = (unsigned char *)ptr;
+                for(size_t k = 0; k < 256; ++k)
+                {
+                    sink ^= bytes[k];
+                }
+                TestDynamicHeapPerf_Deallocate(&heap, ptr);
+            }
+        }
+    }
+    auto stop = std::chrono::steady_clock::now();
+    TestDynamicHeapPerf_Destruct(&heap);
+    (void)sink;
+    return std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateStdCallocFree()
+{
+    volatile uintptr_t sink = 0;
+    auto start              = std::chrono::steady_clock::now();
+    for(int i = 0; i < iterations; ++i)
+    {
+        for(int j = 0; j < onIterationSize; ++j)
+        {
+            void * ptr = calloc(32, 8);
+            if(ptr)
+            {
+                unsigned char * bytes = (unsigned char *)ptr;
+                for(size_t k = 0; k < 256; ++k)
+                {
+                    sink ^= bytes[k];
+                }
+                free(ptr);
+            }
+        }
+    }
+    auto stop = std::chrono::steady_clock::now();
+    (void)sink;
+    return std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibStaticHeapReallocFree()
+{
+    TestStaticHeapPerf heap{};
+    TestStaticHeapPerf_Construct(&heap);
+    volatile uintptr_t sink = 0;
+
+    auto start = std::chrono::steady_clock::now();
+    for(int i = 0; i < iterations; ++i)
+    {
+        for(int j = 0; j < onIterationSize; ++j)
+        {
+            void * ptr = TestStaticHeapPerf_Allocate(&heap, 16);
+            if(!ptr)
+            {
+                continue;
+            }
+            ptr = TestStaticHeapPerf_Reallocate(&heap, ptr, 64);
+            if(!ptr)
+            {
+                continue;
+            }
+            ptr = TestStaticHeapPerf_Reallocate(&heap, ptr, 24);
+            if(ptr)
+            {
+                sink ^= (uintptr_t)ptr;
+                TestStaticHeapPerf_Deallocate(&heap, ptr);
+            }
+        }
+    }
+    auto stop = std::chrono::steady_clock::now();
+    TestStaticHeapPerf_Destruct(&heap);
+    (void)sink;
+    return std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateRtlibDynamicHeapReallocFree()
+{
+    TestDynamicHeapPerf heap{};
+    TestDynamicHeapPerf_Construct(&heap);
+    volatile uintptr_t sink = 0;
+
+    auto start = std::chrono::steady_clock::now();
+    for(int i = 0; i < iterations; ++i)
+    {
+        for(int j = 0; j < onIterationSize; ++j)
+        {
+            void * ptr = TestDynamicHeapPerf_Allocate(&heap, 16);
+            if(!ptr)
+            {
+                continue;
+            }
+            ptr = TestDynamicHeapPerf_Reallocate(&heap, ptr, 64);
+            if(!ptr)
+            {
+                continue;
+            }
+            ptr = TestDynamicHeapPerf_Reallocate(&heap, ptr, 24);
+            if(ptr)
+            {
+                sink ^= (uintptr_t)ptr;
+                TestDynamicHeapPerf_Deallocate(&heap, ptr);
+            }
+        }
+    }
+    auto stop = std::chrono::steady_clock::now();
+    TestDynamicHeapPerf_Destruct(&heap);
+    (void)sink;
+    return std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+}
+
+template<int onIterationSize, int iterations>
+unsigned int calculateStdReallocFree()
+{
+    volatile uintptr_t sink = 0;
+    auto start              = std::chrono::steady_clock::now();
+    for(int i = 0; i < iterations; ++i)
+    {
+        for(int j = 0; j < onIterationSize; ++j)
+        {
+            void * ptr = malloc(16);
+            if(!ptr)
+            {
+                continue;
+            }
+            ptr = realloc(ptr, 64);
+            if(!ptr)
+            {
+                continue;
+            }
+            ptr = realloc(ptr, 24);
+            if(ptr)
+            {
+                sink ^= (uintptr_t)ptr;
+                free(ptr);
+            }
+        }
+    }
+    auto stop = std::chrono::steady_clock::now();
+    (void)sink;
+    return std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+}
+
 void addRecordToTree(boost::property_tree::ptree & array, std::string container, unsigned int duration);
 void addRecordToTree2(boost::property_tree::ptree & array, std::string container, unsigned int x, unsigned int y);
 void generateFile(const boost::property_tree::ptree & array, std::string filename);
@@ -818,6 +1086,25 @@ static constexpr int testedSizes[] = { 10, 20, 60, 100, 200, 600, 1000, 2000, 60
     addRecordToTree2(output, "rtlib static unordered map", x, calculateRtlibUnorderedMapFind<x, multiplier>());        \
     addRecordToTree2(output, "rtlib dynamic unordered map", x, calculateRtlibCustomUnorderedMapFind<x, multiplier>()); \
     addRecordToTree2(output, "stl unordered map", x, calculateStlUnorderedMapFind<x, multiplier>());
+
+#define HEAP_MALLOC_FREE_TEST(x, multiplier, output)                                                                   \
+    addRecordToTree2(output, "rtlib static heap malloc/free", x, calculateRtlibStaticHeapMallocFree<x, multiplier>()); \
+    addRecordToTree2(output, "rtlib dynamic heap malloc/free", x,                                                      \
+                     calculateRtlibDynamicHeapMallocFree<x, multiplier>());                                            \
+    addRecordToTree2(output, "std malloc/free", x, calculateStdMallocFree<x, multiplier>());
+
+#define HEAP_CALLOC_FREE_TEST(x, multiplier, output)                                                                   \
+    addRecordToTree2(output, "rtlib static heap calloc/free", x, calculateRtlibStaticHeapCallocFree<x, multiplier>()); \
+    addRecordToTree2(output, "rtlib dynamic heap calloc/free", x,                                                      \
+                     calculateRtlibDynamicHeapCallocFree<x, multiplier>());                                            \
+    addRecordToTree2(output, "std calloc/free", x, calculateStdCallocFree<x, multiplier>());
+
+#define HEAP_REALLOC_FREE_TEST(x, multiplier, output)                        \
+    addRecordToTree2(output, "rtlib static heap realloc/free", x,            \
+                     calculateRtlibStaticHeapReallocFree<x, multiplier>());  \
+    addRecordToTree2(output, "rtlib dynamic heap realloc/free", x,           \
+                     calculateRtlibDynamicHeapReallocFree<x, multiplier>()); \
+    addRecordToTree2(output, "std realloc/free", x, calculateStdReallocFree<x, multiplier>());
 
 #define MAKE_10_SAMPLES(TEST, INIT, X, MULTIPLIER, TREE) \
     TEST(1 * X + INIT, MULTIPLIER, TREE)                 \

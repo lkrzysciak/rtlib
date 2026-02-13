@@ -9,6 +9,8 @@ static_set_impl(TestBinaryTree, int, STATIC_CONTAINER_SIZE);
 static_deque_impl(TestDeque, int, STATIC_CONTAINER_SIZE);
 static_map_impl(TestMap, int, int, STATIC_CONTAINER_SIZE);
 static_unordered_map_impl(TestUnorderedMap, int, int, STATIC_CONTAINER_SIZE);
+static_heap_impl(TestStaticHeapPerf, HEAP_CAPACITY_BYTES);
+dynamic_heap_impl(TestDynamicHeapPerf, HEAP_CAPACITY_BYTES);
 
 dynamic_memory_impl(DynamicAllocator);
 custom_allocator_vector_impl(DynamicAllocatorVector, int, DynamicAllocator);

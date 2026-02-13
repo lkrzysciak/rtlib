@@ -496,14 +496,54 @@ TEST(DynamicHeapTest, CapacityLimitEnforced)
     Deinit(&heap);
 }
 
+TEST(DynamicHeapTest, AllocationsStayInsideSinglePreallocatedBuffer)
+{
+    DynamicHeap heap{};
+    Init(&heap);
+
+    ASSERT_NE(heap.buffer, nullptr);
+    ASSERT_NE(heap.head, nullptr);
+
+    const uintptr_t begin = reinterpret_cast<uintptr_t>(heap.buffer);
+    const uintptr_t end   = begin + heap.capacity;
+
+    void * a = Allocate(&heap, 24);
+    void * b = Allocate(&heap, 40);
+    void * c = Allocate(&heap, 56);
+
+    ASSERT_NE(a, nullptr);
+    ASSERT_NE(b, nullptr);
+    ASSERT_NE(c, nullptr);
+
+    const uintptr_t pa = reinterpret_cast<uintptr_t>(a);
+    const uintptr_t pb = reinterpret_cast<uintptr_t>(b);
+    const uintptr_t pc = reinterpret_cast<uintptr_t>(c);
+
+    ASSERT_GE(pa, begin);
+    ASSERT_LT(pa, end);
+    ASSERT_GE(pb, begin);
+    ASSERT_LT(pb, end);
+    ASSERT_GE(pc, begin);
+    ASSERT_LT(pc, end);
+
+    Deallocate(&heap, b);
+    Deallocate(&heap, a);
+    Deallocate(&heap, c);
+
+    void * large = Allocate(&heap, 200);
+    ASSERT_NE(large, nullptr);
+    Deallocate(&heap, large);
+    Deinit(&heap);
+}
+
 TEST(DynamicHeapTest, CallocateRespectsCapacity)
 {
     DynamicHeap heap{};
     Init(&heap);
 
-    void * a = Callocate(&heap, 8, 8);
-    void * b = Callocate(&heap, 8, 8);
-    void * c = Callocate(&heap, 8, 8);
+    void * a = Callocate(&heap, 4, 8);
+    void * b = Callocate(&heap, 4, 8);
+    void * c = Callocate(&heap, 4, 8);
     ASSERT_NE(a, nullptr);
     ASSERT_NE(b, nullptr);
     ASSERT_NE(c, nullptr);
@@ -512,7 +552,7 @@ TEST(DynamicHeapTest, CallocateRespectsCapacity)
     ASSERT_EQ(d, nullptr);
 
     Deallocate(&heap, b);
-    d = Callocate(&heap, 8, 8);
+    d = Callocate(&heap, 4, 8);
     ASSERT_NE(d, nullptr);
 
     Deallocate(&heap, a);
@@ -526,21 +566,21 @@ TEST(DynamicHeapTest, ReallocateFailsUnderCapacityAndPreservesData)
     DynamicHeap heap{};
     Init(&heap);
 
-    unsigned char * a = static_cast<unsigned char *>(Callocate(&heap, 8, 8));
-    unsigned char * b = static_cast<unsigned char *>(Callocate(&heap, 8, 8));
-    unsigned char * c = static_cast<unsigned char *>(Callocate(&heap, 8, 8));
+    unsigned char * a = static_cast<unsigned char *>(Callocate(&heap, 4, 8));
+    unsigned char * b = static_cast<unsigned char *>(Callocate(&heap, 4, 8));
+    unsigned char * c = static_cast<unsigned char *>(Callocate(&heap, 4, 8));
     ASSERT_NE(a, nullptr);
     ASSERT_NE(b, nullptr);
     ASSERT_NE(c, nullptr);
 
-    for(size_t i = 0; i < 64; ++i)
+    for(size_t i = 0; i < 32; ++i)
     {
         a[i] = static_cast<unsigned char>(i);
     }
 
-    void * resized = Reallocate(&heap, a, 256);
+    void * resized = Reallocate(&heap, a, 192);
     ASSERT_EQ(resized, nullptr);
-    for(size_t i = 0; i < 64; ++i)
+    for(size_t i = 0; i < 32; ++i)
     {
         ASSERT_EQ(a[i], static_cast<unsigned char>(i));
     }

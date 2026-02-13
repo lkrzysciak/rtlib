@@ -28,6 +28,13 @@ static void runMapTests()
     run_unordered_map_find();
 }
 
+static void runHeapTests()
+{
+    run_heap_malloc_free();
+    run_heap_calloc_free();
+    run_heap_realloc_free();
+}
+
 static void splitSuites(const std::string & input, std::vector<std::string> & out)
 {
     size_t start = 0;
@@ -49,7 +56,7 @@ static void splitSuites(const std::string & input, std::vector<std::string> & ou
 static void printUsage(const char * name)
 {
     std::cout << "Usage: " << name << " [--suite=<name>[,<name>...]]\n";
-    std::cout << "Suites: all, queue, set, unordered_set, map, unordered_map\n";
+    std::cout << "Suites: all, queue, set, unordered_set, map, unordered_map, heap\n";
 }
 
 int main(int argc, char ** argv)
@@ -85,6 +92,7 @@ int main(int argc, char ** argv)
         runQueueTests();
         runSetTests();
         runMapTests();
+        runHeapTests();
         return 0;
     }
 
@@ -107,6 +115,10 @@ int main(int argc, char ** argv)
     if(suites.count("unordered_map") > 0)
     {
         run_unordered_map_find();
+    }
+    if(suites.count("heap") > 0)
+    {
+        runHeapTests();
     }
     return 0;
 }
