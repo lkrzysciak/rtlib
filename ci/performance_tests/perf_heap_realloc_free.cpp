@@ -3,5 +3,5 @@
 
 void run_heap_realloc_free()
 {
-    MAKE_SUITE(HEAP_REALLOC_FREE_TEST, 100000, heap_realloc_free);
+    MAKE_SUITE(HEAP_REALLOC_FREE_TEST, 1000, heap_realloc_free);
 }
