@@ -22,18 +22,15 @@ typedef struct
 
 typedef int * IntPtr;
 
-private_hash(int);
-private_hash_impl(int);
+hash(int);
 
 comparator(int);
 
-private_hash(IntPtr);
-private_hash_impl(IntPtr);
+hash(IntPtr);
 
 comparator(IntPtr);
 
-private_hash(StructType);
-private_hash_impl(StructType);
+hash(StructType);
 
 static int StructType_Compare(const StructType * v1, const StructType * v2)
 {

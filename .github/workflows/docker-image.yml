@@ -31,41 +31,16 @@ jobs:
     - name: Generate performace charts
       run: |
         mkdir -p -v reports
-       
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json vec_back_100.json --output reports/vec_back_100.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json vec_back_1000.json --output reports/vec_back_1000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json vec_back_10000.json --output reports/vec_back_10000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json list_back_100.json --output reports/list_back_100.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json list_back_1000.json --output reports/list_back_1000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json list_back_10000.json --output reports/list_back_10000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json list_front_100.json --output reports/list_front_100.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json list_front_1000.json --output reports/list_front_1000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json list_front_10000.json --output reports/list_front_10000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json list_middle_100.json --output reports/list_middle_100.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json list_middle_1000.json --output reports/list_middle_1000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json list_middle_10000.json --output reports/list_middle_10000.png
 
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json deque_back_100.json --output reports/deque_back_100.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json deque_back_1000.json --output reports/deque_back_1000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json deque_back_10000.json --output reports/deque_back_10000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json deque_front_100.json --output reports/deque_front_100.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json deque_front_1000.json --output reports/deque_front_1000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json deque_front_10000.json --output reports/deque_front_10000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json deque_middle_100.json --output reports/deque_middle_100.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json deque_middle_1000.json --output reports/deque_middle_1000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json deque_middle_10000.json --output reports/deque_middle_10000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json set_find_100.json --output reports/set_find_100.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json set_find_1000.json --output reports/set_find_1000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json set_find_10000.json --output reports/set_find_10000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json unordered_set_find_100.json --output reports/unordered_set_find_100.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json unordered_set_find_1000.json --output reports/unordered_set_find_1000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json unordered_set_find_10000.json --output reports/unordered_set_find_10000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json map_find_100.json --output reports/map_find_100.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json map_find_1000.json --output reports/map_find_1000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json map_find_10000.json --output reports/map_find_10000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json unordered_map_find_100.json --output reports/unordered_map_find_100.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json unordered_map_find_1000.json --output reports/unordered_map_find_1000.png
-        docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image python3 ci/performance_tests/create_performance_chart.py --json unordered_map_find_10000.json --output reports/unordered_map_find_10000.png
+        for json_file in *_100.json *_1000.json *_10000.json; do
+          if [ ! -f "$json_file" ]; then
+            continue
+          fi
+
+          output_file="reports/${json_file%.json}.png"
+          docker run --rm --privileged -v ${PWD}:${PWD} -w=${PWD} rtlib-docker-image \
+            python3 ci/performance_tests/create_performance_chart.py --json "$json_file" --output "$output_file"
+        done
 
     - name: Archive results
       uses: actions/upload-artifact@v4

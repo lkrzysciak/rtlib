@@ -18,8 +18,7 @@ dynamic_map(DynamicMapV3, int, int);
 static_unordered_map(StaticUnorderedMapV3, int, int, CONTAINER_CAPACITY);
 dynamic_unordered_map(DynamicUnorderedMapV3, int, int);
 
-private_hash(int);
-private_hash_impl(int);
+hash(int);
 
 comparator(int);
 
