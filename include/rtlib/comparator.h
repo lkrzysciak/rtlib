@@ -16,6 +16,11 @@ static inline int rtlib_MemcmpFallbackCompare(const void * v1, const void * v2, 
     return memcmp(v1, v2, type_size);
 }
 
+static inline int rtlib_MemcmpFallbackCompareRaw(const void * v1, const void * v2, size_t type_size)
+{
+    return memcmp(v1, v2, type_size);
+}
+
 #ifdef __cplusplus
 #include <type_traits>
 
@@ -51,27 +56,21 @@ extern "C"
 
 #if !defined(__cplusplus) && defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
 #define RTLIB__COMPARE_SCALAR(a, b) (((a) > (b)) - ((a) < (b)))
+#define RTLIB__COMPARATOR_GENERIC_KEY(v) (+(*(v)))
 
-#define comparator(type)                                                 \
-    static inline int type##_Compare(const type * v1, const type * v2)   \
-    {                                                                    \
-        return _Generic((*v1),                                           \
-            _Bool: RTLIB__COMPARE_SCALAR(*v1, *v2),                      \
-            char: RTLIB__COMPARE_SCALAR(*v1, *v2),                       \
-            signed char: RTLIB__COMPARE_SCALAR(*v1, *v2),                \
-            unsigned char: RTLIB__COMPARE_SCALAR(*v1, *v2),              \
-            short: RTLIB__COMPARE_SCALAR(*v1, *v2),                      \
-            unsigned short: RTLIB__COMPARE_SCALAR(*v1, *v2),             \
-            int: RTLIB__COMPARE_SCALAR(*v1, *v2),                        \
-            unsigned int: RTLIB__COMPARE_SCALAR(*v1, *v2),               \
-            long: RTLIB__COMPARE_SCALAR(*v1, *v2),                       \
-            unsigned long: RTLIB__COMPARE_SCALAR(*v1, *v2),              \
-            long long: RTLIB__COMPARE_SCALAR(*v1, *v2),                  \
-            unsigned long long: RTLIB__COMPARE_SCALAR(*v1, *v2),         \
-            float: RTLIB__COMPARE_SCALAR(*v1, *v2),                      \
-            double: RTLIB__COMPARE_SCALAR(*v1, *v2),                     \
-            long double: RTLIB__COMPARE_SCALAR(*v1, *v2),                \
-            default: rtlib_MemcmpFallbackCompare(v1, v2, sizeof(type))); \
+#define comparator(type)                                                    \
+    static inline int type##_Compare(const type * v1, const type * v2)      \
+    {                                                                       \
+        return _Generic(RTLIB__COMPARATOR_GENERIC_KEY(v1),                  \
+            int: RTLIB__COMPARE_SCALAR(*v1, *v2),                           \
+            unsigned int: RTLIB__COMPARE_SCALAR(*v1, *v2),                  \
+            long: RTLIB__COMPARE_SCALAR(*v1, *v2),                          \
+            unsigned long: RTLIB__COMPARE_SCALAR(*v1, *v2),                 \
+            long long: RTLIB__COMPARE_SCALAR(*v1, *v2),                     \
+            unsigned long long: RTLIB__COMPARE_SCALAR(*v1, *v2),            \
+            double: RTLIB__COMPARE_SCALAR(*v1, *v2),                        \
+            long double: RTLIB__COMPARE_SCALAR(*v1, *v2),                   \
+            default: rtlib_MemcmpFallbackCompareRaw(v1, v2, sizeof(type))); \
     }
 #elif defined(__cplusplus)
 #define comparator(type)                                               \

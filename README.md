@@ -42,6 +42,28 @@ General naming pattern:
 - Unordered containers additionally need `type_Hash(const type*)`.
 - For scalars, you can use helper macros from comparator/hash utilities (for example `comparator(int);` and `hash(int);`).
 
+### User-defined types (recommended pattern)
+
+For user-defined structs, prefer introducing a `typedef` name and use that name in RTLib macros.
+This keeps generated symbol names (`type_Compare`, `type_Hash`) simple and avoids preprocessor edge cases.
+
+```c
+typedef struct MyType
+{
+   int id;
+   int value;
+} MyType;
+
+comparator(MyType);
+hash(MyType);
+
+static_set(MySet, MyType, 128);
+static_set_impl(MySet, MyType, 128);
+
+static_unordered_set(MyUSet, MyType, 128);
+static_unordered_set_impl(MyUSet, MyType, 128);
+```
+
 ## Container quick start
 
 ### Vector

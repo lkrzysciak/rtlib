@@ -76,3 +76,11 @@ target_link_options(performance_tests_Os PUBLIC -flto)
 
 add_executable(c_dec_def c_tests/dec_def.c c_tests/def.c)
 target_link_libraries(c_dec_def rtlib)
+
+add_executable(c_comparator_uint8 c_tests/comparator_uint8.c)
+target_link_libraries(c_comparator_uint8 rtlib)
+target_compile_options(c_comparator_uint8 PUBLIC -Wall -Wextra -Werror)
+
+add_executable(c_hash_uint8 c_tests/hash_uint8.c)
+target_link_libraries(c_hash_uint8 rtlib)
+target_compile_options(c_hash_uint8 PUBLIC -Wall -Wextra -Werror)

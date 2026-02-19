@@ -4,3 +4,4 @@ build
 *.png
 *.json
 ci/gt
+.github/agents
