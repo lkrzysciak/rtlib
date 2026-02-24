@@ -196,7 +196,6 @@ static_pool(TestPool, int, 20);
                                                                                          \
     for(int j = 0; j < oneIterationSize; ++j)                                            \
     {                                                                                    \
-        auto begin_it = std::begin(stlObject);                                           \
         stlObject.insert({ j, 0 });                                                      \
     }                                                                                    \
                                                                                          \

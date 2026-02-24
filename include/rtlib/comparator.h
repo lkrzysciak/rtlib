@@ -61,7 +61,7 @@ extern "C"
 #define comparator(type)                                                    \
     static inline int type##_Compare(const type * v1, const type * v2)      \
     {                                                                       \
-        return _Generic(RTLIB__COMPARATOR_GENERIC_KEY(v1),                  \
+        int result = _Generic(RTLIB__COMPARATOR_GENERIC_KEY(v1),            \
             int: RTLIB__COMPARE_SCALAR(*v1, *v2),                           \
             unsigned int: RTLIB__COMPARE_SCALAR(*v1, *v2),                  \
             long: RTLIB__COMPARE_SCALAR(*v1, *v2),                          \
@@ -71,6 +71,7 @@ extern "C"
             double: RTLIB__COMPARE_SCALAR(*v1, *v2),                        \
             long double: RTLIB__COMPARE_SCALAR(*v1, *v2),                   \
             default: rtlib_MemcmpFallbackCompareRaw(v1, v2, sizeof(type))); \
+        return result;                                                      \
     }
 #elif defined(__cplusplus)
 #define comparator(type)                                               \
